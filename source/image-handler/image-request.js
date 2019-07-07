@@ -12,9 +12,10 @@
  *********************************************************************************************************************/
 
 const ThumborMapping = require('./thumbor-mapping');
+const md5 = require("crypto-js/md5");
 
 class ImageRequest {
-    
+
     /**
      * Initializer function for creating a new image request, used by the image
      * handler to perform image modifications.
@@ -22,6 +23,7 @@ class ImageRequest {
      */
     async setup(event) {
         try {
+            this.hash = this.parseHash(event);
             this.requestType = this.parseRequestType(event);
             this.bucket = this.parseImageBucket(event, this.requestType);
             this.key = this.parseImageKey(event, this.requestType);
@@ -150,8 +152,37 @@ class ImageRequest {
     }
 
     /**
+     * Parses the name of the appropriate Amazon S3 key corresponding to the
+     * original image.
+     * @param {String} event - Lambda request body.
+     */
+    parseHash(event) {
+        const secret = event.pathParameters['s'] ?? null;
+        const path = event["path"];
+        const splitPath = path.split("/");
+        const encoded = splitPath[splitPath.length - 1];
+
+        if (!secret) {
+            throw {
+                status: 403,
+                code: 'RequestTypeError',
+                message: 'Invalid hash'
+            };
+        }
+        const parsed = md5(encoded + process.env.SECRET);
+        if (parsed !== secret) {
+            throw {
+                status: 403,
+                code: 'RequestTypeError',
+                message: 'Invalid hash'
+            };
+        }
+        return parsed;
+    }
+
+    /**
      * Determines how to handle the request being made based on the URL path
-     * prefix to the image request. Categorizes a request as either "image" 
+     * prefix to the image request. Categorizes a request as either "image"
      * (uses the Sharp library), "thumbor" (uses Thumbor mapping), or "custom"
      * (uses the rewrite function).
      * @param {Object} event - Lambda request body.
@@ -163,9 +194,9 @@ class ImageRequest {
         const matchThumbor = new RegExp(/^(\/?)((fit-in)?|(filters:.+\(.?\))?|(unsafe)?).*(.+jpg|.+png|.+webp|.+tiff|.+jpeg)$/);
         const matchCustom = new RegExp(/(\/?)(.*)(jpg|png|webp|tiff|jpeg)/);
         const definedEnvironmentVariables = (
-            (process.env.REWRITE_MATCH_PATTERN !== "") && 
-            (process.env.REWRITE_SUBSTITUTION !== "") && 
-            (process.env.REWRITE_MATCH_PATTERN !== undefined) && 
+            (process.env.REWRITE_MATCH_PATTERN !== "") &&
+            (process.env.REWRITE_SUBSTITUTION !== "") &&
+            (process.env.REWRITE_MATCH_PATTERN !== undefined) &&
             (process.env.REWRITE_SUBSTITUTION !== undefined)
         );
         // ----
@@ -214,7 +245,7 @@ class ImageRequest {
     }
 
     /**
-     * Returns a formatted image source bucket whitelist as specified in the 
+     * Returns a formatted image source bucket whitelist as specified in the
      * SOURCE_BUCKETS environment variable of the image handler Lambda
      * function. Provides error handling for missing/invalid values.
      */
