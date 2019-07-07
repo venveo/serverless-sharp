@@ -12,7 +12,7 @@
  *********************************************************************************************************************/
 
 const ThumborMapping = require('./thumbor-mapping');
-const md5 = require("crypto-js/md5");
+const crypto = require('crypto');
 
 class ImageRequest {
 
@@ -23,7 +23,7 @@ class ImageRequest {
      */
     async setup(event) {
         try {
-            this.hash = this.parseHash(event);
+            this.parseHash(event);
             this.requestType = this.parseRequestType(event);
             this.bucket = this.parseImageBucket(event, this.requestType);
             this.key = this.parseImageKey(event, this.requestType);
@@ -157,24 +157,26 @@ class ImageRequest {
      * @param {String} event - Lambda request body.
      */
     parseHash(event) {
-        const secret = event.pathParameters['s'] ?? null;
-        const path = event["path"];
-        const splitPath = path.split("/");
-        const encoded = splitPath[splitPath.length - 1];
-
-        if (!secret) {
+        const {pathParameters, path} = event;
+        if (!pathParameters || pathParameters['s'] === undefined)  {
             throw {
-                status: 403,
+                status: 400,
                 code: 'RequestTypeError',
-                message: 'Invalid hash'
+                message: 'Security hash not present'
             };
         }
-        const parsed = md5(encoded + process.env.SECRET);
-        if (parsed !== secret) {
+        const hash = pathParameters['s'];
+        const splitPath = path.split("/");
+        const encoded = splitPath[splitPath.length - 1];
+        const toBuffer = new Buffer(encoded, 'base64');
+        const decoded = toBuffer.toString('ascii');
+        const source = decoded + process.env.SECURITY_KEY;
+        const parsed = crypto.createHash('md5').update(source).digest("hex");
+        if (parsed !== hash) {
             throw {
-                status: 403,
+                status: 401,
                 code: 'RequestTypeError',
-                message: 'Invalid hash'
+                message: 'Invalid security hash ' + parsed + ' != ' + hash
             };
         }
         return parsed;
