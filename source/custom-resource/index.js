@@ -20,7 +20,6 @@ const https = require('https');
 const url = require('url');
 const moment = require('moment');
 const S3Helper = require('./lib/s3-helper.js');
-const UsageMetrics = require('./lib/usage-metrics');
 const UUID = require('node-uuid');
 
 /**
@@ -35,33 +34,7 @@ exports.handler = (event, context, callback) => {
     if (event.RequestType === 'Delete') {
         if (event.ResourceProperties.customAction === 'sendMetric') {
             responseStatus = 'SUCCESS';
-
-            if (event.ResourceProperties.anonymousData === 'Yes') {
-                let _metric = {
-                    Solution: event.ResourceProperties.solutionId,
-                    UUID: event.ResourceProperties.UUID,
-                    TimeStamp: moment().utc().format('YYYY-MM-DD HH:mm:ss.S'),
-                    Data: {
-                        Version: event.ResourceProperties.version,
-                        Deleted: moment().utc().format()
-                    }
-                };
-
-                let _usageMetrics = new UsageMetrics();
-                _usageMetrics.sendAnonymousMetric(_metric).then((data) => {
-                    console.log(data);
-                    console.log('Annonymous metrics successfully sent.');
-                    sendResponse(event, callback, context.logStreamName, responseStatus, responseData);
-                }).catch((err) => {
-                    responseData = {
-                        Error: 'Sending anonymous delete metric failed'
-                    };
-                    console.log([responseData.Error, ':\n', err].join(''));
-                    sendResponse(event, callback, context.logStreamName, responseStatus, responseData);
-                });
-            } else {
-                sendResponse(event, callback, context.logStreamName, 'SUCCESS');
-            }
+            sendResponse(event, callback, context.logStreamName, 'SUCCESS');
 
         } else {
             sendResponse(event, callback, context.logStreamName, 'SUCCESS');
@@ -122,37 +95,6 @@ exports.handler = (event, context, callback) => {
                 console.log(responseData.Error);
                 sendResponse(event, callback, context.logStreamName, responseStatus, responseData, responseData.Error);
             });
-
-        } else if (event.ResourceProperties.customAction === 'sendMetric') {
-            if (event.ResourceProperties.anonymousData === 'Yes') {
-                let _metric = {
-                    Solution: event.ResourceProperties.solutionId,
-                    UUID: event.ResourceProperties.UUID,
-                    TimeStamp: moment().utc().format('YYYY-MM-DD HH:mm:ss.S'),
-                    Data: {
-                        Version: event.ResourceProperties.version,
-                        Launch: moment().utc().format()
-                    }
-                };
-
-                let _usageMetrics = new UsageMetrics();
-                _usageMetrics.sendAnonymousMetric(_metric).then((data) => {
-                    console.log(data);
-                    console.log('Annonymous metrics successfully sent.');
-                    responseStatus = 'SUCCESS';
-                    responseData = {};
-                    sendResponse(event, callback, context.logStreamName, responseStatus, responseData);
-                }).catch((err) => {
-                    responseData = {
-                        Error: 'Sending anonymous launch metric failed'
-                    };
-                    console.log([responseData.Error, ':\n', err].join(''));
-                    sendResponse(event, callback, context.logStreamName, responseStatus, responseData);
-                });
-            } else {
-                sendResponse(event, callback, context.logStreamName, 'SUCCESS');
-            }
-
         } else {
             sendResponse(event, callback, context.logStreamName, 'SUCCESS');
         }
@@ -205,7 +147,7 @@ exports.handler = (event, context, callback) => {
                 console.log(responseData.Error);
                 sendResponse(event, callback, context.logStreamName, responseStatus, responseData, responseData.Error);
             });
-            
+
         } else {
             sendResponse(event, callback, context.logStreamName, 'SUCCESS');
         }
@@ -216,10 +158,10 @@ exports.handler = (event, context, callback) => {
  * Sends a response to the pre-signed S3 URL
  */
 let sendResponse = function(event, callback, logStreamName, responseStatus, responseData, customReason) {
-        
+
     const defaultReason = `See the details in CloudWatch Log Stream: ${logStreamName}`;
     const reason = (customReason !== undefined) ? customReason : defaultReason;
-    
+
     const responseBody = JSON.stringify({
         Status: responseStatus,
         Reason: reason,

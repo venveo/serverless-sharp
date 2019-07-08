@@ -11,8 +11,7 @@
         "moment": "^2.24.0",
         "node-uuid": "^1.4.8",
         "password-generator": "*",
-        "underscore": "*",
-        "usage-metrics": "file:lib/usage-metrics/"
+        "underscore": "*"
     },
     "devDependencies": {
         "aws-sdk": "*",
