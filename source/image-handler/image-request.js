@@ -198,24 +198,24 @@ class ImageRequest {
      */
     decodeRequest(event) {
         const path = event["path"];
-        if (path !== undefined) {
-            const splitPath = path.split("/");
-            const encoded = splitPath[splitPath.length - 1];
-            const toBuffer = new Buffer(encoded, 'base64');
-            try {
-                return JSON.parse(toBuffer.toString('ascii'));
-            } catch (e) {
-                throw ({
-                    status: 400,
-                    code: 'DecodeRequest::CannotDecodeRequest',
-                    message: 'The image request you provided could not be decoded. Please check that your request is base64 encoded properly and refer to the documentation for additional guidance.'
-                });
-            }
-        } else {
+        if (path === undefined) {
             throw ({
                 status: 400,
                 code: 'DecodeRequest::CannotReadPath',
                 message: 'The URL path you provided could not be read. Please ensure that it is properly formed according to the solution documentation.'
+            });
+        }
+
+        const splitPath = path.split("/");
+        const encoded = splitPath[splitPath.length - 1];
+        const toBuffer = new Buffer(encoded, 'base64');
+        try {
+            return JSON.parse(toBuffer.toString('ascii'));
+        } catch (e) {
+            throw ({
+                status: 400,
+                code: 'DecodeRequest::CannotDecodeRequest',
+                message: 'The image request you provided could not be decoded. Please check that your request is base64 encoded properly and refer to the documentation for additional guidance.'
             });
         }
     }
