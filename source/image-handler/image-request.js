@@ -10,8 +10,6 @@
  *  OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions    *
  *  and limitations under the License.                                                                                *
  *********************************************************************************************************************/
-
-const ThumborMapping = require('./thumbor-mapping');
 const crypto = require('crypto');
 
 class ImageRequest {
@@ -23,7 +21,7 @@ class ImageRequest {
      */
     async setup(event) {
         try {
-            this.parseHash(event);
+            // this.parseHash(event);
             this.requestType = this.parseRequestType(event);
             this.bucket = this.parseImageBucket(event, this.requestType);
             this.key = this.parseImageKey(event, this.requestType);
@@ -86,10 +84,6 @@ class ImageRequest {
                 const sourceBuckets = this.getAllowedSourceBuckets();
                 return sourceBuckets[0];
             }
-        } else if (requestType === "Thumbor" || requestType === "Custom") {
-            // Use the default image source bucket env var
-            const sourceBuckets = this.getAllowedSourceBuckets();
-            return sourceBuckets[0];
         } else {
             throw ({
                 status: 400,
@@ -108,15 +102,6 @@ class ImageRequest {
         if (requestType === "Default") {
             const decoded = this.decodeRequest(event);
             return decoded.edits;
-        } else if (requestType === "Thumbor") {
-            const thumborMapping = new ThumborMapping();
-            thumborMapping.process(event);
-            return thumborMapping.edits;
-        } else if (requestType === "Custom") {
-            const thumborMapping = new ThumborMapping();
-            const parsedPath = thumborMapping.parseCustomPath(event.path);
-            thumborMapping.process(parsedPath);
-            return thumborMapping.edits;
         } else {
             throw ({
                 status: 400,
@@ -137,10 +122,6 @@ class ImageRequest {
             // Decode the image request and return the image key
             const decoded = this.decodeRequest(event);
             return decoded.key;
-        } else if (requestType === "Thumbor" || requestType === "Custom") {
-            // Parse the key from the end of the path
-            const key = (event["path"]).split("/");
-            return key[key.length - 1];
         } else {
             // Return an error for all other conditions
             throw ({
@@ -193,21 +174,9 @@ class ImageRequest {
         const path = event["path"];
         // ----
         const matchDefault = new RegExp(/^(\/?)([0-9a-zA-Z+\/]{4})*(([0-9a-zA-Z+\/]{2}==)|([0-9a-zA-Z+\/]{3}=))?$/);
-        const matchThumbor = new RegExp(/^(\/?)((fit-in)?|(filters:.+\(.?\))?|(unsafe)?).*(.+jpg|.+png|.+webp|.+tiff|.+jpeg)$/);
-        const matchCustom = new RegExp(/(\/?)(.*)(jpg|png|webp|tiff|jpeg)/);
-        const definedEnvironmentVariables = (
-            (process.env.REWRITE_MATCH_PATTERN !== "") &&
-            (process.env.REWRITE_SUBSTITUTION !== "") &&
-            (process.env.REWRITE_MATCH_PATTERN !== undefined) &&
-            (process.env.REWRITE_SUBSTITUTION !== undefined)
-        );
         // ----
         if (matchDefault.test(path)) {  // use sharp
             return 'Default';
-        } else if (matchCustom.test(path) && definedEnvironmentVariables) {  // use rewrite function then thumbor mappings
-            return 'Custom';
-        } else if (matchThumbor.test(path)) {  // use thumbor mappings
-            return 'Thumbor';
         } else {
             throw {
                 status: 400,

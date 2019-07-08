@@ -55,77 +55,6 @@ describe('setup()', function() {
             assert.deepEqual(imageRequest, expectedResult);
         });
     });
-    describe('002/thumborImageRequest', function() {
-        it(`Should pass when a thumbor image request is provided and populate
-            the ImageRequest object with the proper values`, async function() {
-            // Arrange
-            const event = {
-                path : "/filters:grayscale()/test-image-001.jpg"
-            }
-            process.env = {
-                SOURCE_BUCKETS : "allowedBucket001, allowedBucket002"
-            }
-            // ----
-            const S3 = require('aws-sdk/clients/s3');
-            const sinon = require('sinon');
-            const getObject = S3.prototype.getObject = sinon.stub();
-            getObject.withArgs({Bucket: 'allowedBucket001', Key: 'test-image-001.jpg'}).returns({
-                promise: () => { return {
-                  Body: Buffer.from('SampleImageContent\n')
-                }}
-            })
-            // Act
-            const imageRequest = new ImageRequest();
-            await imageRequest.setup(event);
-            const expectedResult = {
-                requestType: 'Thumbor',
-                bucket: 'allowedBucket001',
-                key: 'test-image-001.jpg',
-                edits: { grayscale: true },
-                originalImage: Buffer.from('SampleImageContent\n')
-            }
-            // Assert
-            assert.deepEqual(imageRequest, expectedResult);
-        });
-    });
-    describe('003/customImageRequest', function() {
-        it(`Should pass when a custom image request is provided and populate
-            the ImageRequest object with the proper values`, async function() {
-            // Arrange
-            const event = {
-                path : '/filters-rotate(90)/filters-grayscale()/custom-image.jpg'
-            }
-            process.env = {
-                SOURCE_BUCKETS : "allowedBucket001, allowedBucket002",
-                REWRITE_MATCH_PATTERN: /(filters-)/gm,
-                REWRITE_SUBSTITUTION: 'filters:'
-            }
-            // ----
-            const S3 = require('aws-sdk/clients/s3');
-            const sinon = require('sinon');
-            const getObject = S3.prototype.getObject = sinon.stub();
-            getObject.withArgs({Bucket: 'allowedBucket001', Key: 'custom-image.jpg'}).returns({
-                promise: () => { return {
-                  Body: Buffer.from('SampleImageContent\n')
-                }}
-            })
-            // Act
-            const imageRequest = new ImageRequest();
-            await imageRequest.setup(event);
-            const expectedResult = {
-                requestType: 'Custom',
-                bucket: 'allowedBucket001',
-                key: 'custom-image.jpg',
-                edits: {
-                    grayscale: true,
-                    rotate: 90
-                },
-                originalImage: Buffer.from('SampleImageContent\n')
-            }
-            // Assert
-            assert.deepEqual(imageRequest, expectedResult);
-        });
-    });
     describe('004/errorCase', function() {
         it(`Should pass when an error is caught`, async function() {
             // Assert
@@ -266,42 +195,6 @@ describe('parseImageBucket()', function() {
             assert.deepEqual(result, expectedResult);
         });
     });
-    describe('004/thumborRequestType', function() {
-        it(`Should pass if there is at least one SOURCE_BUCKET specified that can 
-            be used as the default for Thumbor requests`, function() {
-            // Arrange
-            const event = {
-                path : "/filters:grayscale()/test-image-001.jpg"
-            }
-            process.env = {
-                SOURCE_BUCKETS : "allowedBucket001, allowedBucket002"
-            }
-            // Act
-            const imageRequest = new ImageRequest();
-            const result = imageRequest.parseImageBucket(event, 'Thumbor');
-            // Assert
-            const expectedResult = 'allowedBucket001';
-            assert.deepEqual(result, expectedResult);
-        });
-    });
-    describe('005/customRequestType', function() {
-        it(`Should pass if there is at least one SOURCE_BUCKET specified that can 
-            be used as the default for Custom requests`, function() {
-            // Arrange
-            const event = {
-                path : "/filters:grayscale()/test-image-001.jpg"
-            }
-            process.env = {
-                SOURCE_BUCKETS : "allowedBucket001, allowedBucket002"
-            }
-            // Act
-            const imageRequest = new ImageRequest();
-            const result = imageRequest.parseImageBucket(event, 'Custom');
-            // Assert
-            const expectedResult = 'allowedBucket001';
-            assert.deepEqual(result, expectedResult);
-        });
-    });
     describe('006/invalidRequestType', function() {
         it(`Should pass if there is at least one SOURCE_BUCKET specified that can 
             be used as the default for Custom requests`, function() {
@@ -349,63 +242,6 @@ describe('parseImageEdits()', function() {
             assert.deepEqual(result, expectedResult);
         });
     });
-    describe('002/thumborRequestType', function() {
-        it(`Should pass if the proper result is returned for a sample thumbor- 
-            type image request`, function() {
-            // Arrange
-            const event = {
-                path : '/filters:rotate(90)/filters:grayscale()/thumbor-image.jpg'
-            }
-            // Act
-            const imageRequest = new ImageRequest();
-            const result = imageRequest.parseImageEdits(event, 'Thumbor');
-            // Assert
-            const expectedResult = {
-                rotate: 90,
-                grayscale: true
-            }
-            assert.deepEqual(result, expectedResult);
-        });
-    });
-    describe('003/customRequestType', function() {
-        it(`Should pass if the proper result is returned for a sample custom- 
-            type image request`, function() {
-            // Arrange
-            const event = {
-                path : '/filters-rotate(90)/filters-grayscale()/thumbor-image.jpg'
-            }
-            process.env.REWRITE_MATCH_PATTERN = /(filters-)/gm;
-            process.env.REWRITE_SUBSTITUTION = 'filters:';
-            // Act
-            const imageRequest = new ImageRequest();
-            const result = imageRequest.parseImageEdits(event, 'Custom');
-            // Assert
-            const expectedResult = {
-                rotate: 90,
-                grayscale: true
-            }
-            assert.deepEqual((typeof result !== undefined), !undefined)
-        });
-    });
-    describe('004/customRequestType', function() {
-        it(`Should throw an error if a requestType is not specified and/or the image edits
-            cannot be parsed`, function() {
-            // Arrange
-            const event = {
-                path : '/filters:rotate(90)/filters:grayscale()/other-image.jpg'
-            }
-            // Act
-            const imageRequest = new ImageRequest();
-            // Assert
-            assert.throws(function() {
-                imageRequest.parseImageEdits(event, undefined);
-            }, Object, {
-                status: 400,
-                code: 'ImageEdits::CannotParseEdits',
-                message: 'The edits you provided could not be parsed. Please check the syntax of your request and refer to the documentation for additional guidance.'
-            });
-        });
-    });
 });
 
 // ----------------------------------------------------------------------------
@@ -424,36 +260,6 @@ describe('parseImageKey()', function() {
             const result = imageRequest.parseImageKey(event, 'Default');
             // Assert
             const expectedResult = 'sample-image-001.jpg';
-            assert.deepEqual(result, expectedResult);
-        });
-    });
-    describe('002/thumborRequestType', function() {
-        it(`Should pass if an image key value is provided in the thumbor
-            request format`, function() {
-            // Arrange
-            const event = {
-                path : '/filters:rotate(90)/filters:grayscale()/thumbor-image.jpg'
-            }
-            // Act
-            const imageRequest = new ImageRequest();
-            const result = imageRequest.parseImageKey(event, 'Thumbor');
-            // Assert
-            const expectedResult = 'thumbor-image.jpg';
-            assert.deepEqual(result, expectedResult);
-        });
-    });
-    describe('003/customRequestType', function() {
-        it(`Should pass if an image key value is provided in the custom
-            request format`, function() {
-            // Arrange
-            const event = {
-                path : '/filters-rotate(90)/filters-grayscale()/custom-image.jpg'
-            }
-            // Act
-            const imageRequest = new ImageRequest();
-            const result = imageRequest.parseImageKey(event, 'Custom');
-            // Assert
-            const expectedResult = 'custom-image.jpg';
             assert.deepEqual(result, expectedResult);
         });
     });
@@ -494,39 +300,6 @@ describe('parseRequestType()', function() {
             const result = imageRequest.parseRequestType(event);
             // Assert
             const expectedResult = 'Default';
-            assert.deepEqual(result, expectedResult);
-        });
-    });
-    describe('002/thumborRequestType', function() {
-        it(`Should pass if the method detects a thumbor request`, function() {
-            // Arrange
-            const event = {
-                path: '/unsafe/filters:brightness(10):contrast(30)/https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Coffee_berries_1.jpg/1200px-Coffee_berries_1.jpg'
-            }
-            process.env = {};
-            // Act
-            const imageRequest = new ImageRequest();
-            const result = imageRequest.parseRequestType(event);
-            // Assert
-            const expectedResult = 'Thumbor';
-            assert.deepEqual(result, expectedResult);
-        });
-    });
-    describe('003/customRequestType', function() {
-        it(`Should pass if the method detects a custom request`, function() {
-            // Arrange
-            const event = {
-                path: '/additionalImageRequestParameters/image.jpg'
-            }
-            process.env = {
-                REWRITE_MATCH_PATTERN: 'matchPattern',
-                REWRITE_SUBSTITUTION: 'substitutionString'
-            }
-            // Act
-            const imageRequest = new ImageRequest();
-            const result = imageRequest.parseRequestType(event);
-            // Assert
-            const expectedResult = 'Custom';
             assert.deepEqual(result, expectedResult);
         });
     });
