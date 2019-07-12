@@ -16,7 +16,9 @@
   },
   "devDependencies": {
     "aws-sdk": "^2.437.0",
-    "aws-sdk-mock": "^4.4.0"
+    "aws-sdk-mock": "^4.4.0",
+    "serverless-offline": "^5.7.3",
+    "serverless-plugin-simulate": "0.0.17"
   },
   "scripts": {
     "pretest": "npm install",

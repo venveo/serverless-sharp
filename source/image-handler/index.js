@@ -42,9 +42,9 @@ exports.handler = async (event) => {
 }
 
 /**
- * Generates the appropriate set of response headers based on a success 
+ * Generates the appropriate set of response headers based on a success
  * or error condition.
- * @param {boolean} isErr - has an error been thrown? 
+ * @param {boolean} isErr - has an error been thrown?
  */
 const getResponseHeaders = (isErr) => {
     const corsEnabled = (process.env.CORS_ENABLED === "Yes");
