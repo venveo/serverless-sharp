@@ -1,0 +1,19 @@
+service: image-handler # NOTE: update this with your service name
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+
+
+functions:
+  index:
+    handler: index.handler
+    events:
+      - http:
+          path: /{any+}
+          method: get
+    environment:
+      SOURCE_BUCKETS: bucketname
+
+- plugins:
+    - serverless-offline
