@@ -15,5 +15,5 @@ functions:
     environment:
       SOURCE_BUCKETS: bucketname
 
-- plugins:
-    - serverless-offline
+plugins:
+  - serverless-offline
