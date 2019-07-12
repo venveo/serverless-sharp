@@ -15,17 +15,15 @@ const ImageRequest = require('./image-request.js');
 const ImageHandler = require('./image-handler.js');
 
 exports.handler = async (event) => {
-    console.log(event);
     const imageRequest = new ImageRequest();
     const imageHandler = new ImageHandler();
     try {
         const request = await imageRequest.setup(event);
-        console.log(request);
         const processedRequest = await imageHandler.process(request);
         const response = {
             "statusCode": 200,
-            "headers" : getResponseHeaders(),
-            "body": processedRequest,
+            "headers" : getResponseHeaders(processedRequest, null),
+            "body": processedRequest.Body,
             "isBase64Encoded": true
         }
         return response;
@@ -33,7 +31,7 @@ exports.handler = async (event) => {
         console.log(err);
         const response = {
             "statusCode": err.status,
-            "headers" : getResponseHeaders(true),
+            "headers" : getResponseHeaders(null, true),
             "body": JSON.stringify(err),
             "isBase64Encoded": false
         }
@@ -44,9 +42,11 @@ exports.handler = async (event) => {
 /**
  * Generates the appropriate set of response headers based on a success
  * or error condition.
+ * @param processedRequest
  * @param {boolean} isErr - has an error been thrown?
  */
-const getResponseHeaders = (isErr) => {
+const getResponseHeaders = (processedRequest, isErr) => {
+    console.log(processedRequest);
     const corsEnabled = (process.env.CORS_ENABLED === "Yes");
     const headers = {
         "Access-Control-Allow-Methods": "GET",
@@ -56,6 +56,9 @@ const getResponseHeaders = (isErr) => {
     }
     if (corsEnabled) {
         headers["Access-Control-Allow-Origin"] = process.env.CORS_ORIGIN;
+    }
+    if (processedRequest && 'CacheControl' in processedRequest) {
+        headers["Cache-Control"] = processedRequest.CacheControl;
     }
     if (isErr) {
         headers["Content-Type"] = "application/json"

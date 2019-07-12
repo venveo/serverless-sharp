@@ -22,14 +22,11 @@ class ImageRequest {
     async setup(event) {
         try {
             // this.parseHash(event);
-            this.requestType = this.parseRequestType(event);
-            this.bucket = this.parseImageBucket(event, this.requestType);
-            this.key = this.parseImageKey(event, this.requestType);
-            this.edits = this.parseImageEdits(event, this.requestType);
+            this.bucket = this.parseImageBucket(event);
+            this.key = this.parseImageKey(event);
+            this.edits = this.parseImageEdits(event);
 
-            if (this.requestType === 'Default') {
-                this.outputFormat = this.decodeRequest(event).outputFormat;
-            }
+            this.outputFormat = this.decodeRequest(event).outputFormat;
 
             this.originalImage = await this.getOriginalImage(this.bucket, this.key);
             return Promise.resolve(this);
@@ -51,7 +48,7 @@ class ImageRequest {
         const request = s3.getObject(imageLocation).promise();
         try {
             const originalImage = await request;
-            return Promise.resolve(originalImage.Body);
+            return Promise.resolve(originalImage);
         }
         catch(err) {
             return Promise.reject({
@@ -66,75 +63,47 @@ class ImageRequest {
      * Parses the name of the appropriate Amazon S3 bucket to source the
      * original image from.
      * @param {String} event - Lambda request body.
-     * @param {String} requestType - Image handler request type.
      */
-    parseImageBucket(event, requestType) {
-        if (requestType === "Default") {
-            // Decode the image request
-            const decoded = this.decodeRequest(event);
-            if (decoded.bucket !== undefined) {
-                // Check the provided bucket against the whitelist
-                const sourceBuckets = this.getAllowedSourceBuckets();
-                if (sourceBuckets.includes(decoded.bucket)) {
-                    return decoded.bucket;
-                } else {
-                    throw ({
-                        status: 403,
-                        code: 'ImageBucket::CannotAccessBucket',
-                        message: 'The bucket you specified could not be accessed. Please check that the bucket is specified in your SOURCE_BUCKETS.'
-                    });
-                }
+    parseImageBucket(event) {
+        // Decode the image request
+        const decoded = this.decodeRequest(event);
+        if (decoded.bucket !== undefined) {
+            // Check the provided bucket against the whitelist
+            const sourceBuckets = this.getAllowedSourceBuckets();
+            if (sourceBuckets.includes(decoded.bucket)) {
+                return decoded.bucket;
             } else {
-                // Try to use the default image source bucket env var
-                const sourceBuckets = this.getAllowedSourceBuckets();
-                return sourceBuckets[0];
+                throw ({
+                    status: 403,
+                    code: 'ImageBucket::CannotAccessBucket',
+                    message: 'The bucket you specified could not be accessed. Please check that the bucket is specified in your SOURCE_BUCKETS.'
+                });
             }
         } else {
-            throw ({
-                status: 400,
-                code: 'ImageBucket::CannotFindBucket',
-                message: 'The bucket you specified could not be found. Please check the spelling of the bucket name in your request.'
-            });
+            // Try to use the default image source bucket env var
+            const sourceBuckets = this.getAllowedSourceBuckets();
+            return sourceBuckets[0];
         }
     }
 
     /**
      * Parses the edits to be made to the original image.
      * @param {String} event - Lambda request body.
-     * @param {String} requestType - Image handler request type.
      */
-    parseImageEdits(event, requestType) {
-        if (requestType === "Default") {
-            const decoded = this.decodeRequest(event);
-            return decoded.edits;
-        } else {
-            throw ({
-                status: 400,
-                code: 'ImageEdits::CannotParseEdits',
-                message: 'The edits you provided could not be parsed. Please check the syntax of your request and refer to the documentation for additional guidance.'
-            });
-        }
+    parseImageEdits(event) {
+        const decoded = this.decodeRequest(event);
+        return decoded.edits;
     }
 
     /**
      * Parses the name of the appropriate Amazon S3 key corresponding to the
      * original image.
      * @param {String} event - Lambda request body.
-     * @param {String} requestType - Type, either "Default", "Thumbor", or "Custom".
      */
-    parseImageKey(event, requestType) {
-        if (requestType === "Default") {
-            // Decode the image request and return the image key
-            const decoded = this.decodeRequest(event);
-            return decoded.key;
-        } else {
-            // Return an error for all other conditions
-            throw ({
-                status: 400,
-                code: 'ImageEdits::CannotFindImage',
-                message: 'The image you specified could not be found. Please check your request syntax as well as the bucket you specified to ensure it exists.'
-            });
-        }
+    parseImageKey(event) {
+        // Decode the image request and return the image key
+        const decoded = this.decodeRequest(event);
+        return decoded.key;
     }
 
     /**
@@ -166,29 +135,6 @@ class ImageRequest {
             };
         }
         return parsed;
-    }
-
-    /**
-     * Determines how to handle the request being made based on the URL path
-     * prefix to the image request. Categorizes a request as either "image"
-     * (uses the Sharp library), "thumbor" (uses Thumbor mapping), or "custom"
-     * (uses the rewrite function).
-     * @param {Object} event - Lambda request body.
-    */
-    parseRequestType(event) {
-        const path = event["path"];
-        // ----
-        const matchDefault = new RegExp(/^(\/?)([0-9a-zA-Z+\/]{4})*(([0-9a-zA-Z+\/]{2}==)|([0-9a-zA-Z+\/]{3}=))?$/);
-        // ----
-        if (matchDefault.test(path)) {  // use sharp
-            return 'Default';
-        } else {
-            throw {
-                status: 400,
-                code: 'RequestTypeError',
-                message: 'The type of request you are making could not be processed. Please ensure that your original image is of a supported file type (jpg, png, tiff, webp) and that your image request is provided in the correct syntax. Refer to the documentation for additional guidance on forming image requests.'
-            };
-        }
     }
 
     /**
