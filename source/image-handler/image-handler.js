@@ -51,7 +51,7 @@ class ImageHandler {
      */
     async applyEdits(originalImage, edits) {
         const image = sharp(originalImage);
-        imageOps.apply(image, edits);
+        await imageOps.apply(image, edits);
         // Accepts 0 - 100
 
 

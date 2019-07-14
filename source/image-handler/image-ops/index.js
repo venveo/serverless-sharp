@@ -1,7 +1,7 @@
 const adjustment = require('./adjustment');
 const size = require('./size');
 
-exports.apply = (image, edits) => {
+exports.apply = async (image, edits) => {
 
     // Apply brightness. 0 - 100
     if (edits["bri"]) {
@@ -17,14 +17,35 @@ exports.apply = (image, edits) => {
     if (w || h) {
         switch(fit) {
             case 'clamp':
+                throw ({
+                    status: 400,
+                    code: 'scale::NotImplemented',
+                    message: 'Sorry, this transform is not implemented yet. Open a PR!'
+                });
                 break;
             case 'fill':
+                await size.fill(image, Number(w), Number(h), edits["fill-color"]);
                 break;
             case 'fillmax':
+                throw ({
+                    status: 400,
+                    code: 'scale::NotImplemented',
+                    message: 'Sorry, this transform is not implemented yet. Open a PR!'
+                });
                 break;
             case 'max':
+                throw ({
+                    status: 400,
+                    code: 'scale::NotImplemented',
+                    message: 'Sorry, this transform is not implemented yet. Open a PR!'
+                });
                 break;
             case 'min':
+                throw ({
+                    status: 400,
+                    code: 'scale::NotImplemented',
+                    message: 'Sorry, this transform is not implemented yet. Open a PR!'
+                });
                 break;
             case 'scale':
                 size.scale(image, Number(w), Number(h));
