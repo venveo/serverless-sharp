@@ -22,11 +22,9 @@ class ImageRequest {
     async setup(event) {
         try {
             // this.parseHash(event);
-            this.bucket = this.parseImageBucket(event);
+            this.bucket = process.env.SOURCE_BUCKET;
             this.key = this.parseImageKey(event);
-            this.edits = this.parseImageEdits(event);
-
-            this.outputFormat = this.decodeRequest(event).outputFormat;
+            this.edits = this.decodeRequest(event);
 
             this.originalImage = await this.getOriginalImage(this.bucket, this.key);
             return Promise.resolve(this);
@@ -60,33 +58,6 @@ class ImageRequest {
     }
 
     /**
-     * Parses the name of the appropriate Amazon S3 bucket to source the
-     * original image from.
-     * @param {String} event - Lambda request body.
-     */
-    parseImageBucket(event) {
-        // Decode the image request
-        const decoded = this.decodeRequest(event);
-        if (decoded.bucket !== undefined) {
-            // Check the provided bucket against the whitelist
-            const sourceBuckets = this.getAllowedSourceBuckets();
-            if (sourceBuckets.includes(decoded.bucket)) {
-                return decoded.bucket;
-            } else {
-                throw ({
-                    status: 403,
-                    code: 'ImageBucket::CannotAccessBucket',
-                    message: 'The bucket you specified could not be accessed. Please check that the bucket is specified in your SOURCE_BUCKETS.'
-                });
-            }
-        } else {
-            // Try to use the default image source bucket env var
-            const sourceBuckets = this.getAllowedSourceBuckets();
-            return sourceBuckets[0];
-        }
-    }
-
-    /**
      * Parses the edits to be made to the original image.
      * @param {String} event - Lambda request body.
      */
@@ -102,8 +73,8 @@ class ImageRequest {
      */
     parseImageKey(event) {
         // Decode the image request and return the image key
-        const decoded = this.decodeRequest(event);
-        return decoded.key;
+        const key = process.env.OBJECT_PREFIX + event["path"];
+        return key;
     }
 
     /**
@@ -138,32 +109,22 @@ class ImageRequest {
     }
 
     /**
-     * Decodes the base64-encoded image request path associated with default
+     * Decodes the image request path associated with default
      * image requests. Provides error handling for invalid or undefined path values.
      * @param {Object} event - The proxied request object.
      */
     decodeRequest(event) {
-        const path = event["path"];
-        if (path === undefined) {
-            throw ({
-                status: 400,
-                code: 'DecodeRequest::CannotReadPath',
-                message: 'The URL path you provided could not be read. Please ensure that it is properly formed according to the solution documentation.'
-            });
+        let qp = event["queryStringParameters"];
+        if (!qp) {
+            qp = {};
         }
 
-        const splitPath = path.split("/");
-        const encoded = splitPath[splitPath.length - 1];
-        const toBuffer = new Buffer(encoded, 'base64');
-        try {
-            return JSON.parse(toBuffer.toString('ascii'));
-        } catch (e) {
-            throw ({
-                status: 400,
-                code: 'DecodeRequest::CannotDecodeRequest',
-                message: 'The image request you provided could not be decoded. Please check that your request is base64 encoded properly and refer to the documentation for additional guidance.'
-            });
+        // We need an output format immediately
+        if (!qp["fm"]) {
+            qp.fm = 'jpeg';
         }
+
+        return qp;
     }
 
     /**

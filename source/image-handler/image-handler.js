@@ -14,6 +14,8 @@
 const AWS = require('aws-sdk');
 const sharp = require('sharp');
 
+const imageOps = require('./image-ops');
+
 class ImageHandler {
 
     /**
@@ -25,8 +27,8 @@ class ImageHandler {
         const edits = request.edits;
         if (edits !== undefined) {
             const modifiedImage = await this.applyEdits(originalImage, edits);
-            if (request.outputFormat !== undefined) {
-                await modifiedImage.toFormat(request.outputFormat);
+            if (edits.fm !== undefined) {
+                await modifiedImage.toFormat(edits.fm);
             }
             const bufferImage = await modifiedImage.toBuffer();
             return {
@@ -49,118 +51,59 @@ class ImageHandler {
      */
     async applyEdits(originalImage, edits) {
         const image = sharp(originalImage);
-        const keys = Object.keys(edits);
-        const values = Object.values(edits);
-        // Apply the image edits
-        for (let i = 0; i < keys.length; i++) {
-            const key = keys[i];
-            const value = values[i];
-            if (key === 'overlayWith') {
-                const overlay = await this.getOverlayImage(value.bucket, value.key);
-                image.overlayWith(overlay, value.options);
-            } else if (key === 'smartCrop') {
-                const options = value;
-                const imageBuffer = await image.toBuffer();
-                const metadata = await image.metadata();
-                // ----
-                const boundingBox = await this.getBoundingBox(imageBuffer, options.faceIndex);
-                const cropArea = await this.getCropArea(boundingBox, options, metadata);
-                try {
-                    image.extract(cropArea)
-                } catch (err) {
-                    throw ({
-                        status: 400,
-                        code: 'SmartCrop::PaddingOutOfBounds',
-                        message: 'The padding value you provided exceeds the boundaries of the original image. Please try choosing a smaller value or applying padding via Sharp for greater specificity.'
-                    });
-                }
-            } else if (key === 'focalpoint') {
+        imageOps.apply(image, edits);
+        // Accepts 0 - 100
 
-            } else {
-                image[key](value);
-            }
-        }
+
+        // const keys = Object.keys(edits);
+        // const values = Object.values(edits);
+
+        // Apply formatting edits first
+        // Quality
+        // if (edits["q"]) {
+        // }
+        // // Color
+        // if (edits["q"]) {
+        // }
+
+            // } else if (key === 'focalpoint') {
+                // const options = value;
+                // const metadata = await image.metadata();
+                //
+                // const centerX = metadata.width * options.x;
+                // const centerY = metadata.height * options.y;
+                // let x1 = centerX - metadata.width / 2;
+                // let y1 = centerY - metadata.height / 2;
+                // let x2 = x1 + metadata.width;
+                // let y2 = y1 + metadata.height;
+                //
+                // if (x1 < 0) {
+                //     x2 -= x1;
+                //     x1 = 0;
+                // }
+                // if (y1 < 0) {
+                //     y2 -= y1;
+                //     y1 = 0;
+                // }
+                // if (x2 > metadata.width) {
+                //     x1 -= (x2 - metadata.width);
+                //     x2 = metadata.width;
+                // }
+                // if (y2 > metadata.height) {
+                //     y1 -= (y2 - metadata.height);
+                //     y2 = metadata.height;
+                // }
+                //
+                // try {
+                //     image.extract({left: x1, top: y1, width: 0, height: 0})
+                // } catch (err) {
+                //     throw ({
+                //         status: 400,
+                //     });
+                // }
+        // }
         // Return the modified image
         return image;
-    }
-
-    /**
-     * Gets an image to be used as an overlay to the primary image from an
-     * Amazon S3 bucket.
-     * @param {string} bucket - The name of the bucket containing the overlay.
-     * @param {string} key - The keyname corresponding to the overlay.
-     */
-    async getOverlayImage(bucket, key) {
-        const s3 = new AWS.S3();
-        const params = { Bucket: bucket, Key: key };
-        // Request
-        const request = s3.getObject(params).promise();
-        // Response handling
-        try {
-            const overlayImage = await request;
-            return Promise.resolve(overlayImage.Body);
-        } catch (err) {
-            return Promise.reject({
-                status: 500,
-                code: err.code,
-                message: err.message
-            })
-        }
-    }
-
-    /**
-     * Calculates the crop area for a smart-cropped image based on the bounding
-     * box data returned by Amazon Rekognition, as well as padding options and
-     * the image metadata.
-     * @param {Object} boundingBox - The boudning box of the detected face.
-     * @param {Object} options - Set of options for smart cropping.
-     * @param {Object} metadata - Sharp image metadata.
-     */
-    getCropArea(boundingBox, options, metadata) {
-        const padding = (options.padding !== undefined) ? parseFloat(options.padding) : 0;
-        // Calculate the smart crop area
-        const cropArea = {
-            left : parseInt((boundingBox.Left*metadata.width)-padding),
-            top : parseInt((boundingBox.Top*metadata.height)-padding),
-            width : parseInt((boundingBox.Width*metadata.width)+(padding*2)),
-            height : parseInt((boundingBox.Height*metadata.height)+(padding*2)),
-        }
-        // Return the crop area
-        return cropArea;
-    }
-
-    /**
-     * Gets the bounding box of the specified face index within an image, if specified.
-     * @param {Sharp} imageBuffer - The original image.
-     * @param {Integer} faceIndex - The zero-based face index value, moving from 0 and up as
-     * confidence decreases for detected faces within the image.
-     */
-    async getBoundingBox(imageBuffer, faceIndex) {
-        const rekognition = new AWS.Rekognition();
-        const params = { Image: { Bytes: imageBuffer }};
-        const faceIdx = (faceIndex !== undefined) ? faceIndex : 0;
-        // Request
-        const request = rekognition.detectFaces(params).promise();
-        // Response handling
-        try {
-            const response = (await request).FaceDetails[faceIdx].BoundingBox;
-            return Promise.resolve(await response);
-        } catch (err) {
-            console.log(err);
-            if (err.message === "Cannot read property 'BoundingBox' of undefined") {
-                return Promise.reject({
-                    status: 400,
-                    code: 'SmartCrop::FaceIndexOutOfRange',
-                    message: 'You have provided a FaceIndex value that exceeds the length of the zero-based detectedFaces array. Please specify a value that is in-range.'
-                })
-            } else {
-                return Promise.reject({
-                    status: 500,
-                    code: err.code,
-                    message: err.message
-                })
-            }
-        }
     }
 }
 
