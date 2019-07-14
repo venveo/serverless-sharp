@@ -27,6 +27,7 @@ exports.apply = (image, edits) => {
             case 'min':
                 break;
             case 'scale':
+                size.scale(image, Number(w), Number(h));
                 break;
             case 'crop':
                 size.scaleCrop(image, Number(w), Number(h), crop);
