@@ -4,7 +4,6 @@ provider:
   name: aws
   runtime: nodejs8.10
 
-
 functions:
   index:
     handler: index.handler
@@ -13,7 +12,9 @@ functions:
           path: /{any+}
           method: get
     environment:
-      SOURCE_BUCKETS: bucketname
+      SOURCE_BUCKET: ${env:SOURCE_BUCKET}
+      OBJECT_PREFIX: ${env:OBJECT_PREFIX}
 
 plugins:
   - serverless-offline
+  - serverless-dotenv-plugin

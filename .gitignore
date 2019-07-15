@@ -4,6 +4,7 @@
 source/image-handler/.nyc_output/
 source/image-handler/coverage
 source/image-handler/node_modules
+source/image-handler/.env
 # package directories
 node_modules
 jspm_packages
