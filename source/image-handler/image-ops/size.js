@@ -1,4 +1,5 @@
 const sharp = require('sharp');
+const paramValidators = require('../helpers/paramValidators');
 
 /**
  *
@@ -8,10 +9,11 @@ const sharp = require('sharp');
  * @returns {*}
  */
 exports.scaleClip = (image, width = null, height = null) => {
-    if (!width && !height) {
+
+    if (!paramValidators.widthOrHeightValid(width, height)) {
         throw ({
             status: 400,
-            code: 'size.scaleClip::InvalidDimensions',
+            code: 'size::InvalidDimensions',
             message: 'Either width AND/OR height must be specified and a positive number when using scale-clip'
         });
     }
@@ -33,7 +35,7 @@ exports.scaleClip = (image, width = null, height = null) => {
  * @returns {*}
  */
 exports.fill = async (image, width = null, height = null, color = null) => {
-    if (!width && !height) {
+    if (!paramValidators.widthOrHeightValid(width, height)) {
         throw ({
             status: 400,
             code: 'size.fill::InvalidDimensions',
@@ -58,33 +60,42 @@ exports.fill = async (image, width = null, height = null, color = null) => {
 };
 
 /**
- * Stretch an image to fit the
+ * Stretch an image to fit the dimensions requested
  * @param {Sharp} image
  * @param width
  * @param height
  * @returns {*}
  */
 exports.scale = (image, width, height) => {
-    if (!width || !height) {
+    if (!paramValidators.widthAndHeightValid(width, height)) {
         throw ({
             status: 400,
-            code: 'size.scale::InvalidDimensions',
-            message: 'Either width AND height must be specified and a positive number when using fit-scale'
+            code: 'size::InvalidDimensions',
+            message: 'Width AND height must be specified and a positive number when using fit-scale'
         });
     }
     image.resize({
         width: width,
         height: height,
+        withoutEnlargement: true,
         fit: sharp.fit.fill
     });
 };
 
+/**
+ * Handle cropping modes
+ * @param {Sharp} image
+ * @param width
+ * @param height
+ * @param crop
+ * @returns {*}
+ */
 exports.scaleCrop = (image, width = null, height = null, crop = null) => {
     // top, bottom, left, right, faces, focalpoint, edges, and entropy
-    if (!width && !height) {
+    if (!paramValidators.widthOrHeightValid(width, height)) {
         throw ({
             status: 400,
-            code: 'size.scaleCrop::InvalidDimensions',
+            code: 'size::InvalidDimensions',
             message: 'Either width AND/OR height must be specified and a positive number when using fit-crop'
         });
     }
