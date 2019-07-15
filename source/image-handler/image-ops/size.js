@@ -88,9 +88,11 @@ exports.scale = (image, width, height) => {
  * @param width
  * @param height
  * @param crop
+ * @param fpx
+ * @param fpy
  * @returns {*}
  */
-exports.scaleCrop = (image, width = null, height = null, crop = null) => {
+exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx = null, fpy = null) => {
     // top, bottom, left, right, faces, focalpoint, edges, and entropy
     if (!paramValidators.widthOrHeightValid(width, height)) {
         throw ({
@@ -99,5 +101,44 @@ exports.scaleCrop = (image, width = null, height = null, crop = null) => {
             message: 'Either width AND/OR height must be specified and a positive number when using fit-crop'
         });
     }
-    // todo: crop
+
+    // if we don't have a focal point, default to center-center
+    if (crop !== 'focalpoint') {
+        fpx = 0.5;
+        fpy = 0.5;
+    }
+
+    // extract metadata from image to compute focal point
+    const metadata = await image.metadata();
+    let fpx_left = parseInt((metadata.width * fpx) - (0.5 * width));
+    let fpy_top = parseInt((metadata.height * fpy) - (0.5 * height));
+
+    // ensure extracted region doesn't exceed image bounds
+    if (width > metadata.width) {
+        width = metadata.width
+    }
+    if (height > metadata.height) {
+        height = metadata.height
+    }
+
+    // adjust focal point x
+    if (fpx_left + width > metadata.width) {
+        fpx_left = metadata.width - width
+    } else if (fpx_left < 0) {
+        fpx_left = 0
+    }
+
+    // adjust focal point y
+    if (fpy_top + height > metadata.height) {
+        fpy_top = metadata.height - height
+    } else if (fpy_top < 0) {
+        fpy_top = 0
+    }
+
+    image.extract({
+        left: fpx_left,
+        top: fpy_top,
+        width: width,
+        height: height
+    });
 };

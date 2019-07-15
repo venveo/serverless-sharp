@@ -13,7 +13,7 @@ exports.apply = async (image, edits) => {
         adjustment.sharp(image)
     }
 
-    const {w, h, fit, crop} = edits;
+    const {w, h, fit, crop, fpx, fpy} = edits;
     if (w || h) {
         switch(fit) {
             case 'clamp':
@@ -51,7 +51,7 @@ exports.apply = async (image, edits) => {
                 size.scale(image, Number(w), Number(h));
                 break;
             case 'crop':
-                size.scaleCrop(image, Number(w), Number(h), crop);
+                await size.scaleCrop(image, Number(w), Number(h), crop, Number(fpx), Number(fpy));
                 break;
             case 'clip':
             default:
