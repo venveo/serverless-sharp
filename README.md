@@ -1,6 +1,5 @@
 # AWS Serverless Image Handler Lambda wrapper for SharpJS
 A solution to dynamically handle images on the fly, utilizing Sharp (https://sharp.pixelplumbing.com/en/stable/).
-Published version, additional details and documentation are available here: https://aws.amazon.com/solutions/serverless-image-handler/
 
 _Note:_ it is recommend to build the application binary on Amazon Linux.
 

@@ -13,9 +13,15 @@
             "Default" : "*",
             "Type" : "String"
         },
-        "SourceBuckets" : {
-            "Description" : "(Required) List the buckets (comma-separated) within your account that contain original image files. If you plan to use Thumbor or Custom image requests with this solution, the source bucket for those requests will be the first bucket listed in this field.",
-            "Default" : "defaultBucket, bucketNo2, bucketNo3, ...",
+        "SourceBucket" : {
+            "Description" : "(Required) A single bucket that you will be sourcing images from",
+            "Default" : "defaultBucket",
+            "Type" : "String",
+            "AllowedPattern" : ".+"
+        },
+        "ObjectPrefix" : {
+            "Description" : "(Optional) A prefix for your objects in the bucket if your images are in a sub-directory of the bucket. No starting or trailing slashes.",
+            "Default" : "web",
             "Type" : "String",
             "AllowedPattern" : ".+"
         },
@@ -41,7 +47,7 @@
                 },
                 {
                     "Label": { "default": "Image Sources" },
-                    "Parameters": [ "SourceBuckets" ]
+                    "Parameters": [ "SourceBucket" ]
                 },
                 {
                     "Label": { "default": "Demo UI" },
@@ -226,8 +232,11 @@
                         "CORS_ORIGIN" : {
                             "Ref" : "CorsOrigin"
                         },
-                        "SOURCE_BUCKETS" : {
-                            "Ref" : "SourceBuckets"
+                        "SOURCE_BUCKET" : {
+                            "Ref" : "SourceBucket"
+                        },
+                        "OBJECT_PREFIX" : {
+                            "Ref" : "ObjectPrefix"
                         },
                         "REWRITE_MATCH_PATTERN" : "",
                         "REWRITE_SUBSTITUTION" : ""
@@ -565,7 +574,7 @@
                     "rules_to_suppress": [
                         {
                             "id": "W12",
-                            "reason": "The CustomResourcePolicy requires the * resource to validate that input from the SourceBuckets template parameter matches
+                            "reason": "The CustomResourcePolicy requires the * resource to validate that input from the SourceBucket template parameter matches
                             existing buckets within the user's account."
                         }
                     ]
@@ -639,9 +648,13 @@
             "Description" : "Link to the demo user interface for the solution.",
             "Value" : { "Fn::Sub" : "https://${DemoDistribution.DomainName}/index.html" }
         },
-        "SourceBuckets" : {
+        "SourceBucket" : {
             "Description" : "Amazon S3 bucket location containing original image files.",
-            "Value" : { "Ref" : "SourceBuckets"}
+            "Value" : { "Ref" : "SourceBucket"}
+        },
+        "ObjectPrefix" : {
+            "Description" : "Prefix for your S3 objects in the Source Bucket",
+            "Value" : { "Ref" : "ObjectPrefix"}
         },
         "CorsEnabled" : {
             "Description" : "Indicates whether Cross-Origin Resource Sharing (CORS) has been enabled for the image handler API.",
