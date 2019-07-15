@@ -106,6 +106,21 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
     if (crop !== 'focalpoint') {
         fpx = 0.5;
         fpy = 0.5;
+
+        // use position arguments to set focal point, if provided
+        if (crop !== null) {
+            const pos = crop.split(',')
+            if (pos.includes('left')) {
+                fpx = 0;
+            } else if (pos.includes('right')) {
+                fpx = 1;
+            }
+            if (pos.includes('top')) {
+                fpy = 0;
+            } else if (pos.includes('bottom')) {
+                fpy = 1;
+            }
+        }
     }
 
     // extract metadata from image to compute focal point
