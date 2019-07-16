@@ -102,6 +102,29 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
         });
     }
 
+
+    // extract metadata from image to resize
+    const metadata = await image.metadata();
+
+    const originalWidth = parseFloat(metadata.width)
+    const originalHeight = parseFloat(metadata.height)
+    let newWidth = originalWidth
+    let newHeight = originalHeight
+    let factor = 1
+
+    // if the image is smaller, find the minimum
+    if (width < originalWidth && height < originalHeight) {
+        factor = Math.min(width / originalWidth, height / originalHeight)
+        newWidth = parseInt(originalWidth * factor)
+        newHeight = parseInt(originalHeight * factor)
+    }
+    // if we need to expand the image, then find the max
+    else if (width > originalWidth || height > originalHeight) {
+        factor = Math.max(width / originalWidth, height / originalHeight)
+        newWidth = parseInt(originalWidth * factor)
+        newHeight = parseInt(originalHeight * factor)
+    }
+
     // if we don't have a focal point, default to center-center
     if (crop !== 'focalpoint') {
         fpx = 0.5;
@@ -123,33 +146,37 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
         }
     }
 
-    // extract metadata from image to compute focal point
-    const metadata = await image.metadata();
-    let fpx_left = parseInt((metadata.width * fpx) - (0.5 * width));
-    let fpy_top = parseInt((metadata.height * fpy) - (0.5 * height));
+    let fpx_left = Math.floor((newWidth * fpx) - (0.5 * width));
+    let fpy_top = Math.floor((newHeight * fpy) - (0.5 * height));
 
     // ensure extracted region doesn't exceed image bounds
-    if (width > metadata.width) {
-        width = metadata.width
+    if (width > newWidth) {
+        width = newWidth
     }
-    if (height > metadata.height) {
-        height = metadata.height
+    if (height > newHeight) {
+        height = newHeight
     }
 
     // adjust focal point x
-    if (fpx_left + width > metadata.width) {
-        fpx_left = metadata.width - width
+    if (fpx_left + width > newWidth) {
+        fpx_left = newWidth - width
     } else if (fpx_left < 0) {
         fpx_left = 0
     }
 
     // adjust focal point y
-    if (fpy_top + height > metadata.height) {
-        fpy_top = metadata.height - height
+    if (fpy_top + height > newHeight) {
+        fpy_top = newHeight - height
     } else if (fpy_top < 0) {
         fpy_top = 0
     }
-    const params = {
+
+    image.resize({
+        width: newWidth,
+        height: newHeight,
+        withoutEnlargement: false,
+        fit: sharp.fit.fill
+    }).extract({
         left: fpx_left,
         top: fpy_top,
         width: width,
