@@ -181,6 +181,5 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
         top: fpy_top,
         width: width,
         height: height
-    };
-    image.extract(params);
+    });
 };
