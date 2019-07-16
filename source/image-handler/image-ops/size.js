@@ -109,7 +109,7 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
 
         // use position arguments to set focal point, if provided
         if (crop !== null) {
-            const pos = crop.split(',')
+            const pos = crop.split(',');
             if (pos.includes('left')) {
                 fpx = 0;
             } else if (pos.includes('right')) {
@@ -149,11 +149,11 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
     } else if (fpy_top < 0) {
         fpy_top = 0
     }
-
-    image.extract({
+    const params = {
         left: fpx_left,
         top: fpy_top,
         width: width,
         height: height
-    });
+    };
+    image.extract(params);
 };

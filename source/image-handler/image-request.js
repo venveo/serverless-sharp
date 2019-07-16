@@ -73,7 +73,14 @@ class ImageRequest {
      */
     parseImageKey(event) {
         // Decode the image request and return the image key
-        const key = process.env.OBJECT_PREFIX + event["path"];
+        // Ensure the path starts with our prefix
+        let key = event["path"];
+        if (!key.startsWith('/' + process.env.OBJECT_PREFIX)) {
+            key = '/' + process.env.OBJECT_PREFIX + key;
+        }
+        if(key.startsWith('/')) {
+            key = key.substr(1);
+        }
         return key;
     }
 
