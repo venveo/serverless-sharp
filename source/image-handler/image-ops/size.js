@@ -108,22 +108,12 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
 
     const originalWidth = parseFloat(metadata.width)
     const originalHeight = parseFloat(metadata.height)
-    let newWidth = originalWidth
-    let newHeight = originalHeight
-    let factor = 1
 
-    // if the image is smaller, find the minimum
-    if (width < originalWidth && height < originalHeight) {
-        factor = Math.min(width / originalWidth, height / originalHeight)
-        newWidth = parseInt(originalWidth * factor)
-        newHeight = parseInt(originalHeight * factor)
-    }
-    // if we need to expand the image, then find the max
-    else if (width > originalWidth || height > originalHeight) {
-        factor = Math.max(width / originalWidth, height / originalHeight)
-        newWidth = parseInt(originalWidth * factor)
-        newHeight = parseInt(originalHeight * factor)
-    }
+    // compute new width & height
+    const factor = Math.max(width / originalWidth, height / originalHeight)
+    const newWidth = parseInt(originalWidth * factor)
+    const newHeight = parseInt(originalHeight * factor)
+
 
     // if we don't have a focal point, default to center-center
     if (crop !== 'focalpoint') {
