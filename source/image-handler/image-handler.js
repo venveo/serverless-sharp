@@ -27,10 +27,8 @@ class ImageHandler {
         const edits = request.edits;
         if (edits !== undefined) {
             const modifiedImage = await this.applyEdits(originalImage, edits);
-            if (edits.fm !== undefined) {
-                await modifiedImage.toFormat(edits.fm);
-            }
-            const bufferImage = await modifiedImage.toBuffer();
+            const optimizedImage = await this.applyOptimizations(modifiedImage, edits);
+            const bufferImage = await optimizedImage.toBuffer();
             return {
                 CacheControl: request.originalImage.CacheControl,
                 Body: bufferImage.toString('base64')
@@ -52,58 +50,57 @@ class ImageHandler {
     async applyEdits(originalImage, edits) {
         const image = sharp(originalImage);
         await imageOps.apply(image, edits);
-        // Accepts 0 - 100
 
-
-        // const keys = Object.keys(edits);
-        // const values = Object.values(edits);
-
-        // Apply formatting edits first
-        // Quality
-        // if (edits["q"]) {
-        // }
-        // // Color
-        // if (edits["q"]) {
-        // }
-
-            // } else if (key === 'focalpoint') {
-                // const options = value;
-                // const metadata = await image.metadata();
-                //
-                // const centerX = metadata.width * options.x;
-                // const centerY = metadata.height * options.y;
-                // let x1 = centerX - metadata.width / 2;
-                // let y1 = centerY - metadata.height / 2;
-                // let x2 = x1 + metadata.width;
-                // let y2 = y1 + metadata.height;
-                //
-                // if (x1 < 0) {
-                //     x2 -= x1;
-                //     x1 = 0;
-                // }
-                // if (y1 < 0) {
-                //     y2 -= y1;
-                //     y1 = 0;
-                // }
-                // if (x2 > metadata.width) {
-                //     x1 -= (x2 - metadata.width);
-                //     x2 = metadata.width;
-                // }
-                // if (y2 > metadata.height) {
-                //     y1 -= (y2 - metadata.height);
-                //     y2 = metadata.height;
-                // }
-                //
-                // try {
-                //     image.extract({left: x1, top: y1, width: 0, height: 0})
-                // } catch (err) {
-                //     throw ({
-                //         status: 400,
-                //     });
-                // }
-        // }
-        // Return the modified image
         return image;
+    }
+
+    async applyOptimizations(image, edits) {
+        const minColors = 128;  // arbitrary number
+        const maxColors = 256*256*256;  // max colors in RGB color space
+
+        let quality = 80;
+        if (edits.q !== undefined) {
+            quality = parseInt(edits.q);
+            if (quality < 0) {
+                quality = 0
+            } else if (quality > 100) {
+                quality = 100
+            }
+        }
+
+        const metadata = await image.metadata();
+        let fm = edits.fm;
+        if (fm === undefined) {
+            fm = metadata.format
+        }
+
+        if (fm === 'jpg' || fm === 'jpeg') {
+            await image.jpeg({
+                quality: quality,
+                trellisQuantisation: true
+            })
+        } else if (fm === 'png') {
+            // determine max colors based on quality
+
+            const colors = 32; //parseInt((maxColors - minColors) * (quality / 100.0) + minColors);
+            const palette = quality < 100; // only change to palette if the quality is less than threshold
+
+            // throw({palette, colors, quality, metadata})
+            await image.png({
+                palette: palette,
+                colors: colors,
+                dither: 0,
+                // adaptiveFiltering: false,
+            })
+        } else if (fm === 'webp') {
+            await image.webp({
+                quality: quality
+            })
+        } else {
+            await image.toFormat(edits.fm);
+        }
+
+        return image
     }
 }
 

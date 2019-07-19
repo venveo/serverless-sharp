@@ -127,9 +127,9 @@ class ImageRequest {
         }
 
         // We need an output format immediately
-        if (!qp["fm"]) {
-            qp.fm = 'jpeg';
-        }
+        // if (!qp["fm"]) {
+        //     qp.fm = 'jpeg';
+        // }
 
         return qp;
     }
