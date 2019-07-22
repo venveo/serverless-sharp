@@ -13,6 +13,7 @@
 
 const AWS = require('aws-sdk');
 const sharp = require('sharp');
+const { spawnSync } = require('child_process');
 
 const imageOps = require('./image-ops');
 
@@ -74,24 +75,23 @@ class ImageHandler {
             fm = metadata.format
         }
 
+        // adjust quality based on file type
         if (fm === 'jpg' || fm === 'jpeg') {
             await image.jpeg({
                 quality: quality,
                 trellisQuantisation: true
             })
         } else if (fm === 'png') {
-            // determine max colors based on quality
+            // ensure that we do not reduce quality if param is not given
+            if (quality < 100 && edits.q !== undefined) {
+                const buffer = await image.toBuffer();
 
-            const colors = 32; //parseInt((maxColors - minColors) * (quality / 100.0) + minColors);
-            const palette = quality < 100; // only change to palette if the quality is less than threshold
+                // throw(buffer.toString('base64'))
+                const minQuality = quality - 20 > 0 ? quality - 20 : 0;
 
-            // throw({palette, colors, quality, metadata})
-            await image.png({
-                palette: palette,
-                colors: colors,
-                dither: 0,
-                // adaptiveFiltering: false,
-            })
+                const pngquant = spawnSync('pngquant', ['--speed','3', '--quality',minQuality+'-'+quality, '-'], { input: buffer })
+                image = sharp(pngquant.stdout)
+            }
         } else if (fm === 'webp') {
             await image.webp({
                 quality: quality
