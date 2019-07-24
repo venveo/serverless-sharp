@@ -1,4 +1,4 @@
-org: Venveo
+org: ransom
 app: image-handler-app
 service: image-handler
 
@@ -11,26 +11,32 @@ provider:
         - "s3:GetObject"
       Resource: "arn:aws:s3:::${env:SOURCE_BUCKET}/${env:OBJECT_PREFIX}/*"
 
-#resources:
-#  Resources:
-#    CloudFrontDistribution:
-#      Type: AWS::CloudFront::Distribution
-#      Properties:
-#        DistributionConfig:
-#          Comment: Cloudfront distribution for serverless image handler
-#          DefaultCacheBehavior:
-#            TargetOriginId: MyFirstOrigin
-#            ViewerProtocolPolicy: 'redirect-to-https'
-#            DefaultTTL: 30
-#            ForwardedValues:
-#              QueryString: false
-#          Enabled: true
-#          Origins:
-#            - Id: MyFirstOrigin
-#            DomainName: <some_ID>.execute-api.us-east-1.amazonaws.com
-#            OriginPath: /dev/my/cool/path
-#            CustomOriginConfig:
-#            OriginProtocolPolicy: https-only
+resources:
+  Resources:
+    CloudFrontDistribution:
+      Type: AWS::CloudFront::Distribution
+      Properties:
+        DistributionConfig:
+          Comment: Cloudfront distribution for serverless image handler
+          DefaultCacheBehavior:
+            TargetOriginId: ApiGateway
+            ViewerProtocolPolicy: 'redirect-to-https'
+            DefaultTTL: 30
+            ForwardedValues:
+              QueryString: true
+          Enabled: true
+          Origins:
+            - Id: ApiGateway
+              DomainName:
+                Fn::Join:
+                  - "."
+                  - - Ref: ApiGatewayRestApi
+                    - execute-api.us-east-1.amazonaws.com
+              OriginPath: /dev
+              CustomOriginConfig:
+                HTTPPort: 80
+                HTTPSPort: 443
+                OriginProtocolPolicy: https-only
 
 functions:
   index:
