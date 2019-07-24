@@ -14,7 +14,9 @@ functions:
     environment:
       SOURCE_BUCKET: ${env:SOURCE_BUCKET}
       OBJECT_PREFIX: ${env:OBJECT_PREFIX}
-
+custom:
+  serverless-offline:
+    port: ${env:SERVERLESS_PORT}
 plugins:
   - serverless-offline
   - serverless-dotenv-plugin
