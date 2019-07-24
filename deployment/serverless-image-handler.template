@@ -25,12 +25,6 @@
             "Type" : "String",
             "AllowedPattern" : ".+"
         },
-        "DeployDemoUI" : {
-            "Description" : "Would you like to deploy a demo UI to explore the features and capabilities of this solution? This will create an additional Amazon S3 bucket and Amazon CloudFront distribution in your account.",
-            "Default" : "Yes",
-            "Type" : "String",
-            "AllowedValues" : [ "Yes", "No" ]
-        },
         "LogRetentionPeriod" : {
             "Description" : "This solution automatically logs events to Amazon CloudWatch. Select the amount of time for CloudWatch logs from this solution to be retained (in days).",
             "Default" : 1,
@@ -50,10 +44,6 @@
                     "Parameters": [ "SourceBucket" ]
                 },
                 {
-                    "Label": { "default": "Demo UI" },
-                    "Parameters": [ "DeployDemoUI" ]
-                },
-                {
                     "Label": { "default": "Event Logging" },
                     "Parameters": [ "LogRetentionPeriod" ]
                 }
@@ -61,7 +51,6 @@
         }
     },
     "Conditions": {
-        "DeployDemoUICondition": { "Fn::Equals": [ { "Ref": "DeployDemoUI" }, "Yes" ] },
         "EnableCorsCondition" : { "Fn::Equals": [ { "Ref": "CorsEnabled" }, "Yes" ] }
     },
     "Mappings": {
@@ -372,126 +361,6 @@
                 "RetentionInDays": { "Ref" : "LogRetentionPeriod" }
             }
         },
-        "DemoBucket": {
-            "Type": "AWS::S3::Bucket",
-            "Condition": "DeployDemoUICondition",
-            "DeletionPolicy": "Retain",
-            "Properties": {
-                "BucketEncryption": {
-                    "ServerSideEncryptionConfiguration": [
-                        { "ServerSideEncryptionByDefault": { "SSEAlgorithm": "AES256" } }
-                    ]
-                },
-                "WebsiteConfiguration": {
-                    "IndexDocument": "index.html",
-                    "ErrorDocument": "index.html"
-                },
-                "AccessControl": "Private",
-                "PublicAccessBlockConfiguration": {
-                    "BlockPublicAcls": true,
-                    "BlockPublicPolicy": true,
-                    "IgnorePublicAcls": true,
-                    "RestrictPublicBuckets": true
-                }
-            },
-            "Metadata": {
-                "cfn_nag": {
-                    "rules_to_suppress": [
-                        {
-                            "id": "W35",
-                            "reason": "This S3 bucket does not require access logging. API calls and image operations
-                            are logged to CloudWatch with custom reporting."
-                        }
-                    ]
-                }
-            }
-        },
-        "DemoBucketPolicy": {
-            "Type": "AWS::S3::BucketPolicy",
-            "Condition": "DeployDemoUICondition",
-            "Properties": {
-                "Bucket": { "Ref": "DemoBucket" },
-                "PolicyDocument": {
-                    "Statement": [
-                        {
-                            "Action": [ "s3:GetObject" ],
-                            "Effect": "Allow",
-                            "Resource": {
-                                "Fn::Join": [
-                                    "",
-                                    [
-                                        "arn:aws:s3:::",
-                                        { "Ref": "DemoBucket" },
-                                        "/*"
-                                    ]
-                                ]
-                            },
-                            "Principal": {
-                                "CanonicalUser": {
-                                    "Fn::GetAtt": [
-                                        "DemoOriginAccessIdentity",
-                                        "S3CanonicalUserId"
-                                    ]
-                                }
-                            }
-                        }
-                    ]
-                }
-            }
-        },
-        "DemoOriginAccessIdentity": {
-            "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
-            "Condition": "DeployDemoUICondition",
-            "Properties": {
-                "CloudFrontOriginAccessIdentityConfig": {
-                    "Comment": {
-                        "Fn::Sub": "access-identity-${DemoBucket}"
-                    }
-                }
-            }
-        },
-        "DemoDistribution": {
-            "Type": "AWS::CloudFront::Distribution",
-            "Condition": "DeployDemoUICondition",
-            "Properties": {
-                "DistributionConfig": {
-                    "Comment": "Website distribution for solution",
-                    "Origins": [
-                        {
-                            "Id": "S3-solution-website",
-                            "DomainName": { "Fn::Sub": "${DemoBucket}.s3.${AWS::Region}.amazonaws.com" },
-                            "S3OriginConfig": {
-                                "OriginAccessIdentity": { "Fn::Sub": "origin-access-identity/cloudfront/${DemoOriginAccessIdentity}" }
-                            }
-                        }
-                    ],
-                    "DefaultCacheBehavior": {
-                        "TargetOriginId": "S3-solution-website",
-                        "AllowedMethods": [ "GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE" ],
-                        "CachedMethods": [ "GET", "HEAD", "OPTIONS" ],
-                        "ForwardedValues": {
-                            "QueryString": false
-                        },
-                        "ViewerProtocolPolicy": "redirect-to-https"
-                    },
-                    "IPV6Enabled": true,
-                    "ViewerCertificate": { "CloudFrontDefaultCertificate": true },
-                    "Enabled": true,
-                    "HttpVersion": "http2"
-                }
-            },
-            "Metadata": {
-                "cfn_nag": {
-                    "rules_to_suppress": [
-                        {
-                            "id": "W10",
-                            "reason": "This CloudFront Distribution does not require access logging. API calls and image operations
-                            are logged to CloudWatch with custom reporting."
-                        }
-                    ]
-                }
-            }
-        },
         "CustomResourceFunction": {
             "Type": "AWS::Lambda::Function",
             "Properties": {
@@ -581,36 +450,6 @@
                 }
             }
         },
-        "CustomResourceCopyS3": {
-            "Type": "Custom::CustomResource",
-            "Condition" : "DeployDemoUICondition",
-            "Properties": {
-                "ServiceToken": { "Fn::GetAtt" : [ "CustomResourceFunction", "Arn" ]},
-                "Region": { "Ref" : "AWS::Region" },
-                "manifestKey": { "Fn::Join": [ "/", [ { "Fn::FindInMap": [ "SourceCode", "General", "KeyPrefix" ]}, "demo-ui-manifest.json" ]]},
-                "sourceS3Bucket": { "Fn::Join": [ "-", [{ "Fn::FindInMap": [ "SourceCode", "General", "S3Bucket" ]}, { "Ref": "AWS::Region" }]]},
-                "sourceS3key": { "Fn::Join": ["/", [{ "Fn::FindInMap": [ "SourceCode", "General", "KeyPrefix" ]}, "demo-ui" ]]},
-                "destS3Bucket": { "Ref" : "DemoBucket" },
-                "version": "%%VERSION%%",
-                "customAction": "copyS3assets"
-            },
-            "DependsOn": [ "CustomResourcePolicy", "CustomResourceRole" ]
-        },
-        "CustomResourceConfig": {
-            "Type": "Custom::CustomResource",
-            "Condition" : "DeployDemoUICondition",
-            "Properties": {
-                "ServiceToken": { "Fn::GetAtt" : [ "CustomResourceFunction", "Arn" ]},
-                "Region": { "Ref" : "AWS::Region" },
-                "configItem" : {
-                    "apiEndpoint" : { "Fn::Sub" : "https://${ImageHandlerDistribution.DomainName}" }
-                } ,
-                "destS3Bucket" : { "Ref" : "DemoBucket" },
-                "destS3key" : "demo-ui-config.js",
-                "customAction": "putConfigFile"
-            },
-            "DependsOn": [ "CustomResourcePolicy", "CustomResourceRole" ]
-        },
         "CustomResourceLogGroup": {
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
@@ -642,11 +481,6 @@
         "ApiEndpoint" : {
             "Description" : "Link to API endpoint for sending image requests to.",
             "Value" : { "Fn::Sub" : "https://${ImageHandlerDistribution.DomainName}" }
-        },
-        "DemoUrl" : {
-            "Condition" : "DeployDemoUICondition",
-            "Description" : "Link to the demo user interface for the solution.",
-            "Value" : { "Fn::Sub" : "https://${DemoDistribution.DomainName}/index.html" }
         },
         "SourceBucket" : {
             "Description" : "Amazon S3 bucket location containing original image files.",

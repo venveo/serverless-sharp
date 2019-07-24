@@ -1,4 +1,4 @@
-service: image-handler # NOTE: update this with your service name
+service: image-handler
 
 provider:
   name: aws
