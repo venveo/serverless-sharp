@@ -48,6 +48,7 @@ functions:
           contentHandling: CONVERT_TO_BINARY
     environment:
       SOURCE_BUCKET: ${env:SOURCE_BUCKET}
+      SECURITY_KEY: ${env:SECURITY_KEY}
       OBJECT_PREFIX: ${env:OBJECT_PREFIX}
       REGION: us-east-1
 custom:

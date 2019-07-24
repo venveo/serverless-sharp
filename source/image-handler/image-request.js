@@ -21,7 +21,9 @@ class ImageRequest {
      */
     async setup(event) {
         try {
-            // this.parseHash(event);
+            if (process.env.SECURITY_KEY !== undefined) {
+                this.parseHash(event);
+            }
             this.bucket = process.env.SOURCE_BUCKET;
             this.key = this.parseImageKey(event);
             this.edits = this.decodeRequest(event);
@@ -85,31 +87,44 @@ class ImageRequest {
     }
 
     /**
+     * Assembles an object of query params into a string for hashing
+     * @param queryStringParameters
+     * @returns {string}
+     * @private
+     */
+    static _buildQueryStringFromObject(queryStringParameters) {
+        let string = '';
+        for (const [k, v] of Object.entries(queryStringParameters)) {
+            // Don't hash the security token
+            if (k !== 's') {
+                string += '&' + k + '=' + encodeURIComponent(v);
+            }
+        }
+        return '?' + string.substr(1);
+    }
+    /**
      * Parses the name of the appropriate Amazon S3 key corresponding to the
      * original image.
      * @param {String} event - Lambda request body.
      */
     parseHash(event) {
-        const {pathParameters, path} = event;
-        if (!pathParameters || pathParameters['s'] === undefined)  {
+        const {queryStringParameters, path} = event;
+        if (!queryStringParameters || queryStringParameters['s'] === undefined)  {
             throw {
                 status: 400,
                 code: 'RequestTypeError',
                 message: 'Security hash not present'
             };
         }
-        const hash = pathParameters['s'];
-        const splitPath = path.split("/");
-        const encoded = splitPath[splitPath.length - 1];
-        const toBuffer = new Buffer(encoded, 'base64');
-        const decoded = toBuffer.toString('ascii');
-        const source = decoded + process.env.SECURITY_KEY;
+        const hash = queryStringParameters['s'];
+        const query = ImageRequest._buildQueryStringFromObject(queryStringParameters);
+        const source = process.env.SECURITY_KEY + path + query;
         const parsed = crypto.createHash('md5').update(source).digest("hex");
         if (parsed !== hash) {
             throw {
                 status: 401,
                 code: 'RequestTypeError',
-                message: 'Invalid security hash ' + parsed + ' != ' + hash
+                message: 'Invalid security hash'
             };
         }
         return parsed;

@@ -3,7 +3,7 @@ const size = require('./size');
 
 exports.apply = async (image, edits) => {
 
-    // Apply brightness. 0 - 100
+    // Apply brightness. 1 - 100
     if (edits["bri"]) {
         adjustment.bri(image, Math.round(Number(edits["bri"] / 100)));
     }
