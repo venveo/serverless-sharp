@@ -22,58 +22,14 @@ This package uses Serverless to allow for local development by simulating API Ga
 6. Run `serverless offline`
 
 ## Deploying to AWS
-TODO
-
-
-## Running unit tests for customization
-* Clone the repository, then make the desired code changes
-* Next, run unit tests to make sure added customization passes the tests
-```
-cd ./deployment
-chmod +x ./run-unit-tests.sh  \n
-./run-unit-tests.sh \n
-```
-
-## Building distributable for customization
-* Configure the bucket name of your target Amazon S3 distribution bucket
-```
-export TEMPLATE_OUTPUT_BUCKET=my-bucket-name # bucket where cfn template will reside
-export DIST_OUTPUT_BUCKET=my-bucket-name # bucket where customized code will reside
-export VERSION=my-version # version number for the customized code
-```
-_Note:_ You would have to create 2 buckets, one named 'my-bucket-name' and another regional bucket named 'my-bucket-name-<aws_region>'; aws_region is where you are testing the customized solution. Also, the assets  in bucket should be publicly accessible.
+First, we need to procure sharp/libvips binaries compiled for Amazon Linux. We can do this by running the following:
 
 ```
-* Clone the github repo
-```bash
-git clone https://github.com/awslabs/serverless-image-handler.git
-```
+rm -rf node_modules/sharp && npm install --arch=x64 --platform=linux --target=8.10.0 sharp
+``` 
 
-* Navigate to the deployment folder
-```bash
-cd serverless-image-handler/deployment
-```
+This will remove any existing Sharp binaries and then reinstall them with Linux x64 in mind.
 
-* Now build the distributable
-```bash
-sudo ./build-s3-dist.sh $DIST_OUTPUT_BUCKET $TEMPLATE_OUTPUT_BUCKET $VERSION
-```
+Ensure your `.env` file is properly configured as shown in the previous step
 
-* Deploy the distributable to an Amazon S3 bucket in your account. Note: you must have the AWS Command Line Interface installed.
-```bash
-aws s3 cp ./dist/ s3://$DIST_OUTPUT_BUCKET-[region_name]/serverless-image-handler/$VERSION/ --recursive --exclude "*" --include "*.zip"
-aws s3 cp ./dist/serverless-image-handler.template s3://$TEMPLATE_OUTPUT_BUCKET/serverless-image-handler/$VERSION/
-```
-_Note:_ In the above example, the solution template will expect the source code to be located in the my-bucket-name-[region_name] with prefix serverless-image-handler/my-version/serverless-image-handler.zip
-
-* Get the link of the serverless-image-handler.template uploaded to your Amazon S3 bucket.
-* Deploy the Serverless Image Handler solution to your account by launching a new AWS CloudFormation stack using the link of the serverless-image-handler.template
-```bash
-https://s3.amazonaws.com/my-bucket-name/serverless-image-handler/my-version/serverless-image-handler.template
-```
-
-Building for Lambda:
-```
-rm -rf node_modules/sharp
-docker run -v "$PWD":/var/task lambci/lambda:build-nodejs8.10 npm install
-```
+Run: `serverless deploy`
