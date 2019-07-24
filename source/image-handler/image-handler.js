@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk');
 const sharp = require('sharp');
+const fs  = require("fs");
 const path  = require("path");
 const { spawnSync } = require('child_process');
 
