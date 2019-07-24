@@ -13,6 +13,7 @@
 
 const AWS = require('aws-sdk');
 const sharp = require('sharp');
+const path  = require("path");
 const { spawnSync } = require('child_process');
 
 const imageOps = require('./image-ops');
@@ -89,7 +90,7 @@ class ImageHandler {
                 // throw(buffer.toString('base64'))
                 const minQuality = quality - 20 > 0 ? quality - 20 : 0;
 
-                const pngquant = spawnSync('pngquant', ['--speed','3', '--quality',minQuality+'-'+quality, '-'], { input: buffer })
+                const pngquant = spawnSync(this.findBin('pngquant'), ['--speed', '3', '--quality', minQuality+'-'+quality, '-'], { input: buffer })
                 image = sharp(pngquant.stdout)
             }
         } else if (fm === 'webp') {
@@ -101,6 +102,15 @@ class ImageHandler {
         }
 
         return image
+    }
+
+    findBin(binName) {
+        const binPath = path.resolve(__dirname, "../bin/", process.platform, binName);
+
+        if ( ! fs.existsSync(binPath) ) {
+            throw new Error("Undefined binary: " + binPath);
+        }
+        return binPath;
     }
 }
 
