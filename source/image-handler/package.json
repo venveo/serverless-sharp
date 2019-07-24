@@ -1,9 +1,9 @@
 {
-  "name": "image-handler",
+  "name": "serverless-image-handler",
   "description": "A Lambda function for performing on-demand image edits and manipulations.",
   "main": "index.js",
   "author": {
-    "name": "aws-solutions-builder"
+    "name": "Venveo"
   },
   "version": "4.0.0",
   "private": true,
