@@ -31,14 +31,56 @@ class ImageHandler {
             const modifiedImage = await this.applyEdits(originalImage, edits);
             const optimizedImage = await this.applyOptimizations(modifiedImage, edits);
             const bufferImage = await optimizedImage.toBuffer();
+            const meta = await optimizedImage.metadata();
+            const format = meta.format;
+            let contentType;
+            // TODO: Break this out
+            switch(format) {
+                case 'jpeg':
+                    contentType = 'image/jpeg';
+                    break;
+                case 'png':
+                    contentType = 'image/png';
+                    break;
+                case 'webp':
+                    contentType = 'image/webp';
+                    break;
+                case 'gif':
+                    contentType = 'image/gif';
+                    break;
+                case 'svg':
+                    contentType = 'image/svg+xml';
+                    break;
+            }
             return {
                 CacheControl: request.originalImage.CacheControl,
-                Body: bufferImage.toString('base64')
+                Body: bufferImage.toString('base64'),
+                ContentType: contentType
             };
         } else {
+            const format = meta.format;
+            let contentType;
+            switch(format) {
+                case 'jpeg':
+                    contentType = 'image/jpeg';
+                    break;
+                case 'png':
+                    contentType = 'image/png';
+                    break;
+                case 'webp':
+                    contentType = 'image/webp';
+                    break;
+                case 'gif':
+                    contentType = 'image/gif';
+                    break;
+                case 'svg':
+                    contentType = 'image/svg+xml';
+                    break;
+            }
             return {
                 CacheControl: request.originalImage.CacheControl,
-                Body: originalImage.toString('base64')
+                Body: originalImage.toString('base64'),
+                ContentType: contentType
             };
         }
     }

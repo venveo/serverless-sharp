@@ -1,8 +1,36 @@
+org: Venveo
+app: image-handler-app
 service: image-handler
 
 provider:
   name: aws
   runtime: nodejs8.10
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:GetObject"
+      Resource: "arn:aws:s3:::${env:SOURCE_BUCKET}/${env:OBJECT_PREFIX}/*"
+
+#resources:
+#  Resources:
+#    CloudFrontDistribution:
+#      Type: AWS::CloudFront::Distribution
+#      Properties:
+#        DistributionConfig:
+#          Comment: Cloudfront distribution for serverless image handler
+#          DefaultCacheBehavior:
+#            TargetOriginId: MyFirstOrigin
+#            ViewerProtocolPolicy: 'redirect-to-https'
+#            DefaultTTL: 30
+#            ForwardedValues:
+#              QueryString: false
+#          Enabled: true
+#          Origins:
+#            - Id: MyFirstOrigin
+#            DomainName: <some_ID>.execute-api.us-east-1.amazonaws.com
+#            OriginPath: /dev/my/cool/path
+#            CustomOriginConfig:
+#            OriginProtocolPolicy: https-only
 
 functions:
   index:
@@ -11,12 +39,19 @@ functions:
       - http:
           path: /{any+}
           method: get
+          contentHandling: CONVERT_TO_BINARY
     environment:
       SOURCE_BUCKET: ${env:SOURCE_BUCKET}
       OBJECT_PREFIX: ${env:OBJECT_PREFIX}
+      REGION: us-east-1
 custom:
   serverless-offline:
     port: ${env:SERVERLESS_PORT}
+  apigwBinary:
+    types:
+      - '*/*'
 plugins:
   - serverless-offline
   - serverless-dotenv-plugin
+  - serverless-apigw-binary
+  - serverless-apigwy-binary

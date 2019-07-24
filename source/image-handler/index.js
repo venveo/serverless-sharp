@@ -50,14 +50,16 @@ const getResponseHeaders = (processedRequest, isErr) => {
     const headers = {
         "Access-Control-Allow-Methods": "GET",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        "Access-Control-Allow-Credentials": true,
-        "Content-Type": "image"
+        "Access-Control-Allow-Credentials": true
     }
     if (corsEnabled) {
         headers["Access-Control-Allow-Origin"] = process.env.CORS_ORIGIN;
     }
     if (processedRequest && 'CacheControl' in processedRequest) {
         headers["Cache-Control"] = processedRequest.CacheControl;
+    }
+    if (processedRequest && 'ContentType' in processedRequest) {
+        headers["Content-Type"] = processedRequest.ContentType;
     }
     if (isErr) {
         headers["Content-Type"] = "application/json"

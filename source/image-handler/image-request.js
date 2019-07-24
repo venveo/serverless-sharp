@@ -133,26 +133,6 @@ class ImageRequest {
 
         return qp;
     }
-
-    /**
-     * Returns a formatted image source bucket whitelist as specified in the
-     * SOURCE_BUCKETS environment variable of the image handler Lambda
-     * function. Provides error handling for missing/invalid values.
-     */
-    getAllowedSourceBuckets() {
-        const sourceBuckets = process.env.SOURCE_BUCKETS;
-        if (sourceBuckets === undefined) {
-            throw ({
-                status: 400,
-                code: 'GetAllowedSourceBuckets::NoSourceBuckets',
-                message: 'The SOURCE_BUCKETS variable could not be read. Please check that it is not empty and contains at least one source bucket, or multiple buckets separated by commas. Spaces can be provided between commas and bucket names, these will be automatically parsed out when decoding.'
-            });
-        } else {
-            const formatted = sourceBuckets.replace(/\s+/g, '');
-            const buckets = formatted.split(',');
-            return buckets;
-        }
-    }
 }
 
 // Exports
