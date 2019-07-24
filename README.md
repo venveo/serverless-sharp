@@ -27,8 +27,9 @@ supported:
 
 *If both width and height are supplied, the aspect ratio will be preserved and scaled to minimum of either width/height* 
 
-- **bri** - brightness - 0-100
-- **sharp** - Sharpen image (truthy)
+- **q** - quality (80) - 1-100
+- **bri** - brightness - 1-100
+- **sharp** - Sharpen image (false) - (truthy)
 - **fit** - resize fitting mode - can be one of: `fill`, `scale`, `crop`, `clip`
 - **crop** - resize fitting mode - can be one of: `focalpoint`, any comma separated combination of `top`, `bottom`, `left` `right`
 - **fp-x**, **fp-y** - focal point x & y - percentage, 0 to 1 for where to focus on the image when cropping with focalpoint mode
