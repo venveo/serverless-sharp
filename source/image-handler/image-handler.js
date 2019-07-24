@@ -18,8 +18,7 @@ class ImageHandler {
             const modifiedImage = await this.applyEdits(originalImage, edits);
             const optimizedImage = await this.applyOptimizations(modifiedImage, edits);
             const bufferImage = await optimizedImage.toBuffer();
-            const meta = await optimizedImage.metadata();
-            const format = meta.format;
+            const format = optimizedImage.options.formatOut;
             let contentType;
             // TODO: Break this out
             switch(format) {
@@ -38,6 +37,8 @@ class ImageHandler {
                 case 'svg':
                     contentType = 'image/svg+xml';
                     break;
+                default:
+                    contentType = 'image';
             }
             return {
                 CacheControl: request.originalImage.CacheControl,
@@ -45,8 +46,9 @@ class ImageHandler {
                 ContentType: contentType
             };
         } else {
-            const format = meta.format;
+            const format = originalImage.options.formatOut;
             let contentType;
+            // TODO: Break this out
             switch(format) {
                 case 'jpeg':
                     contentType = 'image/jpeg';
@@ -63,6 +65,8 @@ class ImageHandler {
                 case 'svg':
                     contentType = 'image/svg+xml';
                     break;
+                default:
+                    contentType = 'image';
             }
             return {
                 CacheControl: request.originalImage.CacheControl,
