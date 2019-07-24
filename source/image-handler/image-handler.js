@@ -139,7 +139,7 @@ class ImageHandler {
     }
 
     findBin(binName) {
-        const binPath = path.resolve(__dirname, "../bin/", process.platform, binName);
+        const binPath = path.resolve(__dirname, "../bin/", binName);
 
         if ( ! fs.existsSync(binPath) ) {
             throw new Error("Undefined binary: " + binPath);
