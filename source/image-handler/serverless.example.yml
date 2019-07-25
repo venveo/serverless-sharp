@@ -1,5 +1,3 @@
-org: ransom
-app: image-handler-app
 service: image-handler
 
 provider:
