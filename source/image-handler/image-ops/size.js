@@ -106,13 +106,22 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
     // extract metadata from image to resize
     const metadata = await image.metadata();
 
-    const originalWidth = parseFloat(metadata.width)
-    const originalHeight = parseFloat(metadata.height)
+    const originalWidth = parseFloat(metadata.width);
+    const originalHeight = parseFloat(metadata.height);
+
+    const ratio = originalWidth / originalHeight;
+
+    if (width && !height) {
+        height = width / ratio;
+    }
+    if (height && !width) {
+        width = height * ratio;
+    }
 
     // compute new width & height
-    const factor = Math.max(width / originalWidth, height / originalHeight)
-    const newWidth = parseInt(originalWidth * factor)
-    const newHeight = parseInt(originalHeight * factor)
+    const factor = Math.max(width / originalWidth, height / originalHeight);
+    const newWidth = parseInt(originalWidth * factor);
+    const newHeight = parseInt(originalHeight * factor);
 
 
     // if we don't have a focal point, default to center-center
@@ -160,6 +169,8 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
     } else if (fpy_top < 0) {
         fpy_top = 0
     }
+
+    console.log(width, height, fpx_left, fpy_top);
 
     image.resize({
         width: newWidth,
