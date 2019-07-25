@@ -27,6 +27,7 @@ class ImageRequest {
             this.bucket = process.env.SOURCE_BUCKET;
             this.key = this.parseImageKey(event);
             this.edits = this.decodeRequest(event);
+            this.headers = event.headers;
 
             this.originalImage = await this.getOriginalImage(this.bucket, this.key);
             return Promise.resolve(this);

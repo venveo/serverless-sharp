@@ -23,6 +23,8 @@ resources:
             ViewerProtocolPolicy: 'redirect-to-https'
             DefaultTTL: 30
             ForwardedValues:
+              Headers:
+                - 'Accept'
               QueryString: true
           Enabled: true
           Origins:

@@ -1,8 +1,8 @@
 const AWS = require('aws-sdk');
 const sharp = require('sharp');
-const fs  = require("fs");
-const path  = require("path");
-const { spawnSync } = require('child_process');
+const fs = require("fs");
+const path = require("path");
+const {spawnSync} = require('child_process');
 
 const imageOps = require('./image-ops');
 
@@ -14,15 +14,15 @@ class ImageHandler {
      */
     async process(request) {
         const originalImage = request.originalImage.Body;
-        const edits = request.edits;
+        const {edits, headers} = request;
         if (edits !== undefined) {
             const modifiedImage = await this.applyEdits(originalImage, edits);
-            const optimizedImage = await this.applyOptimizations(modifiedImage, edits);
+            const optimizedImage = await this.applyOptimizations(modifiedImage, edits, headers);
             const bufferImage = await optimizedImage.toBuffer();
             const format = optimizedImage.options.formatOut;
             let contentType;
             // TODO: Break this out
-            switch(format) {
+            switch (format) {
                 case 'jpeg':
                     contentType = 'image/jpeg';
                     break;
@@ -50,7 +50,7 @@ class ImageHandler {
             const format = originalImage.options.formatOut;
             let contentType;
             // TODO: Break this out
-            switch(format) {
+            switch (format) {
                 case 'jpeg':
                     contentType = 'image/jpeg';
                     break;
@@ -90,15 +90,23 @@ class ImageHandler {
         return image;
     }
 
-    async applyOptimizations(image, edits) {
+    async applyOptimizations(image, edits, headers) {
         const minColors = 128;  // arbitrary number
-        const maxColors = 256*256*256;  // max colors in RGB color space
+        const maxColors = 256 * 256 * 256;  // max colors in RGB color space
+
+        const {auto} = edits;
+
+        let autoOps = [];
+        if (auto) {
+            console.log('Auto mode:', auto);
+            autoOps = auto.split(',');
+        }
 
         let quality = 80;
         if (edits.q !== undefined) {
             quality = parseInt(edits.q);
-            if (quality < 0) {
-                quality = 0
+            if (quality < 1) {
+                quality = 1
             } else if (quality > 100) {
                 quality = 100
             }
@@ -110,6 +118,13 @@ class ImageHandler {
             fm = metadata.format
         }
 
+        // Check for webp support
+        if (autoOps.includes('format') && headers && 'Accept' in headers) {
+            if (headers['Accept'].indexOf('image/webp') !== -1) {
+                fm = 'webp';
+            }
+        }
+
         // adjust quality based on file type
         if (fm === 'jpg' || fm === 'jpeg') {
             await image.jpeg({
@@ -118,14 +133,16 @@ class ImageHandler {
             })
         } else if (fm === 'png') {
             // ensure that we do not reduce quality if param is not given
-            if (quality < 100 && edits.q !== undefined) {
+            if (autoOps.includes('compress') && quality < 100 && edits.q !== undefined) {
                 const buffer = await image.toBuffer();
-
-                // throw(buffer.toString('base64'))
                 const minQuality = quality - 20 > 0 ? quality - 20 : 0;
 
-                const pngquant = spawnSync(this.findBin('pngquant'), ['--speed', '3', '--quality', minQuality+'-'+quality, '-'], { input: buffer })
+                const pngquant = spawnSync(this.findBin('pngquant'), ['--speed', '3', '--quality', minQuality + '-' + quality, '-'], {input: buffer})
                 image = sharp(pngquant.stdout)
+            } else {
+                await image.png({
+                    quality: quality
+                });
             }
         } else if (fm === 'webp') {
             await image.webp({
@@ -141,7 +158,7 @@ class ImageHandler {
     findBin(binName) {
         const binPath = path.resolve(__dirname, "../bin/", binName);
 
-        if ( ! fs.existsSync(binPath) ) {
+        if (!fs.existsSync(binPath)) {
             throw new Error("Undefined binary: " + binPath);
         }
         return binPath;
