@@ -12,6 +12,9 @@ than monthly cost). The most important of which are:
 - **API Gateway**: Acts as a public gateway for requests to your Lambda function
 - **Cloudfront Distribution**: Caches the responses from your API Gateway so the Lambda function doesn't re-execute
 
+Once deployed, a Cloudfront CDN distribution is generated that is directed to the generated API Gateway. This distribution 
+ensures the Lambda function does not get run multiple times for the same image request.
+
 ## Configuration & Environment Variables
 - `SOURCE_BUCKET` An S3 bucket in your account where your images are stored
 - `OBJECT_PREFIX` A sub-folder where your images are located if not in the root
@@ -19,6 +22,16 @@ than monthly cost). The most important of which are:
 - `SECURITY_KEY` See security section
 
 ## API & Usage
+We chose to base our API around the [Imgix service](https://docs.imgix.com/apis/url) to allow for backwards compatibility
+with the already popular service. The idea is that all CMS plugins should be able to seamlessly use this service in-place of
+an Imgix URL. We've only implemented a hand-full of the features Imgix offers; however, the one's we've
+implemnented should cover most use-cases.
+
+The benefits of using this method over other methods (such as hashing the entire URL payload in base64) are:
+- Much more intuitive
+- Easier to develop & debug
+- Provides clear prefix matching your original object's path with which you can create invalidations with wildcards
+
 You may access images in your `SOURCE_BUCKET` via the Cloudfront URL that is generated for your distribution just like
 normal images. Transforms can be appended to the filename as query parameters. The following query parameters are
 supported:
@@ -74,9 +87,11 @@ This package uses Serverless to allow for local development by simulating API Ga
 1. `cd source/image-handler`
 2. `npm install`
 3. `cp .env.example .env`
-4. Configure .env file
-5. Ensure you have AWS CLI configured on your machine with proper access to the S3 bucket you're using in `.env`
-6. Run `serverless offline`
+4. `cp serverless.example.yml serverless.yml`
+5. Conifugre serverless.yml file
+5. Configure .env file
+6. Ensure you have AWS CLI configured on your machine with proper access to the S3 bucket you're using in `.env`
+7. Run `serverless offline`
 
 ## Deploying to AWS
 First, we need to procure sharp/libvips binaries compiled for Amazon Linux. We can do this by running the following:
@@ -87,6 +102,6 @@ rm -rf node_modules/sharp && npm install --arch=x64 --platform=linux --target=8.
 
 This will remove any existing Sharp binaries and then reinstall them with Linux x64 in mind.
 
-Ensure your `.env` file is properly configured as shown in the previous step
+Ensure your `.env` and `serverless.yml` files are properly configured as shown in the previous step
 
 Run: `serverless deploy`
