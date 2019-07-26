@@ -66,6 +66,8 @@ and on our URL...
 `https://something.cloudfront.net/web/general-images/photo.jpg?auto=compress%2Cformat&crop=focalpoint&fit=crop&fp-x=0.5&fp-y=0.5&h=380&q=80&w=700&s=a0144a80b5b67d7cb6da78494ef574db`
 
 
+## Should I run this in production?
+Probably not. Yet. But if you do, make sure you submit issues!
 
 ## Running Locally
 This package uses Serverless to allow for local development by simulating API Gateway and Lambda.
