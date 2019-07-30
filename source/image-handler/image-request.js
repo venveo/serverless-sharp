@@ -119,7 +119,8 @@ class ImageRequest {
         }
         const hash = queryStringParameters['s'];
         const query = ImageRequest._buildQueryStringFromObject(queryStringParameters);
-        const source = process.env.SECURITY_KEY + path + query;
+        const encodedPath = decodeURIComponent(path).split('/').map((comp) => {return encodeURIComponent(comp)}).join('/');
+        const source = process.env.SECURITY_KEY + encodedPath + query;
         const parsed = crypto.createHash('md5').update(source).digest("hex");
         if (parsed !== hash) {
             throw {
