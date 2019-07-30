@@ -98,10 +98,12 @@ class ImageHandler {
 
         let autoOps = [];
 
+        // Get our ops from auto
         if (auto) {
             autoOps = auto.split(',');
         }
 
+        // Determine our quality
         let quality = 80;
         if (edits.q !== undefined) {
             quality = parseInt(edits.q);
@@ -112,10 +114,19 @@ class ImageHandler {
             }
         }
 
+        // Get the image meta-data and the initial format
         const metadata = await image.metadata();
         let fm = edits.fm;
         if (fm === undefined) {
             fm = metadata.format
+        }
+
+        if (autoOps.includes('compress')) {
+            if (!metadata.hasAlpha && (fm === 'png' || fm === 'tiff')) {
+                fm = 'jpeg'
+            } else if (metadata.hasAlpha && fm === 'png') {
+                fm = 'png'
+            }
         }
 
         if (autoOps.includes('format')) {
@@ -124,11 +135,6 @@ class ImageHandler {
                 if (fm !== 'gif' && headers['Accept'].indexOf('image/webp') !== -1) {
                     fm = 'webp';
                 }
-            }
-
-            // Convert non-transparent pngs to jpeg
-            if (!metadata.hasAlpha && fm === 'png') {
-                fm = 'jpeg'
             }
         }
 
