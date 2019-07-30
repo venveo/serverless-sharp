@@ -147,9 +147,13 @@ class ImageHandler {
                 });
             }
         } else if (fm === 'webp') {
-            await image.webp({
+            let options = {
                 quality: quality
-            })
+            };
+            if ('lossless' in edits && edits.lossless === 'true') {
+                options.lossless = true;
+            }
+            await image.webp(options)
         } else {
             await image.toFormat(edits.fm);
         }

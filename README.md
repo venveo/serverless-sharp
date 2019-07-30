@@ -49,6 +49,7 @@ supported:
 - **fp-x**, **fp-y** - focal point x & y - percentage, 0 to 1 for where to focus on the image when cropping with focalpoint mode
 - **s** - security hash - See security section
 - **auto** - can be a comma separated combination of: `compress`, `format`
+- **lossless** - if set, images rendered as webp will be lossless
 
 ## Security
 To prevent abuse of your lambda function, you can set a security key. When the security key environment variable is set,
