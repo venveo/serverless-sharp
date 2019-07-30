@@ -174,7 +174,10 @@ class ImageHandler {
     }
 
     findBin(binName) {
-        const binPath = path.resolve(__dirname, "../bin/", process.platform, binName);
+        var taskRoot = process.env['LAMBDA_TASK_ROOT'] || __dirname;
+        // On linux the executable is in task root / __dirname, whichever was defined
+        process.env.PATH += ':' + taskRoot;
+        const binPath = path.resolve(taskRoot, "/bin/", process.platform, binName);
 
         if (!fs.existsSync(binPath)) {
             throw new Error("Undefined binary: " + binPath);

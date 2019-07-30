@@ -45,7 +45,7 @@ class ImageRequest {
     async getOriginalImage(bucket, key) {
         const S3 = require('aws-sdk/clients/s3');
         const s3 = new S3();
-        const imageLocation = { Bucket: bucket, Key: key };
+        const imageLocation = { Bucket: bucket, Key: decodeURIComponent(key) };
         const request = s3.getObject(imageLocation).promise();
         try {
             const originalImage = await request;
@@ -78,8 +78,10 @@ class ImageRequest {
         // Decode the image request and return the image key
         // Ensure the path starts with our prefix
         let key = decodeURI(event["path"]);
-        if (!key.startsWith('/' + process.env.OBJECT_PREFIX)) {
-            key = '/' + process.env.OBJECT_PREFIX + key;
+        if(process.env.OBJECT_PREFIX !== undefined && process.env.OBJECT_PREFIX !== null && process.env.OBJECT_PREFIX.length) {
+            if (!key.startsWith('/' + process.env.OBJECT_PREFIX)) {
+                key = '/' + process.env.OBJECT_PREFIX + key;
+            }
         }
         if(key.startsWith('/')) {
             key = key.substr(1);
