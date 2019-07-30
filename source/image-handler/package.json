@@ -23,13 +23,5 @@
     "serverless-offline": "^5.7.3",
     "serverless-plugin-simulate": "0.0.17",
     "serverless-stage-manager": "^1.0.5"
-  },
-  "scripts": {
-    "pretest": "npm install",
-    "test": "nyc --reporter=html --reporter=text mocha",
-    "build:init": "rm -rf package-lock.json && rm -rf dist && rm -rf node_modules",
-    "build:zip": "zip -rq image-handler.zip . -x template.yml",
-    "build:dist": "mkdir dist && mv image-handler.zip dist/",
-    "build": "npm run build:init && npm install --production && npm run build:zip && npm run build:dist"
   }
 }
