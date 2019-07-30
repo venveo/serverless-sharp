@@ -51,6 +51,15 @@ supported:
 - **auto** - can be a comma separated combination of: `compress`, `format`
 - **lossless** - if set, images rendered as webp will be lossless
 
+### `auto`: format
+If `auto` includes format, the service will try to determine the ideal format to convert the image to. The rules are:
+- If the browser supports it, everything except for gifs is returned as webp
+- If a png is requested and that png has no alpha channel, it will be returned as a jpeg
+
+### `auto`: compress
+The `compress` parameter will try to run post-processed optimizations on the image prior to returning it.
+- `png` images will run through `pngquant`
+
 ## Security
 To prevent abuse of your lambda function, you can set a security key. When the security key environment variable is set,
 every request is required to have the `s` query parameter set. This parameter is a simple md5 hash of the following:

@@ -119,11 +119,16 @@ class ImageHandler {
         }
 
         if (autoOps.includes('format')) {
-            // Check for webp support
+            // If the browser supports webp, use webp for everything but gifs
             if (headers && 'Accept' in headers) {
-                if (headers['Accept'].indexOf('image/webp') !== -1) {
+                if (fm !== 'gif' && headers['Accept'].indexOf('image/webp') !== -1) {
                     fm = 'webp';
                 }
+            }
+
+            // Convert non-transparent pngs to jpeg
+            if (!metadata.hasAlpha && fm === 'png') {
+                fm = 'jpeg'
             }
         }
 
