@@ -1,4 +1,4 @@
-service: image-handler
+service: image-handler-${opt:client}
 
 provider:
   name: aws
@@ -47,9 +47,8 @@ functions:
           method: get
           contentHandling: CONVERT_TO_BINARY
     environment:
-      SOURCE_BUCKET: ${env:SOURCE_BUCKET}
+      SOURCE_BUCKETS: ${env:SOURCE_BUCKET}
       SECURITY_KEY: ${env:SECURITY_KEY}
-      OBJECT_PREFIX: ${env:OBJECT_PREFIX}
       REGION: us-east-1
 custom:
   serverless-offline:
