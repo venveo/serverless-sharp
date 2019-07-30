@@ -21,7 +21,7 @@ class ImageRequest {
      */
     async setup(event) {
         try {
-            if (process.env.SECURITY_KEY !== undefined) {
+            if (process.env.SECURITY_KEY !== undefined && process.env.SECURITY_KEY !== null && process.env.SECURITY_KEY.length) {
                 this.parseHash(event);
             }
             this.bucket = process.env.SOURCE_BUCKET;
@@ -72,7 +72,7 @@ class ImageRequest {
     /**
      * Parses the name of the appropriate Amazon S3 key corresponding to the
      * original image.
-     * @param {String} event - Lambda request body.
+     * @param {Object} event - Lambda request body.
      */
     parseImageKey(event) {
         // Decode the image request and return the image key
