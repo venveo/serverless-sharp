@@ -138,8 +138,9 @@ class ImageHandler {
             if (autoOps.includes('compress') && quality < 100 && edits.q !== undefined) {
                 const buffer = await image.toBuffer();
                 const minQuality = quality - 20 > 0 ? quality - 20 : 0;
-
-                const pngquant = spawnSync(this.findBin('pngquant'), ['--speed', '3', '--quality', minQuality + '-' + quality, '-'], {input: buffer})
+                const pngQuantOptions = ['--speed', '3', '--quality', minQuality + '-' + quality, '-'];
+                const binaryLocation = this.findBin('pngquant');
+                const pngquant = spawnSync(binaryLocation, pngQuantOptions, {input: buffer});
                 image = sharp(pngquant.stdout)
             } else {
                 await image.png({
@@ -162,7 +163,7 @@ class ImageHandler {
     }
 
     findBin(binName) {
-        const binPath = path.resolve(__dirname, "../bin/", binName);
+        const binPath = path.resolve(__dirname, "../bin/", process.platform, binName);
 
         if (!fs.existsSync(binPath)) {
             throw new Error("Undefined binary: " + binPath);
