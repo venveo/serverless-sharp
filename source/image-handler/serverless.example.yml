@@ -3,6 +3,7 @@ service: image-handler-${opt:client}
 provider:
   name: aws
   runtime: nodejs8.10
+  stage: ${opt:stage,'dev'}
   iamRoleStatements:
     - Effect: "Allow"
       Action:
@@ -56,8 +57,13 @@ custom:
   apigwBinary:
     types:
       - '*/*'
+  stages:
+    - dev
+    - staging
+    - prod
 plugins:
   - serverless-offline
   - serverless-dotenv-plugin
   - serverless-apigw-binary
   - serverless-apigwy-binary
+  - serverless-stage-manager
