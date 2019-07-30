@@ -97,8 +97,8 @@ class ImageHandler {
         const {auto} = edits;
 
         let autoOps = [];
+
         if (auto) {
-            console.log('Auto mode:', auto);
             autoOps = auto.split(',');
         }
 
@@ -118,10 +118,12 @@ class ImageHandler {
             fm = metadata.format
         }
 
-        // Check for webp support
-        if (autoOps.includes('format') && headers && 'Accept' in headers) {
-            if (headers['Accept'].indexOf('image/webp') !== -1) {
-                fm = 'webp';
+        if (autoOps.includes('format')) {
+            // Check for webp support
+            if (headers && 'Accept' in headers) {
+                if (headers['Accept'].indexOf('image/webp') !== -1) {
+                    fm = 'webp';
+                }
             }
         }
 
