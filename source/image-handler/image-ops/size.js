@@ -170,8 +170,6 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
         fpy_top = 0
     }
 
-    console.log(width, height, fpx_left, fpy_top);
-
     image.resize({
         width: newWidth,
         height: newHeight,

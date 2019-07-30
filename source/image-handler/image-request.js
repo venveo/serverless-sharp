@@ -53,7 +53,7 @@ class ImageRequest {
         }
         catch(err) {
             return Promise.reject({
-                status: 500,
+                status: 404,
                 code: err.code,
                 message: err.message
             })
@@ -123,7 +123,7 @@ class ImageRequest {
         const parsed = crypto.createHash('md5').update(source).digest("hex");
         if (parsed !== hash) {
             throw {
-                status: 401,
+                status: 403,
                 code: 'RequestTypeError',
                 message: 'Invalid security hash'
             };
@@ -141,12 +141,6 @@ class ImageRequest {
         if (!qp) {
             qp = {};
         }
-
-        // We need an output format immediately
-        // if (!qp["fm"]) {
-        //     qp.fm = 'jpeg';
-        // }
-
         return qp;
     }
 }

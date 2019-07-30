@@ -18,7 +18,7 @@ exports.apply = async (image, edits) => {
         switch(fit) {
             case 'clamp':
                 throw ({
-                    status: 400,
+                    status: 501,
                     code: 'scale::NotImplemented',
                     message: 'Sorry, this transform is not implemented yet. Open a PR!'
                 });
@@ -28,21 +28,21 @@ exports.apply = async (image, edits) => {
                 break;
             case 'fillmax':
                 throw ({
-                    status: 400,
+                    status: 501,
                     code: 'scale::NotImplemented',
                     message: 'Sorry, this transform is not implemented yet. Open a PR!'
                 });
                 break;
             case 'max':
                 throw ({
-                    status: 400,
+                    status: 501,
                     code: 'scale::NotImplemented',
                     message: 'Sorry, this transform is not implemented yet. Open a PR!'
                 });
                 break;
             case 'min':
                 throw ({
-                    status: 400,
+                    status: 501,
                     code: 'scale::NotImplemented',
                     message: 'Sorry, this transform is not implemented yet. Open a PR!'
                 });
