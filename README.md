@@ -25,7 +25,7 @@ ensures the Lambda function does not get run multiple times for the same image r
 We chose to base our API around the [Imgix service](https://docs.imgix.com/apis/url) to allow for backwards compatibility
 with the already popular service. The idea is that all CMS plugins should be able to seamlessly use this service in-place of
 an Imgix URL. We've only implemented a hand-full of the features Imgix offers; however, the one's we've
-implemnented should cover most use-cases.
+implemented should cover most use-cases.
 
 The benefits of using this method over other methods (such as hashing the entire URL payload in base64) are:
 - Much more intuitive
