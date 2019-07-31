@@ -151,8 +151,15 @@ class ImageHandler {
                 const minQuality = quality - 20 > 0 ? quality - 20 : 0;
                 const pngQuantOptions = ['--speed', '3', '--quality', minQuality + '-' + quality, '-'];
                 const binaryLocation = this.findBin('pngquant');
-                const pngquant = spawnSync(binaryLocation, pngQuantOptions, {input: buffer});
-                image = sharp(pngquant.stdout)
+                if (binaryLocation) {
+                    const pngquant = spawnSync(binaryLocation, pngQuantOptions, {input: buffer});
+                    image = sharp(pngquant.stdout)
+                } else {
+                    console.warn('Skipping pngquant - could not find executable!');
+                    await image.png({
+                        quality: quality
+                    });
+                }
             } else {
                 await image.png({
                     quality: quality
@@ -174,15 +181,14 @@ class ImageHandler {
     }
 
     findBin(binName) {
-        var taskRoot = process.env['LAMBDA_TASK_ROOT'] || __dirname;
-        // On linux the executable is in task root / __dirname, whichever was defined
-        process.env.PATH += ':' + taskRoot;
-        const binPath = path.resolve(taskRoot, "/bin/", process.platform, binName);
+        process.env['PATH'] = process.env['PATH'] + ':' + process.env['LAMBDA_TASK_ROOT'];
+        const binPath = path.resolve("./bin/", process.platform, binName);
 
         if (!fs.existsSync(binPath)) {
-            throw new Error("Undefined binary: " + binPath);
+            console.warn('Supposedly could not find binPath, continue anyway.');
         }
         return binPath;
+
     }
 }
 
