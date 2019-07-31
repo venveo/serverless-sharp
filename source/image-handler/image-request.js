@@ -26,7 +26,7 @@ class ImageRequest {
             }
             this.bucket = process.env.SOURCE_BUCKET;
             this.key = this.parseImageKey(event);
-            this.edits = this.decodeRequest(event);
+            this.edits = ImageRequest.decodeRequest(event);
             this.headers = event.headers;
 
             this.originalImage = await this.getOriginalImage(this.bucket, this.key);
@@ -64,8 +64,8 @@ class ImageRequest {
      * Parses the edits to be made to the original image.
      * @param {String} event - Lambda request body.
      */
-    parseImageEdits(event) {
-        const decoded = this.decodeRequest(event);
+    static parseImageEdits(event) {
+        const decoded = ImageRequest.decodeRequest(event);
         return decoded.edits;
     }
 
@@ -108,7 +108,7 @@ class ImageRequest {
     /**
      * Parses the name of the appropriate Amazon S3 key corresponding to the
      * original image.
-     * @param {String} event - Lambda request body.
+     * @param {Object} event - Lambda request body.
      */
     parseHash(event) {
         const {queryStringParameters, path} = event;
@@ -139,7 +139,7 @@ class ImageRequest {
      * image requests. Provides error handling for invalid or undefined path values.
      * @param {Object} event - The proxied request object.
      */
-    decodeRequest(event) {
+    static decodeRequest(event) {
         let qp = event["queryStringParameters"];
         if (!qp) {
             qp = {};

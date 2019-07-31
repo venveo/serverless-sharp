@@ -15,66 +15,42 @@ class ImageHandler {
     async process(request) {
         const originalImage = request.originalImage.Body;
         const {edits, headers} = request;
-        if (edits !== undefined) {
+        let format;
+        let bufferImage;
+        if (Object.keys(edits).length) {
             const modifiedImage = await this.applyEdits(originalImage, edits);
             const optimizedImage = await this.applyOptimizations(modifiedImage, edits, headers);
-            const bufferImage = await optimizedImage.toBuffer();
-            const format = optimizedImage.options.formatOut;
-            let contentType;
-            // TODO: Break this out
-            switch (format) {
-                case 'jpeg':
-                    contentType = 'image/jpeg';
-                    break;
-                case 'png':
-                    contentType = 'image/png';
-                    break;
-                case 'webp':
-                    contentType = 'image/webp';
-                    break;
-                case 'gif':
-                    contentType = 'image/gif';
-                    break;
-                case 'svg':
-                    contentType = 'image/svg+xml';
-                    break;
-                default:
-                    contentType = 'image';
-            }
-            return {
-                CacheControl: request.originalImage.CacheControl,
-                Body: bufferImage.toString('base64'),
-                ContentType: contentType
-            };
+            bufferImage = await optimizedImage.toBuffer();
+            format = optimizedImage.options.formatOut;
         } else {
-            const format = originalImage.options.formatOut;
-            let contentType;
-            // TODO: Break this out
-            switch (format) {
-                case 'jpeg':
-                    contentType = 'image/jpeg';
-                    break;
-                case 'png':
-                    contentType = 'image/png';
-                    break;
-                case 'webp':
-                    contentType = 'image/webp';
-                    break;
-                case 'gif':
-                    contentType = 'image/gif';
-                    break;
-                case 'svg':
-                    contentType = 'image/svg+xml';
-                    break;
-                default:
-                    contentType = 'image';
-            }
-            return {
-                CacheControl: request.originalImage.CacheControl,
-                Body: originalImage.toString('base64'),
-                ContentType: contentType
-            };
+            bufferImage = new Buffer(originalImage, 'binary');
         }
+
+        let contentType;
+        switch (format) {
+            case 'jpeg':
+                contentType = 'image/jpeg';
+                break;
+            case 'png':
+                contentType = 'image/png';
+                break;
+            case 'webp':
+                contentType = 'image/webp';
+                break;
+            case 'gif':
+                contentType = 'image/gif';
+                break;
+            case 'svg':
+                contentType = 'image/svg+xml';
+                break;
+            default:
+                contentType = 'image';
+        }
+        return {
+            CacheControl: request.originalImage.CacheControl,
+            Body: bufferImage.toString('base64'),
+            ContentType: contentType
+        };
     }
 
     /**

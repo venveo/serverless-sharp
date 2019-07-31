@@ -5,6 +5,10 @@
   "author": {
     "name": "Venveo"
   },
+  "scripts": {
+    "sharp:linux": "rm -rf node_modules/sharp && npm install --arch=x64 --platform=linux --target=8.10.0 sharp",
+    "sharp:native": "rm -rf node_modules/sharp && npm install"
+  },
   "version": "4.0.0",
   "private": true,
   "license": "ISC",
