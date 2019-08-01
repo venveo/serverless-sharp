@@ -1,19 +1,7 @@
-/*********************************************************************************************************************
- *  Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.                                           *
- *                                                                                                                    *
- *  Licensed under the Amazon Software License (the "License"). You may not use this file except in compliance        *
- *  with the License. A copy of the License is located at                                                             *
- *                                                                                                                    *
- *      http://aws.amazon.com/asl/                                                                                    *
- *                                                                                                                    *
- *  or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES *
- *  OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions    *
- *  and limitations under the License.                                                                                *
- *********************************************************************************************************************/
 const crypto = require('crypto');
+const Joi = require('@hapi/joi');
 
 class ImageRequest {
-
     /**
      * Initializer function for creating a new image request, used by the image
      * handler to perform image modifications.
@@ -24,6 +12,8 @@ class ImageRequest {
             if (process.env.SECURITY_KEY !== undefined && process.env.SECURITY_KEY !== null && process.env.SECURITY_KEY.length) {
                 this.parseHash(event);
             }
+            this.validateQueryParams(event);
+
             this.bucket = process.env.SOURCE_BUCKET;
             this.key = this.parseImageKey(event);
             this.edits = ImageRequest.decodeRequest(event);
@@ -45,13 +35,12 @@ class ImageRequest {
     async getOriginalImage(bucket, key) {
         const S3 = require('aws-sdk/clients/s3');
         const s3 = new S3();
-        const imageLocation = { Bucket: bucket, Key: decodeURIComponent(key) };
+        const imageLocation = {Bucket: bucket, Key: decodeURIComponent(key)};
         const request = s3.getObject(imageLocation).promise();
         try {
             const originalImage = await request;
             return Promise.resolve(originalImage);
-        }
-        catch(err) {
+        } catch (err) {
             return Promise.reject({
                 status: 404,
                 code: err.code,
@@ -105,6 +94,7 @@ class ImageRequest {
         }
         return '?' + string.substr(1);
     }
+
     /**
      * Parses the name of the appropriate Amazon S3 key corresponding to the
      * original image.
@@ -112,7 +102,7 @@ class ImageRequest {
      */
     parseHash(event) {
         const {queryStringParameters, path} = event;
-        if (!queryStringParameters || queryStringParameters['s'] === undefined)  {
+        if (!queryStringParameters || queryStringParameters['s'] === undefined) {
             throw {
                 status: 400,
                 code: 'RequestTypeError',
@@ -121,7 +111,9 @@ class ImageRequest {
         }
         const hash = queryStringParameters['s'];
         const query = ImageRequest._buildQueryStringFromObject(queryStringParameters);
-        const encodedPath = decodeURIComponent(path).split('/').map((comp) => {return encodeURIComponent(comp)}).join('/');
+        const encodedPath = decodeURIComponent(path).split('/').map((comp) => {
+            return encodeURIComponent(comp)
+        }).join('/');
         const source = process.env.SECURITY_KEY + encodedPath + query;
         const parsed = crypto.createHash('md5').update(source).digest("hex");
         if (parsed !== hash) {
@@ -132,6 +124,42 @@ class ImageRequest {
             };
         }
         return parsed;
+    }
+
+    validateQueryParams(request) {
+        const schema = Joi.object().keys({
+            q: Joi.number().integer().min(1).max(100),
+            bri: Joi.number().integer().min(1).max(100),
+            sharp: Joi.boolean(),
+            fit: Joi.string().valid(['fill', 'scale', 'crop', 'clip']),
+            'fill-color': Joi.string(),
+            auto: Joi.string().trim().regex(/^(compress,?|format){1,2}$/),
+            crop: Joi.string().trim().regex(/^focalpoint|(center,?|top,?|left,?|right,?|bottom,?){1,2}$/),
+            'fp-x': Joi.number().min(0).max(1).when('crop', {
+                is: 'focalpoint',
+                then: Joi.number().required()
+            }),
+            'fp-y': Joi.number().min(0).max(1).when('crop', {
+                is: 'focalpoint',
+                then: Joi.number().required()
+            }),
+            fm: Joi.string().valid(['png', 'jpeg', 'webp', 'tiff']),
+            w: Joi.number().integer().min(1),
+            h: Joi.number().integer().min(1),
+            s: Joi.string().length(32),
+        });
+
+        const {queryStringParameters} = request;
+        if (!queryStringParameters) {
+            return;
+        }
+        var validation = Joi.validate(queryStringParameters, schema);
+        if (validation.error) {
+            throw {
+                status: 500,
+                errors: validation.error.details
+            }
+        }
     }
 
     /**

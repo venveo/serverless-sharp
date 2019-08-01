@@ -12,7 +12,7 @@ exports.handler = async (event) => {
             "headers" : getResponseHeaders(processedRequest, null),
             "body": processedRequest.Body,
             "isBase64Encoded": true
-        }
+        };
         return response;
     } catch (err) {
         console.log(err);
@@ -21,10 +21,10 @@ exports.handler = async (event) => {
             "headers" : getResponseHeaders(null, true),
             "body": JSON.stringify(err),
             "isBase64Encoded": false
-        }
+        };
         return response;
     }
-}
+};
 
 /**
  * Generates the appropriate set of response headers based on a success
@@ -38,7 +38,7 @@ const getResponseHeaders = (processedRequest, isErr) => {
         "Access-Control-Allow-Methods": "GET",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
         "Access-Control-Allow-Credentials": true
-    }
+    };
     if (corsEnabled) {
         headers["Access-Control-Allow-Origin"] = process.env.CORS_ORIGIN;
     }
@@ -52,4 +52,4 @@ const getResponseHeaders = (processedRequest, isErr) => {
         headers["Content-Type"] = "application/json"
     }
     return headers;
-}
+};

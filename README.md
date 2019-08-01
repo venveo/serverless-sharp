@@ -45,6 +45,7 @@ supported:
 - **bri** - brightness - 1-100
 - **sharp** - Sharpen image (false) - (truthy)
 - **fit** - resize fitting mode - can be one of: `fill`, `scale`, `crop`, `clip`
+- **fill-color** - used when `fit` is set to `fill` can be a loosely formatted color such as "red" or "rgb(255,0,0)"
 - **crop** - resize fitting mode - can be one of: `focalpoint`, any comma separated combination of `top`, `bottom`, `left` `right`
 - **fp-x**, **fp-y** - focal point x & y - percentage, 0 to 1 for where to focus on the image when cropping with focalpoint mode
 - **s** - security hash - See security section
