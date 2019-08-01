@@ -1,17 +1,18 @@
 {
-  "name": "serverless-image-handler",
+  "name": "serverless-sharp",
   "description": "A Lambda function for performing on-demand image edits and manipulations.",
-  "main": "index.js",
   "author": {
-    "name": "Venveo"
+    "name": "Venveo",
+    "url": "https://www.venveo.com",
+    "email": "info@venveo.com"
   },
   "scripts": {
     "sharp:linux": "rm -rf node_modules/sharp && npm install --arch=x64 --platform=linux --target=8.10.0 sharp",
     "sharp:native": "rm -rf node_modules/sharp && npm install"
   },
-  "version": "4.0.0",
-  "private": true,
-  "license": "ISC",
+  "version": "1.0.0",
+  "private": false,
+  "license": "MIT",
   "dependencies": {
     "sharp": "^0.23.0"
   },
@@ -20,7 +21,6 @@
     "aws-sdk-mock": "^4.4.0",
     "serverless-apigw-binary": "^0.4.4",
     "serverless-apigwy-binary": "^1.0.0",
-    "serverless-dotenv-plugin": "^2.1.1",
     "serverless-offline": "^5.7.3",
     "serverless-plugin-simulate": "0.0.17",
     "serverless-stage-manager": "^1.0.5"
