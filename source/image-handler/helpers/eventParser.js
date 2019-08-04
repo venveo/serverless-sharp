@@ -1,13 +1,13 @@
 /**
  * Parses the name of the appropriate Amazon S3 key corresponding to the
  * original image.
- * @param {Object} event - Lambda request body.
+ * @param uri
  * @param requiredPrefix
  */
-exports.parseImageKey = (event, requiredPrefix = null) => {
+exports.parseImageKey = (uri, requiredPrefix = null) => {
     // Decode the image request and return the image key
     // Ensure the path starts with our prefix
-    let key = decodeURI(event["path"]);
+    let key = decodeURI(uri);
     if (key.startsWith('/')) {
         key = key.substr(1);
     }
@@ -17,8 +17,6 @@ exports.parseImageKey = (event, requiredPrefix = null) => {
             key = requiredPrefix + '/' + key;
         }
     }
-
-    console.log(key);
     return key;
 };
 
@@ -55,5 +53,8 @@ exports.processSourceBucket = (fullPath) => {
     let parts = fullPath.split(/\/(.+)/);
     result.bucket = parts[0];
     result.prefix = parts[1];
+    if (result.prefix === undefined) {
+        result.prefix = '';
+    }
     return result;
 };

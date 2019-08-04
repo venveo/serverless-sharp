@@ -21,7 +21,7 @@ class ImageRequest {
             const {bucket, prefix} = eventParser.processSourceBucket(process.env.SOURCE_BUCKET);
             this.bucket = bucket;
 
-            this.key = eventParser.parseImageKey(event, prefix);
+            this.key = eventParser.parseImageKey(event['path'], prefix);
             this.edits = ImageRequest.decodeRequest(event);
             this.headers = event.headers;
 
