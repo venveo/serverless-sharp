@@ -20,17 +20,15 @@ jobs: # a collection of steps
           key: dependency-cache-{{ checksum "~/project/source/image-handler/package.json" }}
           path: ~/project/source/image-handler
           paths:
-            - ./node_modules
+            - ~/project/source/image-handler/node_modules
       - run: # run tests
           path: ~/project/source/image-handler
           name: test
           command: npm test
       - store_artifacts: # special step to save test results as as artifact
-          path: ~/project/source/image-handler
           # Upload test summary for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
-          path: test-results.xml
+          path: ~/project/source/image-handler/test-results.xml
           prefix: tests
       - store_test_results: # for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
-          path: test-results.xml
-          root: ~/project/source/image-handler
+          path: ~/project/source/image-handler/test-results.xml
       # See https://circleci.com/docs/2.0/deployment-integrations/ for deploy examples
