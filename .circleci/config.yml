@@ -7,7 +7,7 @@ jobs: # a collection of steps
     steps: # a collection of executable commands
       - checkout # special step to check out source code to working directory
       - run:
-          root: ~/project/source/image-handler
+          path: ~/project/source/image-handler
           name: update-npm
           command: 'sudo npm install -g npm@latest'
       - restore_cache: # special step to restore the dependency cache
@@ -18,15 +18,15 @@ jobs: # a collection of steps
           command: npm install
       - save_cache: # special step to save the dependency cache
           key: dependency-cache-{{ checksum "~/project/source/image-handler/package.json" }}
-          root: ~/project/source/image-handler
+          path: ~/project/source/image-handler
           paths:
             - ./node_modules
       - run: # run tests
-          root: ~/project/source/image-handler
+          path: ~/project/source/image-handler
           name: test
           command: npm test
       - store_artifacts: # special step to save test results as as artifact
-          root: ~/project/source/image-handler
+          path: ~/project/source/image-handler
           # Upload test summary for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
           path: test-results.xml
           prefix: tests
