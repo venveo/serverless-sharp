@@ -1,4 +1,4 @@
-service: image-handler-${opt:client}
+service: ${self:custom.settings.serviceName}
 
 provider:
   name: aws
@@ -8,7 +8,7 @@ provider:
     - Effect: "Allow"
       Action:
         - "s3:GetObject"
-      Resource: "arn:aws:s3:::${env:SOURCE_BUCKET}/${env:OBJECT_PREFIX}/*"
+      Resource: "arn:aws:s3:::${self:custom.settings.environment.SOURCE_BUCKET}/*"
 
 resources:
   Resources:
@@ -32,7 +32,7 @@ resources:
                 Fn::Join:
                   - "."
                   - - Ref: ApiGatewayRestApi
-                    - execute-api.us-east-1.amazonaws.com
+                    - execute-api.${self:custom.settings.region}.amazonaws.com
               OriginPath: "/${self:provider.stage}"
               CustomOriginConfig:
                 HTTPPort: 80
@@ -47,24 +47,16 @@ functions:
           path: /{any+}
           method: get
           contentHandling: CONVERT_TO_BINARY
-    environment:
-      SOURCE_BUCKET: ${env:SOURCE_BUCKET}
-      SECURITY_KEY: ${env:SECURITY_KEY}
-      OBJECT_PREFIX: ${env:OBJECT_PREFIX}
-      REGION: us-east-1
+    environment: ${self:custom.settings.environment}
 custom:
+  settingsFilePath: ${opt:settings,'./settings.yml'}
+  settings: ${file(${self:custom.settingsFilePath}):stages.${self:provider.stage}}
   serverless-offline:
-    port: ${env:SERVERLESS_PORT}
+    port: ${self:custom.settings.offlinePort}
   apigwBinary:
     types:
       - '*/*'
-  stages:
-    - dev
-    - staging
-    - prod
 plugins:
   - serverless-offline
-  - serverless-dotenv-plugin
   - serverless-apigw-binary
   - serverless-apigwy-binary
-  - serverless-stage-manager

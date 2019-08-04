@@ -16,9 +16,11 @@ Once deployed, a Cloudfront CDN distribution is generated that is directed to th
 ensures the Lambda function does not get run multiple times for the same image request.
 
 ## Configuration & Environment Variables
-- `SOURCE_BUCKET` An S3 bucket in your account where your images are stored
-- `OBJECT_PREFIX` A sub-folder where your images are located if not in the root
-- `SERVERLESS_PORT` For local development, this controls what port the serverless service runs on
+Make a copy of `settings.example.yml` and populate accordingly.
+
+- `SOURCE_BUCKET` An S3 bucket in your account where your images are stored - you can include a path here if you like.
+For example: `mybucket/images`
+- `SERVERLESS_PORT` For local development, this controls what port the Serverless service runs on
 - `SECURITY_KEY` See security section
 
 ## API & Usage
@@ -62,6 +64,7 @@ The `compress` parameter will try to run post-processed optimizations on the ima
 - `png` images will run through `pngquant`
 
 ## Security
+### Request hashing
 To prevent abuse of your lambda function, you can set a security key. When the security key environment variable is set,
 every request is required to have the `s` query parameter set. This parameter is a simple md5 hash of the following:
 
@@ -89,6 +92,20 @@ and on our URL...
 
 `https://something.cloudfront.net/web/general-images/photo.jpg?auto=compress%2Cformat&crop=focalpoint&fit=crop&fp-x=0.5&fp-y=0.5&h=380&q=80&w=700&s=a0144a80b5b67d7cb6da78494ef574db`
 
+### Bucket prefix
+The environment variable `SOURCE_BUCKET` may be configured with an optional path prefix if your images are stored in
+a "sub-directory". For example, you may use:
+`my-bucket/images`
+
+This will tell Serverless to create an IAM role with access to all objects in the my-bucket bucket with an object prefix
+of `images`. 
+
+Serverless Sharp will then validate all requests to this prefix, if it doesn't start with that prefix, the system will
+automatically prepend it to the request images. This means these requests are effectively equivalent:
+
+`localhost/images/my-image.png`
+
+`localhost/my-image.png`
 
 ## Should I run this in production?
 Probably not. Yet. But if you do, make sure you submit issues!
@@ -97,22 +114,20 @@ Probably not. Yet. But if you do, make sure you submit issues!
 This package uses Serverless to allow for local development by simulating API Gateway and Lambda.
 1. `cd source/image-handler`
 2. `npm install`
-3. `cp .env.example .env`
-4. `cp serverless.example.yml serverless.yml`
-5. Conifugre serverless.yml file
-5. Configure .env file
-6. Ensure you have AWS CLI configured on your machine with proper access to the S3 bucket you're using in `.env`
-7. Run `serverless offline`
+3. `cp settings.example.yml settings.yml`
+4. Configure settings.yml file
+5. Ensure you have AWS CLI configured on your machine with proper access to the S3 bucket you're using in `.env`
+6. Run `serverless offline`
 
 ## Deploying to AWS
 First, we need to procure sharp/libvips binaries compiled for Amazon Linux. We can do this by running the following:
 
 ```
-rm -rf node_modules/sharp && npm install --arch=x64 --platform=linux --target=8.10.0 sharp
+npm run sharp:linux
 ``` 
 
 This will remove any existing Sharp binaries and then reinstall them with Linux x64 in mind.
 
-Ensure your `.env` and `serverless.yml` files are properly configured as shown in the previous step
+Ensure your `settings.yml` file is properly configured as shown in the previous steps
 
-Run: `serverless deploy`
+Run: `serverless deploy [--stage=dev] [--settings=settings.yml]`

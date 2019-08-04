@@ -1,0 +1,16 @@
+defaults: &defaults
+  serviceName: image-handler
+  offlinePort: 80
+  region: 'us-east-1'
+
+stages:
+  dev:
+    <<: *defaults
+    environment:
+      SOURCE_BUCKET: 'my-bucket/prefix/path'
+      SECURITY_KEY: ''
+  prod:
+    <<: *defaults
+    environment:
+      SOURCE_BUCKET: 'my-bucket'
+      SECURITY_KEY: 'random-string-here'

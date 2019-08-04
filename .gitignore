@@ -11,4 +11,4 @@ jspm_packages
 
 # Serverless directories
 .serverless
-source/image-handler/serverless.yml
+source/image-handler/settings.yml

@@ -1,6 +1,8 @@
 const crypto = require('crypto');
 const Joi = require('@hapi/joi');
 
+const eventParser = require('./helpers/eventParser');
+
 class ImageRequest {
     /**
      * Initializer function for creating a new image request, used by the image
@@ -12,10 +14,14 @@ class ImageRequest {
             if (process.env.SECURITY_KEY !== undefined && process.env.SECURITY_KEY !== null && process.env.SECURITY_KEY.length) {
                 this.parseHash(event);
             }
-            this.validateQueryParams(event);
 
-            this.bucket = process.env.SOURCE_BUCKET;
-            this.key = this.parseImageKey(event);
+            // This is disabled for now. We don't want to throw errors
+            // this.validateQueryParams(event);
+
+            const {bucket, prefix} = eventParser.processSourceBucket(process.env.SOURCE_BUCKET);
+            this.bucket = bucket;
+
+            this.key = eventParser.parseImageKey(event, prefix);
             this.edits = ImageRequest.decodeRequest(event);
             this.headers = event.headers;
 
@@ -63,43 +69,6 @@ class ImageRequest {
      * original image.
      * @param {Object} event - Lambda request body.
      */
-    parseImageKey(event) {
-        // Decode the image request and return the image key
-        // Ensure the path starts with our prefix
-        let key = decodeURI(event["path"]);
-        if(process.env.OBJECT_PREFIX !== undefined && process.env.OBJECT_PREFIX !== null && process.env.OBJECT_PREFIX.length) {
-            if (!key.startsWith('/' + process.env.OBJECT_PREFIX)) {
-                key = '/' + process.env.OBJECT_PREFIX + key;
-            }
-        }
-        if(key.startsWith('/')) {
-            key = key.substr(1);
-        }
-        return key;
-    }
-
-    /**
-     * Assembles an object of query params into a string for hashing
-     * @param queryStringParameters
-     * @returns {string}
-     * @private
-     */
-    static _buildQueryStringFromObject(queryStringParameters) {
-        let string = '';
-        for (const [k, v] of Object.entries(queryStringParameters)) {
-            // Don't hash the security token
-            if (k !== 's') {
-                string += '&' + k + '=' + encodeURIComponent(v);
-            }
-        }
-        return '?' + string.substr(1);
-    }
-
-    /**
-     * Parses the name of the appropriate Amazon S3 key corresponding to the
-     * original image.
-     * @param {Object} event - Lambda request body.
-     */
     parseHash(event) {
         const {queryStringParameters, path} = event;
         if (!queryStringParameters || queryStringParameters['s'] === undefined) {
@@ -110,7 +79,7 @@ class ImageRequest {
             };
         }
         const hash = queryStringParameters['s'];
-        const query = ImageRequest._buildQueryStringFromObject(queryStringParameters);
+        const query = eventParser.buildQueryStringFromObject(queryStringParameters);
         const encodedPath = decodeURIComponent(path).split('/').map((comp) => {
             return encodeURIComponent(comp)
         }).join('/');
@@ -153,7 +122,7 @@ class ImageRequest {
         if (!queryStringParameters) {
             return;
         }
-        var validation = Joi.validate(queryStringParameters, schema);
+        const validation = Joi.validate(queryStringParameters, schema);
         if (validation.error) {
             throw {
                 status: 500,
