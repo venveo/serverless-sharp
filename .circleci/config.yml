@@ -11,15 +11,13 @@ jobs: # a collection of steps
           name: update-npm
           command: 'sudo npm install -g npm@latest'
       - restore_cache: # special step to restore the dependency cache
-          root: ~/project/source/image-handler
           # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
-          key: dependency-cache-{{ checksum "package.json" }}
+          key: dependency-cache-{{ checksum "~/project/source/image-handler/package.json" }}
       - run:
-          root: ~/project/source/image-handler
           name: install-npm-wee
           command: npm install
       - save_cache: # special step to save the dependency cache
-          key: dependency-cache-{{ checksum "package.json" }}
+          key: dependency-cache-{{ checksum "~/project/source/image-handler/package.json" }}
           root: ~/project/source/image-handler
           paths:
             - ./node_modules
