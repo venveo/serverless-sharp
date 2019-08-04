@@ -1,7 +1,7 @@
 version: 2 # use CircleCI 2.0
 jobs: # a collection of steps
   build: # runs not using Workflows must have a `build` job as entry point
-    working_directory: ./project # directory where steps will run
+    working_directory: ~/project # directory where steps will run
     docker: # run the steps with Docker
       - image: circleci/node:chakracore-8.10.0
     steps: # a collection of executable commands
