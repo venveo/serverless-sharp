@@ -116,7 +116,7 @@ This package uses Serverless to allow for local development by simulating API Ga
 2. `npm install`
 3. `cp settings.example.yml settings.yml`
 4. Configure settings.yml file
-5. Ensure you have AWS CLI configured on your machine with proper access to the S3 bucket you're using in `.env`
+5. Ensure you have AWS CLI configured on your machine with proper access to the S3 bucket you're using in your settings.
 6. Run `serverless offline`
 
 ## Deploying to AWS

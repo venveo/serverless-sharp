@@ -48,6 +48,10 @@ functions:
           method: get
           contentHandling: CONVERT_TO_BINARY
     environment: ${self:custom.settings.environment}
+Outputs:
+  CloudFrontDistributionOutput:
+    Value:
+      'Fn::GetAtt': [ CloudFrontDistribution, DomainName ]
 custom:
   settingsFilePath: ${opt:settings,'./settings.yml'}
   settings: ${file(${self:custom.settingsFilePath}):stages.${self:provider.stage}}

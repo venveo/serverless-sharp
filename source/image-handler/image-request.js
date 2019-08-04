@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 
 const eventParser = require('./helpers/eventParser');
 
