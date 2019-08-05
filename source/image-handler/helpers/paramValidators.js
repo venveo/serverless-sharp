@@ -58,3 +58,46 @@ exports.widthAndHeightValid = (width, height) => {
 
     return true;
 };
+
+exports.validateQueryParams = (queryStringParams, throwError = true) => {
+    if (!queryStringParams || !Object.entries(queryStringParams).length) {
+        return true;
+    }
+
+    const Joi = require('joi');
+    const schema = Joi.object().keys({
+        q: Joi.number().integer().min(1).max(100),
+        bri: Joi.number().integer().min(1).max(100),
+        sharp: Joi.number().integer().min(1).max(100),
+        fit: Joi.string().valid(['fill', 'scale', 'crop', 'clip']),
+        'fill-color': Joi.string(),
+        auto: Joi.string().trim().regex(/^(compress,?|format,?|enhance,?|redeye,?|true,?)$/),
+        crop: Joi.string().trim().regex(/^focalpoint|(center,?|top,?|left,?|right,?|bottom,?){1,2}$/),
+        'fp-x': Joi.number().min(0).max(1).when('crop', {
+            is: 'focalpoint',
+            then: Joi.number().required()
+        }),
+        'fp-y': Joi.number().min(0).max(1).when('crop', {
+            is: 'focalpoint',
+            then: Joi.number().required()
+        }),
+        fm: Joi.string().valid(['png', 'jpeg', 'webp', 'tiff']),
+        w: Joi.number().integer().min(1),
+        h: Joi.number().integer().min(1),
+        s: Joi.string().length(32),
+    }).unknown(true);
+
+    const validation = Joi.validate(queryStringParams, schema);
+    if (validation.error) {
+        if (throwError) {
+            throw {
+                status: 500,
+                errors: validation.error.details
+            }
+        } else {
+            console.warn('Validation errors:', validation.error.details);
+            return false;
+        }
+    }
+    return true;
+}

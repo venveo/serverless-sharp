@@ -1,7 +1,6 @@
-const Joi = require('joi');
-
 const eventParser = require('./helpers/eventParser');
 const security = require('./helpers/security');
+const paramValidators = require('./helpers/paramValidators');
 
 class ImageRequest {
     /**
@@ -15,14 +14,21 @@ class ImageRequest {
                 this.parseHash(event);
             }
 
-            // This is disabled for now. We don't want to throw errors
-            // this.validateQueryParams(event);
+            const {queryStringParameters} = event;
+
+            // For now, we're going to soft-validate
+            const hadErrors = paramValidators.validateQueryParams(queryStringParameters, false);
 
             const {bucket, prefix} = eventParser.processSourceBucket(process.env.SOURCE_BUCKET);
-            this.bucket = bucket;
 
+            this.bucket = bucket;
             this.key = eventParser.parseImageKey(event['path'], prefix);
-            this.edits = ImageRequest.decodeRequest(event);
+            this.edits = {};
+
+            // Go ahead and allow the original image to pass-through
+            if (hadErrors) {
+                this.edits = ImageRequest.decodeRequest(event);
+            }
             this.headers = event.headers;
 
             this.originalImage = await this.getOriginalImage(this.bucket, this.key);
@@ -86,42 +92,6 @@ class ImageRequest {
                 code: 'RequestTypeError',
                 message: 'Invalid security hash'
             };
-        }
-    }
-
-    validateQueryParams(request) {
-        const schema = Joi.object().keys({
-            q: Joi.number().integer().min(1).max(100),
-            bri: Joi.number().integer().min(1).max(100),
-            sharp: Joi.boolean(),
-            fit: Joi.string().valid(['fill', 'scale', 'crop', 'clip']),
-            'fill-color': Joi.string(),
-            auto: Joi.string().trim().regex(/^(compress,?|format){1,2}$/),
-            crop: Joi.string().trim().regex(/^focalpoint|(center,?|top,?|left,?|right,?|bottom,?){1,2}$/),
-            'fp-x': Joi.number().min(0).max(1).when('crop', {
-                is: 'focalpoint',
-                then: Joi.number().required()
-            }),
-            'fp-y': Joi.number().min(0).max(1).when('crop', {
-                is: 'focalpoint',
-                then: Joi.number().required()
-            }),
-            fm: Joi.string().valid(['png', 'jpeg', 'webp', 'tiff']),
-            w: Joi.number().integer().min(1),
-            h: Joi.number().integer().min(1),
-            s: Joi.string().length(32),
-        });
-
-        const {queryStringParameters} = request;
-        if (!queryStringParameters) {
-            return;
-        }
-        const validation = Joi.validate(queryStringParameters, schema);
-        if (validation.error) {
-            throw {
-                status: 500,
-                errors: validation.error.details
-            }
         }
     }
 
