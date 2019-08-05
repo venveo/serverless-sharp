@@ -8,6 +8,11 @@ test('parseImageKey gets basic path', () => {
 test('parseImageKey gets basic path + required prefix', () => {
     expect(eventParser.parseImageKey('public/images/image.png', 'public')).toMatch('public/images/image.png');
     expect(eventParser.parseImageKey('/images/image.png', 'public')).toMatch('public/images/image.png');
+    expect(eventParser.parseImageKey('/products/1-Image%20With%20Space/2%20Product%20Image.png', 'public')).toMatch('public/products/1-Image With Space/2 Product Image.png');
+});
+
+test('parseImageKey with encoded URI', () => {
+    expect(eventParser.parseImageKey('/products/1-Image%20With%20Space/2%20Product%20Image.png', 'public')).toMatch('public/products/1-Image With Space/2 Product Image.png');
 });
 
 test('buildQueryStringFromObject', () => {
