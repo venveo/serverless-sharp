@@ -21,7 +21,7 @@ exports.parseImageKey = (uri, requiredPrefix = null) => {
 };
 
 /**
- * Assembles an object of query params into a string for hashing
+ * Assembles an object of query params into a string for hashing. Removes `s` query param automatically
  * @param queryStringParameters
  * @returns {string}
  * @private
@@ -33,6 +33,9 @@ exports.buildQueryStringFromObject = (queryStringParameters) => {
         if (k !== 's') {
             string += '&' + k + '=' + encodeURIComponent(v);
         }
+    }
+    if (string.substr(1) === '') {
+        return '';
     }
     return '?' + string.substr(1);
 };

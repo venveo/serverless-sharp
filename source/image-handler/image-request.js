@@ -1,7 +1,7 @@
-const crypto = require('crypto');
 const Joi = require('joi');
 
 const eventParser = require('./helpers/eventParser');
+const security = require('./helpers/security');
 
 class ImageRequest {
     /**
@@ -79,20 +79,14 @@ class ImageRequest {
             };
         }
         const hash = queryStringParameters['s'];
-        const query = eventParser.buildQueryStringFromObject(queryStringParameters);
-        const encodedPath = decodeURIComponent(path).split('/').map((comp) => {
-            return encodeURIComponent(comp)
-        }).join('/');
-        const source = process.env.SECURITY_KEY + encodedPath + query;
-        const parsed = crypto.createHash('md5').update(source).digest("hex");
-        if (parsed !== hash) {
+        const isValid = security.verifyHash(path, queryStringParameters, hash);
+        if (!isValid) {
             throw {
                 status: 403,
                 code: 'RequestTypeError',
                 message: 'Invalid security hash'
             };
         }
-        return parsed;
     }
 
     validateQueryParams(request) {
