@@ -80,7 +80,7 @@ class ImageHandler {
         }
 
         // Determine our quality
-        let quality = 80;
+        let quality = parseInt(process.env.DEFAULT_QUALITY);
         if (edits.q !== undefined) {
             quality = parseInt(edits.q);
             if (quality < 1) {
@@ -98,6 +98,7 @@ class ImageHandler {
         }
 
         if (autoOps.includes('compress')) {
+            quality = parseInt(process.env.DEFAULT_COMPRESS_QUALITY);
             if (!metadata.hasAlpha && (fm === 'png' || fm === 'tiff')) {
                 fm = 'jpeg'
             } else if (metadata.hasAlpha && fm === 'png') {

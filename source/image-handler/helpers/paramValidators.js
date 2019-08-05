@@ -1,5 +1,5 @@
-const maxWidth = 5000;
-const maxHeight = 5000;
+const maxWidth = process.env.MAX_OUTPUT_WIDTH;
+const maxHeight = process.env.MAX_OUTPUT_HEIGHT;
 const minWidth = 1;
 const minHeight = 1;
 
