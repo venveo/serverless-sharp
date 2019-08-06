@@ -105,7 +105,7 @@ class ImageRequest {
         if (!qp) {
             qp = {};
         }
-        return qp;
+        return eventParser.replaceAliases(qp);
     }
 }
 

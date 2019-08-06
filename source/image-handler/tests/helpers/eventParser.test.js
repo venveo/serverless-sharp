@@ -61,4 +61,35 @@ test('processSourceBucket', () => {
 });
 
 
+test('hashQueryParameters - compare objects', () => {
+    const params1 = {
+        w: 1000,
+        h: 1000
+    };
+    const params2 = {
+        h: 1000,
+        w: 1005
+    };
 
+    const hash1 = eventParser.hashQueryParameters(params1);
+    const hash2 = eventParser.hashQueryParameters(params2);
+
+    expect(hash1).toEqual(hash2);
+});
+
+
+
+test('replaceAliases - compare objects', () => {
+    const replaced = eventParser.replaceAliases({
+        "f": "asdf",
+        "m": "asdff",
+        "no-touch": "foo",
+        "fit": "hello" // This will get over-written
+    });
+
+    expect(replaced).toMatchObject({
+        "fit": "asdf",
+        "mark": "asdff",
+        "no-touch": "foo"
+    });
+});
