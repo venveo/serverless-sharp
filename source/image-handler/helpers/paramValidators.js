@@ -59,6 +59,12 @@ exports.widthAndHeightValid = (width, height) => {
     return true;
 };
 
+/**
+ * This function is a comprehensive validation of expected parameters.
+ * @param queryStringParams
+ * @param throwError
+ * @returns {boolean}
+ */
 exports.validateQueryParams = (queryStringParams, throwError = true) => {
     if (!queryStringParams || !Object.entries(queryStringParams).length) {
         return true;

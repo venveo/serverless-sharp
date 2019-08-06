@@ -15,37 +15,17 @@ exports.apply = async (image, edits) => {
 
     const {w, h, fit, crop} = edits;
     if (w || h) {
-        switch(fit) {
+        switch (fit) {
             case 'clamp':
-                throw ({
-                    status: 501,
-                    code: 'scale::NotImplemented',
-                    message: 'Sorry, this transform is not implemented yet. Open a PR!'
-                });
-                break;
+                throw new NotImplementedException();
+            case 'fillmax':
+                throw new NotImplementedException();
+            case 'max':
+                throw new NotImplementedException();
+            case 'min':
+                throw new NotImplementedException();
             case 'fill':
                 await size.fill(image, Number(w), Number(h), edits["fill-color"]);
-                break;
-            case 'fillmax':
-                throw ({
-                    status: 501,
-                    code: 'scale::NotImplemented',
-                    message: 'Sorry, this transform is not implemented yet. Open a PR!'
-                });
-                break;
-            case 'max':
-                throw ({
-                    status: 501,
-                    code: 'scale::NotImplemented',
-                    message: 'Sorry, this transform is not implemented yet. Open a PR!'
-                });
-                break;
-            case 'min':
-                throw ({
-                    status: 501,
-                    code: 'scale::NotImplemented',
-                    message: 'Sorry, this transform is not implemented yet. Open a PR!'
-                });
                 break;
             case 'scale':
                 size.scale(image, Number(w), Number(h));
