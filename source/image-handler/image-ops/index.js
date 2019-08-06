@@ -1,5 +1,6 @@
 const adjustment = require('./adjustment');
 const size = require('./size');
+const NotImplementedException = require('../errors/NotImplementedException');
 
 exports.apply = async (image, edits) => {
 
@@ -17,13 +18,13 @@ exports.apply = async (image, edits) => {
     if (w || h) {
         switch (fit) {
             case 'clamp':
-                throw new NotImplementedException();
+                throw new NotImplementedException;
             case 'fillmax':
-                throw new NotImplementedException();
+                throw new NotImplementedException;
             case 'max':
-                throw new NotImplementedException();
+                throw new NotImplementedException;
             case 'min':
-                throw new NotImplementedException();
+                throw new NotImplementedException;
             case 'fill':
                 await size.fill(image, Number(w), Number(h), edits["fill-color"]);
                 break;

@@ -1,6 +1,9 @@
 const sharp = require('sharp');
 const paramValidators = require('../helpers/paramValidators');
 
+const InvalidDimensionsException = require('../errors/InvalidDimensionsException');
+
+
 /**
  *
  * @param {Sharp} image
@@ -9,13 +12,8 @@ const paramValidators = require('../helpers/paramValidators');
  * @returns {*}
  */
 exports.scaleClip = (image, width = null, height = null) => {
-
     if (!paramValidators.widthOrHeightValid(width, height)) {
-        throw ({
-            status: 400,
-            code: 'size::InvalidDimensions',
-            message: 'Either width AND/OR height must be specified and a positive number when using scale-clip'
-        });
+        throw new InvalidDimensionsException
     }
     image.resize({
         width: width,
@@ -36,11 +34,7 @@ exports.scaleClip = (image, width = null, height = null) => {
  */
 exports.fill = async (image, width = null, height = null, color = null) => {
     if (!paramValidators.widthOrHeightValid(width, height)) {
-        throw ({
-            status: 400,
-            code: 'size.fill::InvalidDimensions',
-            message: 'Either width AND/OR height must be specified and a positive number when using scale-clip'
-        });
+        throw new InvalidDimensionsException();
     }
     let resizeParams = {
         withoutEnlargement: false,
@@ -68,11 +62,7 @@ exports.fill = async (image, width = null, height = null, color = null) => {
  */
 exports.scale = (image, width, height) => {
     if (!paramValidators.widthAndHeightValid(width, height)) {
-        throw ({
-            status: 400,
-            code: 'size::InvalidDimensions',
-            message: 'Width AND height must be specified and a positive number when using fit-scale'
-        });
+        throw new InvalidDimensionsException();
     }
     image.resize({
         width: width,
@@ -95,11 +85,7 @@ exports.scale = (image, width, height) => {
 exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx = null, fpy = null) => {
     // top, bottom, left, right, faces, focalpoint, edges, and entropy
     if (!paramValidators.widthOrHeightValid(width, height)) {
-        throw ({
-            status: 400,
-            code: 'size::InvalidDimensions',
-            message: 'Either width AND/OR height must be specified and a positive number when using fit-crop'
-        });
+        throw new InvalidDimensionsException();
     }
 
 
