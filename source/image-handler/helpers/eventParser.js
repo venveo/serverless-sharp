@@ -1,5 +1,3 @@
-const definitions = require('../data/schema');
-
 /**
  * Parses the name of the appropriate Amazon S3 key corresponding to the
  * original image.
@@ -62,20 +60,4 @@ exports.processSourceBucket = (fullPath) => {
         result.prefix = '';
     }
     return result;
-};
-
-/**
- * Replaces any aliased keys with its base key
- * @param queryParameters
- */
-exports.replaceAliases = (queryParameters = {}) => {
-     const aliases = definitions.aliases;
-     Object.keys(aliases).forEach((val) => {
-         if(queryParameters[val] !== undefined) {
-             Object.defineProperty(queryParameters, aliases[val],
-                 Object.getOwnPropertyDescriptor(queryParameters, val));
-             delete queryParameters[val];
-         }
-     });
-     return queryParameters;
 };

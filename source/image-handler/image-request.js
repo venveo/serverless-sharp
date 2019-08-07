@@ -1,4 +1,5 @@
 const eventParser = require('./helpers/eventParser');
+const schemaParser = require('./helpers/schemaParser');
 const security = require('./helpers/security');
 const paramValidators = require('./helpers/paramValidators');
 
@@ -105,7 +106,7 @@ class ImageRequest {
         if (!qp) {
             qp = {};
         }
-        return eventParser.replaceAliases(qp);
+        return schemaParser.replaceAliases(qp);
     }
 }
 
