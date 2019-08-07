@@ -1,4 +1,4 @@
-const definitions = require('../data/definitions');
+const definitions = require('../data/schema');
 
 /**
  * Parses the name of the appropriate Amazon S3 key corresponding to the
