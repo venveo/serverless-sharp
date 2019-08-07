@@ -69,7 +69,7 @@ exports.processSourceBucket = (fullPath) => {
  * @param queryParameters
  */
 exports.replaceAliases = (queryParameters = {}) => {
-     const aliases = definitions.alises;
+     const aliases = definitions.aliases;
      Object.keys(aliases).forEach((val) => {
          if(queryParameters[val] !== undefined) {
              Object.defineProperty(queryParameters, aliases[val],
