@@ -1,9 +1,9 @@
 const adjustment = require('./adjustment');
 const size = require('./size');
+const eventParser = require('../helpers/eventParser');
 const NotImplementedException = require('../errors/NotImplementedException');
 
 exports.apply = async (image, edits) => {
-
     // Apply brightness. 1 - 100
     if (edits["bri"]) {
         adjustment.bri(image, Math.round(Number(edits["bri"] / 100)));

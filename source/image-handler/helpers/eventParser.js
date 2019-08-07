@@ -79,14 +79,3 @@ exports.replaceAliases = (queryParameters = {}) => {
      });
      return queryParameters;
 };
-
-/**
- * Returns a hash for an object
- * @param queryParameters
- * @return {string} hash value
- */
-exports.hashQueryParameters = (queryParameters = {}) => {
-    const hash = require('object-hash');
-    const hashedValue = hash(queryParameters, {unorderedObjects: true, excludeValues: true});
-    return hashedValue;
-};
