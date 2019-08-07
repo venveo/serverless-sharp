@@ -1,4 +1,4 @@
-const security = require('../../helpers/security');
+const security = require('./security');
 
 describe('Testing hash security', () => {
     const OLD_ENV = process.env;

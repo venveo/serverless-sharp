@@ -1,4 +1,4 @@
-const eventParser = require('../../helpers/eventParser');
+const eventParser = require('./eventParser');
 
 test('parseImageKey gets basic path', () => {
     expect(eventParser.parseImageKey('images/image.png')).toEqual('images/image.png');
