@@ -1,6 +1,6 @@
 workflow "Tests" {
   on = "push"
-  resolves = ["new-action"]
+  resolves = ["Jest"]
 }
 
 action "Dependencies" {
