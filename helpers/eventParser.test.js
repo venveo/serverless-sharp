@@ -1,4 +1,4 @@
-const eventParser = require('../../helpers/eventParser');
+const eventParser = require('./eventParser');
 
 test('parseImageKey gets basic path', () => {
     expect(eventParser.parseImageKey('images/image.png')).toEqual('images/image.png');
@@ -58,20 +58,4 @@ test('processSourceBucket', () => {
     expect(eventParser.processSourceBucket('my-bucket/some-prefix')).toMatchObject({prefix: 'some-prefix', bucket: 'my-bucket'});
     expect(eventParser.processSourceBucket('my-bucket/some-prefix/another')).toMatchObject({prefix: 'some-prefix/another', bucket: 'my-bucket'});
     expect(eventParser.processSourceBucket('my-bucket/some-prefix//another')).toMatchObject({prefix: 'some-prefix//another', bucket: 'my-bucket'});
-});
-
-
-test('replaceAliases - compare objects', () => {
-    const replaced = eventParser.replaceAliases({
-        "f": "asdf",
-        "m": "asdff",
-        "no-touch": "foo",
-        "fit": "hello" // This will get over-written
-    });
-
-    expect(replaced).toMatchObject({
-        "fit": "asdf",
-        "mark": "asdff",
-        "no-touch": "foo"
-    });
 });
