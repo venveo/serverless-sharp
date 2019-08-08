@@ -1,14 +1,13 @@
 # System Files
 **/.DS_Store
 .idea
-source/image-handler/.nyc_output/
-source/image-handler/coverage
-source/image-handler/node_modules
-source/image-handler/.env
-# package directories
+.nyc_output/
+coverage
 node_modules
+.env
+# package directories
 jspm_packages
 
 # Serverless directories
 .serverless
-source/image-handler/settings.yml
+settings.yml
