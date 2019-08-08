@@ -59,19 +59,3 @@ test('processSourceBucket', () => {
     expect(eventParser.processSourceBucket('my-bucket/some-prefix/another')).toMatchObject({prefix: 'some-prefix/another', bucket: 'my-bucket'});
     expect(eventParser.processSourceBucket('my-bucket/some-prefix//another')).toMatchObject({prefix: 'some-prefix//another', bucket: 'my-bucket'});
 });
-
-
-test('replaceAliases - compare objects', () => {
-    const replaced = eventParser.replaceAliases({
-        "f": "asdf",
-        "m": "asdff",
-        "no-touch": "foo",
-        "fit": "hello" // This will get over-written
-    });
-
-    expect(replaced).toMatchObject({
-        "fit": "asdf",
-        "mark": "asdff",
-        "no-touch": "foo"
-    });
-});
