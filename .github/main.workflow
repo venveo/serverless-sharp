@@ -1,0 +1,13 @@
+workflow "Tests" {
+  on = "push"
+  resolves = ["Jest"]
+}
+
+action "Dependencies" {
+  uses = "actions/npm@master"
+  args = "--prefix source/image-handler install"
+}
+
+action "Jest" {
+  uses = "stefanoeb/jest-action@1.0.0"
+}
