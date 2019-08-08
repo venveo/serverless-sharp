@@ -9,8 +9,5 @@ action "Dependencies" {
 }
 
 action "Jest" {
-  uses = "docker://rkusa/jest-action:latest"
-  secrets = ["GITHUB_TOKEN"]
-  args = ""
-  needs = ["Dependencies"]
+  uses = "stefanoeb/jest-action@1.0.0"
 }
