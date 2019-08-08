@@ -1,5 +1,5 @@
 const schemaParser = require('./schemaParser');
-
+const ExpectationTypeException = require('../errors/ExpectationTypeException');
 
 test('replaceAliases - compare objects', () => {
     const replaced = schemaParser.replaceAliases({
@@ -18,18 +18,28 @@ test('replaceAliases - compare objects', () => {
 
 
 describe('Tests for schema validation', () => {
+    test('Test invalid', () => {
+        const request = {
+            "f": "png",
+            'fp-x': "0.5",
+            'fp-y': "0.5",
+            "fit": "crop"
+        };
+        const schema = schemaParser.getSchemaForQueryParams(request);
+
+        expect(() => {schemaParser.normalizeAndValidateSchema(schema, request)}).toThrow(ExpectationTypeException)
+    });
+
     test('Test valid', () => {
         const request = {
             "f": "png",
             'fp-x': "0.5",
             'fp-y': "0.5",
-            // "m": "asdff",
-            // "ar": "1:1",
-            // "auto": "format,bleh,redeye,asdff",
-            // "no-touch": "foo",
-            "fit": "crop" // This will get over-written
+            "fit": "crop",
+            "crop": "focalpoint"
         };
         const schema = schemaParser.getSchemaForQueryParams(request);
-        const validated = schemaParser.normalizeAndValidateSchema(schema, request);
+
+        schemaParser.normalizeAndValidateSchema(schema, request);
     });
 });

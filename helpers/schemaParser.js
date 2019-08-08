@@ -56,12 +56,32 @@ exports.normalizeAndValidateSchema = (schema = {}, values = {}) => {
     });
 
     dependencies = Object.keys(dependencies);
-
-    console.log(dependencies);
+    this.processDependencies(dependencies, schema, values);
+    return values;
 };
 
 exports.processDependencies = (dependencies, schema, values) => {
-
+    dependencies.forEach((dependency) => {
+        if (dependency.indexOf('=') !== -1) {
+            const split = dependency.split('=');
+            const key = split[0];
+            const val = split[1];
+            if (values[key] === undefined) {
+                throw new ExpectationTypeException('Dependency not met: ' + dependency);
+            }
+            if (Array.isArray(values[key])) {
+                if (!values[key].includes(val)) {
+                    throw new ExpectationTypeException('Dependency not met: ' + dependency);
+                }
+            } else if (values[key] !== val) {
+                throw new ExpectationTypeException('Dependency not met: ' + dependency);
+            }
+        } else {
+            if (values[dependency] === undefined) {
+                throw new ExpectationTypeException('Dependency not met: ' + dependency);
+            }
+        }
+    });
 };
 
 /**
