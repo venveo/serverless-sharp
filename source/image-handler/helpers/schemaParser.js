@@ -63,14 +63,20 @@ exports.processSchemaExpectations = (schema = {}, values = {}) => {
  * @returns {string|boolean|[]|number}
  */
 exports.processExpectation = (expects = {}, value) => {
+    // TODO: Break this out
     switch(expects['type']) {
         case 'string':
             return value;
         case 'list':
             let items = value.split(',');
             if (expects['possible_values'] !== undefined) {
-
+                let difference = items.filter(x => !expects['possible_values'].includes(x));
+                if (difference.length > 0) {
+                    // Unexpected value encountered
+                    throw new ExpectationTypeException;
+                }
             }
+            return items;
         case 'boolean':
             if (value === "true" || value === true) {
                 return true;
@@ -88,6 +94,10 @@ exports.processExpectation = (expects = {}, value) => {
             value = parseInt(value);
             if (expects['strict_range'] !== undefined) {
                 if (value >= expects['strict_range']['min'] && value <= expects['strict_range']['max']) {
+                    return value;
+                }
+            } else if (expects['possible_values'] !== undefined) {
+                if (expects['possible_values'].includes(value)) {
                     return value;
                 }
             }

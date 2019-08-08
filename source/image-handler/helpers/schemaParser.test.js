@@ -21,6 +21,7 @@ test('schema tests', () => {
         "f": "asdf",
         "m": "asdff",
         "ar": "1:1",
+        "auto": "format,bleh,redeye,asdff",
         "no-touch": "foo",
         "fit": "hello" // This will get over-written
     };
