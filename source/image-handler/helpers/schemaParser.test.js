@@ -16,29 +16,20 @@ test('replaceAliases - compare objects', () => {
     });
 });
 
-test('schema tests', () => {
-    const request = {
-        "f": "asdf",
-        "m": "asdff",
-        "ar": "1:1",
-        "auto": "format,bleh,redeye,asdff",
-        "no-touch": "foo",
-        "fit": "hello" // This will get over-written
-    };
-    const schema = schemaParser.getSchemaForQueryParams(request);
-    const valid = schemaParser.processSchemaExpectations(schema, request);
-});
 
-
-test('schema tests', () => {
-    const request = {
-        "f": "asdf",
-        "m": "asdff",
-        "no-touch": "foo",
-        "fit": "hello" // This will get over-written
-    };
-    const schema = schemaParser.getSchemaForQueryParams(request);
-    console.log(schema);
-    const valid = schemaParser.processSchemaExpectations(schema, request);
-    console.log(valid);
+describe('Tests for schema validation', () => {
+    test('Test valid', () => {
+        const request = {
+            "f": "png",
+            'fp-x': "0.5",
+            'fp-y': "0.5",
+            // "m": "asdff",
+            // "ar": "1:1",
+            // "auto": "format,bleh,redeye,asdff",
+            // "no-touch": "foo",
+            "fit": "crop" // This will get over-written
+        };
+        const schema = schemaParser.getSchemaForQueryParams(request);
+        const validated = schemaParser.normalizeAndValidateSchema(schema, request);
+    });
 });

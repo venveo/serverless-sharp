@@ -1,8 +1,8 @@
 module.exports = class ExpectationTypeException extends Error {
-    constructor(args) {
-        super(args);
+    constructor(message) {
+        super();
         this.name = "ExpectationType";
         this.status = 400;
-        this.message = 'Some expectation was not met for your request';
+        this.message = message;
     }
 };

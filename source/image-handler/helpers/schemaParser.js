@@ -38,13 +38,15 @@ exports.getSchemaForQueryParams = (queryParameters = {}) => {
  * @param schema
  * @param values
  */
-exports.processSchemaExpectations = (schema = {}, values = {}) => {
-    let dependencies = [];
+exports.normalizeAndValidateSchema = (schema = {}, values = {}) => {
+    let dependencies = {};
 
     Object.keys(schema).forEach((val) => {
         if (schema[val].depends !== undefined) {
             const currentDeps = schema[val].depends;
-            dependencies = dependencies.concat(currentDeps);
+            for (const value of currentDeps) {
+                dependencies[value] = false;
+            }
         }
         if (schema[val].expects !== undefined) {
             for (let i = 0, len = schema[val].expects.length; i < len; i++) {
@@ -53,11 +55,17 @@ exports.processSchemaExpectations = (schema = {}, values = {}) => {
         }
     });
 
-    console.log(values);
+    dependencies = Object.keys(dependencies);
+
+    console.log(dependencies);
+};
+
+exports.processDependencies = (dependencies, schema, values) => {
+
 };
 
 /**
- *
+ * Processes the expectations for certain parameters
  * @param expects
  * @param value
  * @returns {string|boolean|[]|number}
@@ -73,7 +81,7 @@ exports.processExpectation = (expects = {}, value) => {
                 let difference = items.filter(x => !expects['possible_values'].includes(x));
                 if (difference.length > 0) {
                     // Unexpected value encountered
-                    throw new ExpectationTypeException;
+                    throw new ExpectationTypeException('Invalid value encountered. Expected one of: ' + expects['possible_values'].join(','));
                 }
             }
             return items;
@@ -84,53 +92,57 @@ exports.processExpectation = (expects = {}, value) => {
             if (value === "false" || value === false) {
                 return false;
             }
-            throw new ExpectationTypeException;
+            throw new ExpectationTypeException('Expected a boolean');
         case 'ratio':
             if(!value.match(/([0-9]*[.]?[0-9]+):+([0-9]*[.])?[0-9]+$/)) {
-                throw new ExpectationTypeException;
+                throw new ExpectationTypeException('Expected ratio format: 1.0:1.0');
             }
             return value;
         case 'integer':
             value = parseInt(value);
             if (expects['strict_range'] !== undefined) {
-                if (value >= expects['strict_range']['min'] && value <= expects['strict_range']['max']) {
-                    return value;
+                if (value > expects['strict_range']['max'] || value > expects['strict_range']['min']) {
+                    throw new ExpectationTypeException('Value out of range');
                 }
             } else if (expects['possible_values'] !== undefined) {
-                if (expects['possible_values'].includes(value)) {
-                    return value;
+                if (!expects['possible_values'].includes(value)) {
+                    throw new ExpectationTypeException('Invalid value encountered. Expected one of: ' + expects['possible_values'].join(','));
                 }
             }
-            throw new ExpectationTypeException;
+            return value;
         case 'number':
             value = parseFloat(value);
             if (expects['strict_range'] !== undefined) {
-                if (value >= expects['strict_range']['min'] && value <= expects['strict_range']['max']) {
-                    return value;
+                if (value < expects['strict_range']['min'] || value > expects['strict_range']['max']) {
+                    throw new ExpectationTypeException('Value out of range');
                 }
             }
-            throw new ExpectationTypeException;
+            return value;
         case 'hex_color':
             if (!value.match(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)) {
-                throw new ExpectationTypeException;
+                throw new ExpectationTypeException('Expected hex code like #fff');
             }
             return value;
         case 'color_keyword':
             if (!schema.colorKeywordValues.includes(value)) {
-                throw new ExpectationTypeException;
+                throw new ExpectationTypeException('Expected valid color name');
             }
             return value;
         case 'unit_scalar':
-            // TODO:
-            throw new ExpectationTypeException;
+            if (expects['strict_range'] !== undefined) {
+                if (value < expects['strict_range']['min'] || value > expects['strict_range']['max']) {
+                    throw new ExpectationTypeException('Value out of range');
+                }
+            }
+            return value;
         case 'timestamp':
             if (!(new Date(value)).getTime() > 0) {
-                throw new ExpectationTypeException;
+                throw new ExpectationTypeException('Expected valid unix timestamp');
             }
             return value;
         case 'url':
             if (!value.match(/^(http|https):\/\/[^ "]+$/)) {
-                throw new ExpectationTypeException;
+                throw new ExpectationTypeException('Expected valid URL');
             }
             return value;
         case 'path':
