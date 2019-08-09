@@ -7,25 +7,30 @@ const {spawnSync} = require('child_process');
 const imageOps = require('./image-ops');
 
 class ImageHandler {
+    constructor(request) {
+        this.imageRequest = request;
+    }
 
     /**
      * Main method for processing image requests and outputting modified images.
      * @param {ImageRequest} request - An ImageRequest object.
      */
-    async process(request) {
-        const originalImage = request.originalImage.Body;
-        const {edits, headers} = request;
+    async process() {
+        const originalImageObject = await this.imageRequest.getOriginalImage();
+        const originalImage = originalImageObject.Body;
+
         let format;
         let bufferImage;
-        if (Object.keys(edits).length) {
-            const modifiedImage = await this.applyEdits(originalImage, edits);
-            const optimizedImage = await this.applyOptimizations(modifiedImage, edits, headers);
-            bufferImage = await optimizedImage.toBuffer();
-            format = optimizedImage.options.formatOut;
-        } else {
-            bufferImage = new Buffer(originalImage, 'binary');
-        }
+        // if (Object.keys(edits).length) {
+        //     const modifiedImage = await this.applyEdits(originalImage, edits);
+        //     const optimizedImage = await this.applyOptimizations(modifiedImage, edits, headers);
+        //     bufferImage = await optimizedImage.toBuffer();
+        //     format = optimizedImage.options.formatOut;
+        // } else {
+        //     bufferImage = new Buffer(originalImage, 'binary');
+        // }
 
+        bufferImage = new Buffer(originalImage, 'binary');
         let contentType;
         switch (format) {
             case 'jpeg':
@@ -47,7 +52,7 @@ class ImageHandler {
                 contentType = 'image';
         }
         return {
-            CacheControl: request.originalImage.CacheControl,
+            CacheControl: originalImageObject.CacheControl,
             Body: bufferImage.toString('base64'),
             ContentType: contentType
         };
@@ -165,7 +170,6 @@ class ImageHandler {
             console.warn('Supposedly could not find binPath, continue anyway.');
         }
         return binPath;
-
     }
 }
 

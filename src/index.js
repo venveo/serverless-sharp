@@ -1,12 +1,11 @@
-const ImageRequest = require('./image-request.js');
-const ImageHandler = require('./image-handler.js');
+const ImageRequest = require('./ImageRequest.js');
+const ImageHandler = require('./ImageHandler.js');
 
 exports.handler = async (event) => {
-    const imageRequest = new ImageRequest();
-    const imageHandler = new ImageHandler();
+    const imageRequest = new ImageRequest(event);
+    const imageHandler = new ImageHandler(imageRequest);
     try {
-        const request = await imageRequest.setup(event);
-        const processedRequest = await imageHandler.process(request);
+        const processedRequest = await imageHandler.process();
         const response = {
             "statusCode": 200,
             "headers" : getResponseHeaders(processedRequest, null),

@@ -40,6 +40,26 @@ describe('Tests for schema validation', () => {
         };
         const schema = schemaParser.getSchemaForQueryParams(request);
 
-        schemaParser.normalizeAndValidateSchema(schema, request);
+        expect(() => schemaParser.normalizeAndValidateSchema(schema, request)).not.toThrow(ExpectationTypeException);
+    });
+
+
+    // Two mode test
+    test('Test - double mode', () => {
+        const request = {
+            "w": 0.4
+        };
+        const schema = schemaParser.getSchemaForQueryParams(request);
+
+        expect(() => schemaParser.normalizeAndValidateSchema(schema, request)).not.toThrow(ExpectationTypeException);
+    });
+
+    test('Test - double mode - part 2', () => {
+        const request = {
+            "w": 100
+        };
+        const schema = schemaParser.getSchemaForQueryParams(request);
+
+        expect(() => schemaParser.normalizeAndValidateSchema(schema, request)).not.toThrow(ExpectationTypeException);
     });
 });

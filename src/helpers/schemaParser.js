@@ -1,4 +1,4 @@
-const schema = require('../data/schema');
+const schema = require('../../data/schema');
 const ExpectationTypeException = require('../errors/ExpectationTypeException');
 
 /**
@@ -60,6 +60,11 @@ exports.normalizeAndValidateSchema = (schema = {}, values = {}) => {
     return values;
 };
 
+/**
+ * @param dependencies
+ * @param schema
+ * @param values
+ */
 exports.processDependencies = (dependencies, schema, values) => {
     dependencies.forEach((dependency) => {
         if (dependency.indexOf('=') !== -1) {
@@ -119,10 +124,10 @@ exports.processExpectation = (expects = {}, value) => {
             }
             return value;
         case 'integer':
-            value = parseInt(value);
+            value = parseFloat(value);
             if (expects['strict_range'] !== undefined) {
-                if (value > expects['strict_range']['max'] || value > expects['strict_range']['min']) {
-                    throw new ExpectationTypeException('Value out of range');
+                if (value > expects['strict_range']['max'] || value < expects['strict_range']['min']) {
+                    throw new ExpectationTypeException('Value out of range: '+ value);
                 }
             } else if (expects['possible_values'] !== undefined) {
                 if (!expects['possible_values'].includes(value)) {
@@ -134,7 +139,7 @@ exports.processExpectation = (expects = {}, value) => {
             value = parseFloat(value);
             if (expects['strict_range'] !== undefined) {
                 if (value < expects['strict_range']['min'] || value > expects['strict_range']['max']) {
-                    throw new ExpectationTypeException('Value out of range');
+                    throw new ExpectationTypeException('Value out of range: '+ value);
                 }
             }
             return value;
@@ -149,6 +154,7 @@ exports.processExpectation = (expects = {}, value) => {
             }
             return value;
         case 'unit_scalar':
+            console.log(value,expects);
             if (expects['strict_range'] !== undefined) {
                 if (value < expects['strict_range']['min'] || value > expects['strict_range']['max']) {
                     throw new ExpectationTypeException('Value out of range');
@@ -173,4 +179,9 @@ exports.processExpectation = (expects = {}, value) => {
             console.error('Encountered unknown expectation type: ' + expects['type']);
             break;
     }
+};
+
+
+parsePossibleValues = () => {
+
 };
