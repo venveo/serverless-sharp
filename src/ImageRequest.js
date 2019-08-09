@@ -4,17 +4,17 @@ const security = require('./helpers/security');
 
 class ImageRequest {
     constructor(event) {
-        const {bucket, prefix} = eventParser.processSourceBucket(process.env.SOURCE_BUCKET);
-
         // If the hash isn't set when it should be, we'll throw an error.
         if (process.env.SECURITY_KEY !== undefined && process.env.SECURITY_KEY !== null && process.env.SECURITY_KEY.length) {
             ImageRequest.parseHash(event);
         }
 
+        const {bucket, prefix} = eventParser.processSourceBucket(process.env.SOURCE_BUCKET);
         this.bucket = bucket;
+
         this.key = eventParser.parseImageKey(event['path'], prefix);
 
-        const qp = ImageRequest._decodeRequest(event);
+        const qp = ImageRequest._parseQueryParams(event);
         this.schema = schemaParser.getSchemaForQueryParams(qp);
         this.edits = schemaParser.normalizeAndValidateSchema(this.schema, qp);
         this.headers = event.headers;
@@ -41,15 +41,6 @@ class ImageRequest {
                 message: err.message
             })
         }
-    }
-
-    /**
-     * Parses the edits to be made to the original image.
-     * @param {String} event - Lambda request body.
-     */
-    static parseImageEdits(event) {
-        const decoded = ImageRequest._decodeRequest(event);
-        return decoded.edits;
     }
 
     /**
@@ -82,7 +73,7 @@ class ImageRequest {
      * image requests. Provides error handling for invalid or undefined path values.
      * @param {Object} event - The proxied request object.
      */
-    static _decodeRequest(event) {
+    static _parseQueryParams(event) {
         let qp = event["queryStringParameters"];
         if (!qp) {
             qp = {};

@@ -40,6 +40,7 @@ exports.getSchemaForQueryParams = (queryParameters = {}) => {
  */
 exports.normalizeAndValidateSchema = (schema = {}, values = {}) => {
     let dependencies = {};
+    let expectationValues = {};
 
     Object.keys(schema).forEach((val) => {
         if (schema[val].depends !== undefined) {
@@ -49,15 +50,33 @@ exports.normalizeAndValidateSchema = (schema = {}, values = {}) => {
             }
         }
         if (schema[val].expects !== undefined) {
+            let passedExpectation = null;
+            let result = null;
             for (let i = 0, len = schema[val].expects.length; i < len; i++) {
-                values[val] = this.processExpectation(schema[val].expects[i], values[val])
+                if (passedExpectation) {
+                    continue;
+                }
+
+                result = this.processExpectation(schema[val].expects[i], values[val]);
+                if (result.passed) {
+                    passedExpectation = schema[val].expects[i];
+                }
+            }
+            if (!passedExpectation) {
+                throw new ExpectationTypeException('Did not pass expectations');
+            }
+            expectationValues[val] = {
+                value: result,
+                expectation: passedExpectation,
+                schema: schema[val]
             }
         }
     });
 
     dependencies = Object.keys(dependencies);
     this.processDependencies(dependencies, schema, values);
-    return values;
+
+    return expectationValues;
 };
 
 /**
@@ -93,87 +112,144 @@ exports.processDependencies = (dependencies, schema, values) => {
  * Processes the expectations for certain parameters
  * @param expects
  * @param value
- * @returns {string|boolean|[]|number}
+ * @returns {Object}
  */
 exports.processExpectation = (expects = {}, value) => {
+    let result = {
+        passed: false,
+        processedValue: null,
+        message: null
+    };
+
     // TODO: Break this out
     switch(expects['type']) {
         case 'string':
-            return value;
+            if (value.length) {
+                result.passed = true;
+                result.processedValue = value;
+            } else {
+                result.message = 'String length expected';
+            }
+            return result;
         case 'list':
             let items = value.split(',');
+            if (!items.length) {
+                result.message = 'At least one item expected';
+                return result;
+            }
             if (expects['possible_values'] !== undefined) {
                 let difference = items.filter(x => !expects['possible_values'].includes(x));
                 if (difference.length > 0) {
                     // Unexpected value encountered
-                    throw new ExpectationTypeException('Invalid value encountered. Expected one of: ' + expects['possible_values'].join(','));
+                    result.message = 'Invalid value encountered. Expected one of: ' + expects['possible_values'].join(',');
+                    return result;
                 }
             }
-            return items;
+            result.processedValue = items;
+            result.passed = true;
+            return result;
         case 'boolean':
             if (value === "true" || value === true) {
-                return true;
+                result.passed = true;
+                result.processedValue = true;
+            } else if (value === "false" || value === false) {
+                result.passed = true;
+                result.processedValue = false;
+            } else {
+                result.message = 'Expected a boolean';
             }
-            if (value === "false" || value === false) {
-                return false;
-            }
-            throw new ExpectationTypeException('Expected a boolean');
+            return result;
         case 'ratio':
             if(!value.match(/([0-9]*[.]?[0-9]+):+([0-9]*[.])?[0-9]+$/)) {
-                throw new ExpectationTypeException('Expected ratio format: 1.0:1.0');
+                result.message = 'Expected ratio format: 1.0:1.0';
+                return result;
             }
-            return value;
+            result.processedValue = value;
+            result.passed = true;
+            return result;
         case 'integer':
-            value = parseFloat(value);
+            value = parseInt(value);
+            if (isNaN(value)) {
+                result.message = 'NaN';
+                return result;
+            }
+            result.processedValue = value;
+
             if (expects['strict_range'] !== undefined) {
                 if (value > expects['strict_range']['max'] || value < expects['strict_range']['min']) {
-                    throw new ExpectationTypeException('Value out of range: '+ value);
+                    result.message = 'Value out of range';
+                    return result;
                 }
             } else if (expects['possible_values'] !== undefined) {
                 if (!expects['possible_values'].includes(value)) {
-                    throw new ExpectationTypeException('Invalid value encountered. Expected one of: ' + expects['possible_values'].join(','));
+                    result.message = 'Invalid value encountered. Expected one of: ' + expects['possible_values'].join(',');
+                    return result;
                 }
             }
-            return value;
+            result.passed = true;
+            return result;
         case 'number':
             value = parseFloat(value);
+            if (isNaN(value)) {
+                result.message = 'NaN';
+                return result;
+            }
             if (expects['strict_range'] !== undefined) {
                 if (value < expects['strict_range']['min'] || value > expects['strict_range']['max']) {
-                    throw new ExpectationTypeException('Value out of range: '+ value);
+                    result.message = 'Value out of range: '+ value;
+                    return result;
                 }
             }
-            return value;
+            result.passed = true;
+            return result;
         case 'hex_color':
             if (!value.match(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)) {
-                throw new ExpectationTypeException('Expected hex code like #fff');
+                result.message = 'Expected hex code like #fff';
+                return result;
             }
             return value;
         case 'color_keyword':
             if (!schema.colorKeywordValues.includes(value)) {
-                throw new ExpectationTypeException('Expected valid color name');
+                result.message = 'Expected valid color name';
+                return result;
             }
             return value;
         case 'unit_scalar':
-            console.log(value,expects);
+            value = parseFloat(value);
+            if (isNaN(value)) {
+                result.message = 'NaN';
+                return result;
+            }
+            result.processedValue = value;
             if (expects['strict_range'] !== undefined) {
                 if (value < expects['strict_range']['min'] || value > expects['strict_range']['max']) {
-                    throw new ExpectationTypeException('Value out of range');
+                    result.message = 'Value out of range';
+                    return result;
                 }
             }
-            return value;
+            result.passed = true;
+            return result;
         case 'timestamp':
             if (!(new Date(value)).getTime() > 0) {
-                throw new ExpectationTypeException('Expected valid unix timestamp');
+                result.message = 'Expected valid unix timestamp';
+                return result;
             }
-            return value;
+            result.processedValue = value;
+            result.passed = true;
+            return result;
         case 'url':
             if (!value.match(/^(http|https):\/\/[^ "]+$/)) {
-                throw new ExpectationTypeException('Expected valid URL');
+                result.message = 'Expected valid URL';
+                return result;
             }
-            return value;
+            result.processedValue = value;
+            result.passed = true;
+            return result;
         case 'path':
             // TODO:
-            return value;
+            result.processedValue = value;
+            result.passed = true;
+            return result;
             // throw new ExpectationTypeException;
         default:
             console.error('Encountered unknown expectation type: ' + expects['type']);

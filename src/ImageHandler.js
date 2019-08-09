@@ -4,19 +4,27 @@ const fs = require("fs");
 const path = require("path");
 const {spawnSync} = require('child_process');
 
+const ImageRequest = require('./ImageRequest');
+
 const imageOps = require('./image-ops');
 
 class ImageHandler {
+
+    /**
+     * @param {ImageRequest} request
+     */
     constructor(request) {
-        this.imageRequest = request;
+        if (!request instanceof ImageRequest) {
+            throw new Error('Expected request of type ImageRequest');
+        }
+        this.request = request;
     }
 
     /**
      * Main method for processing image requests and outputting modified images.
-     * @param {ImageRequest} request - An ImageRequest object.
      */
     async process() {
-        const originalImageObject = await this.imageRequest.getOriginalImage();
+        const originalImageObject = await this.request.getOriginalImage();
         const originalImage = originalImageObject.Body;
 
         let format;
