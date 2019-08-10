@@ -24,21 +24,23 @@ class ImageHandler {
      * Main method for processing image requests and outputting modified images.
      */
     async process() {
+        // Get the original image
         const originalImageObject = await this.request.getOriginalImage();
-        const originalImage = originalImageObject.Body;
+        const originalImageBody = originalImageObject.Body;
 
         let format;
         let bufferImage;
-        // if (Object.keys(edits).length) {
-        //     const modifiedImage = await this.applyEdits(originalImage, edits);
-        //     const optimizedImage = await this.applyOptimizations(modifiedImage, edits, headers);
-        //     bufferImage = await optimizedImage.toBuffer();
-        //     format = optimizedImage.options.formatOut;
-        // } else {
-        //     bufferImage = new Buffer(originalImage, 'binary');
-        // }
-
-        bufferImage = new Buffer(originalImage, 'binary');
+        // We have some edits to process
+        if (Object.keys(this.request.edits).length) {
+            const modifiedImage = await this.applyEdits(originalImageBody, this.request.edits);
+            // TODO: Finish this
+            // const optimizedImage = await this.applyOptimizations(modifiedImage, edits, headers);
+            bufferImage = await modifiedImage.toBuffer();
+            format = modifiedImage.options.formatOut;
+        } else {
+            // No edits, just return the original
+            bufferImage = new Buffer(originalImageBody, 'binary');
+        }
         let contentType;
         switch (format) {
             case 'jpeg':
@@ -57,7 +59,7 @@ class ImageHandler {
                 contentType = 'image/svg+xml';
                 break;
             default:
-                contentType = 'image';
+                contentType = originalImageObject.ContentType;
         }
         return {
             CacheControl: originalImageObject.CacheControl,
@@ -75,10 +77,16 @@ class ImageHandler {
     async applyEdits(originalImage, edits) {
         const image = sharp(originalImage);
         await imageOps.apply(image, edits);
-
         return image;
     }
 
+    /**
+     * TODO: Move me out of here
+     * @param image
+     * @param edits
+     * @param headers
+     * @returns {Promise<Sharp>}
+     */
     async applyOptimizations(image, edits, headers) {
         const minColors = 128;  // arbitrary number
         const maxColors = 256 * 256 * 256;  // max colors in RGB color space
@@ -170,6 +178,11 @@ class ImageHandler {
         return image
     }
 
+    /**
+     * TODO: Move me out of here
+     * @param binName
+     * @returns {string}
+     */
     findBin(binName) {
         process.env['PATH'] = process.env['PATH'] + ':' + process.env['LAMBDA_TASK_ROOT'];
         const binPath = path.resolve("./bin/", process.platform, binName);

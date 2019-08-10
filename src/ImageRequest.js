@@ -6,7 +6,7 @@ class ImageRequest {
     constructor(event) {
         // If the hash isn't set when it should be, we'll throw an error.
         if (process.env.SECURITY_KEY !== undefined && process.env.SECURITY_KEY !== null && process.env.SECURITY_KEY.length) {
-            ImageRequest.parseHash(event);
+            ImageRequest.checkHash(event);
         }
 
         const {bucket, prefix} = eventParser.processSourceBucket(process.env.SOURCE_BUCKET);
@@ -17,7 +17,7 @@ class ImageRequest {
         const qp = ImageRequest._parseQueryParams(event);
         this.schema = schemaParser.getSchemaForQueryParams(qp);
         this.edits = schemaParser.normalizeAndValidateSchema(this.schema, qp);
-        this.headers = event.headers;
+        this.headers = event['headers'];
     }
 
     /**
@@ -48,7 +48,7 @@ class ImageRequest {
      * original image.
      * @param {Object} event - Lambda request body.
      */
-    static parseHash(event) {
+    static checkHash(event) {
         const {queryStringParameters, path} = event;
         if (!queryStringParameters || queryStringParameters['s'] === undefined) {
             throw {

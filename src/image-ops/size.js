@@ -3,6 +3,33 @@ const paramValidators = require('../helpers/paramValidators');
 
 const InvalidDimensionsException = require('../errors/InvalidDimensionsException');
 
+exports.apply = async (image, edits) => {
+    const {w, h, fit, crop} = edits;
+    if (w.value.processedValue || h.value.processedValue) {
+        switch (fit.value.processedValue) {
+            case 'clamp':
+                throw new NotImplementedException;
+            case 'fillmax':
+                throw new NotImplementedException;
+            case 'max':
+                throw new NotImplementedException;
+            case 'min':
+                throw new NotImplementedException;
+            case 'fill':
+                await this.fill(image, w.value.processedValue, h.value.processedValue, edits["fill-color"].value.processedValue);
+                break;
+            case 'scale':
+                this.scale(image, w.value.processedValue, h.value.processedValue);
+                break;
+            case 'crop':
+                await this.scaleCrop(image, w.value.processedValue, h.value.processedValue, crop.value.processedValue, edits["fp-x"].value.processedValue, edits["fp-y"].value.processedValue);
+                break;
+            case 'clip':
+                this.scaleClip(image, w.value.processedValue, h.value.processedValue);
+                break;
+        }
+    }
+};
 
 /**
  *

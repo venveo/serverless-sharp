@@ -35,20 +35,24 @@ exports.getSchemaForQueryParams = (queryParameters = {}) => {
 
 /**
  *
- * @param schema
- * @param values
+ * @param {Object} schema
+ * @param {Object} values
+ * @return {Object}
  */
 exports.normalizeAndValidateSchema = (schema = {}, values = {}) => {
     let dependencies = {};
     let expectationValues = {};
 
     Object.keys(schema).forEach((val) => {
+        // Keep track of dependencies we need to verify later
         if (schema[val].depends !== undefined) {
             const currentDeps = schema[val].depends;
             for (const value of currentDeps) {
                 dependencies[value] = false;
             }
         }
+
+        // Check the expectations for each item. Note, each item can have multiple valid expectations.
         if (schema[val].expects !== undefined) {
             let passedExpectation = null;
             let result = null;
@@ -73,13 +77,52 @@ exports.normalizeAndValidateSchema = (schema = {}, values = {}) => {
         }
     });
 
+    // Go back and validate our dependencies now that we've looked at each item. Throw an exception if not met
     dependencies = Object.keys(dependencies);
     this.processDependencies(dependencies, schema, values);
 
+    // Now we'll merge the rest of the schema's defaults
+    expectationValues = this.processDefaults(expectationValues);
     return expectationValues;
 };
 
 /**
+ * @param {Object} expectationValues
+ * @param {Object} expectationValues.value
+ * @param {Object} expectationValues.expectation
+ * @param {Object} expectationValues.schema
+ * @return {Object}
+ */
+exports.processDefaults = (expectationValues) => {
+    const fullSchema = require('../../data/schema').parameters;
+    Object.keys(fullSchema).forEach((val) => {
+        if (expectationValues[val] === undefined) {
+            if (fullSchema[val]['default'] !== undefined) {
+                expectationValues[val] = {
+                    value: {
+                        processedValue: fullSchema[val]['default'],
+                        passed: true,
+                        implicit: true
+                    },
+                    schema: fullSchema[val]
+                };
+            } else {
+                expectationValues[val] = {
+                    value: {
+                        processedValue: null,
+                        passed: true,
+                        implicit: true
+                    },
+                    schema: fullSchema[val]
+                };
+            }
+        }
+    });
+    return expectationValues;
+};
+
+/**
+ * Processes an array of dependencies. A dependency can be like "sharp" or "crop=fit"
  * @param dependencies
  * @param schema
  * @param values
@@ -122,7 +165,7 @@ exports.processExpectation = (expects = {}, value) => {
     };
 
     // TODO: Break this out
-    switch(expects['type']) {
+    switch (expects['type']) {
         case 'string':
             if (value.length) {
                 result.passed = true;
@@ -160,7 +203,7 @@ exports.processExpectation = (expects = {}, value) => {
             }
             return result;
         case 'ratio':
-            if(!value.match(/([0-9]*[.]?[0-9]+):+([0-9]*[.])?[0-9]+$/)) {
+            if (!value.match(/([0-9]*[.]?[0-9]+):+([0-9]*[.])?[0-9]+$/)) {
                 result.message = 'Expected ratio format: 1.0:1.0';
                 return result;
             }
@@ -196,7 +239,7 @@ exports.processExpectation = (expects = {}, value) => {
             }
             if (expects['strict_range'] !== undefined) {
                 if (value < expects['strict_range']['min'] || value > expects['strict_range']['max']) {
-                    result.message = 'Value out of range: '+ value;
+                    result.message = 'Value out of range: ' + value;
                     return result;
                 }
             }
@@ -250,7 +293,7 @@ exports.processExpectation = (expects = {}, value) => {
             result.processedValue = value;
             result.passed = true;
             return result;
-            // throw new ExpectationTypeException;
+        // throw new ExpectationTypeException;
         default:
             console.error('Encountered unknown expectation type: ' + expects['type']);
             break;
