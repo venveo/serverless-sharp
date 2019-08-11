@@ -1,8 +1,8 @@
 exports.apply = (image, edits) => {
-  if (edits['bri'] && edits['bri'].value.implicit !== true) {
-    this.bri(image, Math.round(Number(edits['bri'] / 100)))
+  if (edits['bri']) {
+    this.bri(image, edits['bri'].value.processedValue)
   }
-  if (edits['sharp'] && edits['sharp'].value.implicit !== true) {
+  if (edits['sharp']) {
     this.sharp(image)
   }
 }
@@ -13,6 +13,8 @@ exports.apply = (image, edits) => {
  * @param {number} val
  */
 exports.bri = (image, val) => {
+  // TODO: This is wrong! Brightness in imgix is -200-200 for SOME REASON??
+  // Also, it doesn't scale nicely to Sharp. Sharp doesn't go completely black
   image.modulate({
     brightness: val
   })
