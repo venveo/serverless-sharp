@@ -80,8 +80,7 @@ exports.normalizeAndValidateSchema = (schema = {}, values = {}) => {
   // Go back and validate our dependencies now that we've looked at each item. Throw an exception if not met
   expectationValues = this.processDefaults(expectationValues)
   dependencies = Object.keys(dependencies)
-  // TODO: Merge in defaults here!
-  this.processDependencies(dependencies, schema, values)
+  this.processDependencies(dependencies, expectationValues)
 
   // Now we'll merge the rest of the schema's defaults
   return expectationValues
@@ -128,24 +127,24 @@ exports.processDefaults = (expectationValues) => {
  * @param schema
  * @param values
  */
-exports.processDependencies = (dependencies, schema, values) => {
+exports.processDependencies = (dependencies, expectationValues) => {
   dependencies.forEach((dependency) => {
     if (dependency.indexOf('=') !== -1) {
       const split = dependency.split('=')
       const key = split[0]
       const val = split[1]
-      if (values[key] === undefined) {
+      if (expectationValues[key] === undefined) {
         throw new ExpectationTypeException('Dependency not met: ' + dependency)
       }
-      if (Array.isArray(values[key])) {
-        if (!values[key].includes(val)) {
+      if (Array.isArray(expectationValues[key].value.processedValue)) {
+        if (!expectationValues[key].value.processedValue.includes(val)) {
           throw new ExpectationTypeException('Dependency not met: ' + dependency)
         }
-      } else if (values[key] !== val) {
+      } else if (expectationValues[key].value.processedValue !== val) {
         throw new ExpectationTypeException('Dependency not met: ' + dependency)
       }
     } else {
-      if (values[dependency] === undefined) {
+      if (expectationValues[dependency] === undefined) {
         throw new ExpectationTypeException('Dependency not met: ' + dependency)
       }
     }
