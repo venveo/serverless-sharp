@@ -1,6 +1,7 @@
 const sharp = require('sharp');
 const paramValidators = require('../helpers/paramValidators');
 
+const NotImplementedException = require('../errors/NotImplementedException');
 const InvalidDimensionsException = require('../errors/InvalidDimensionsException');
 
 exports.apply = async (image, edits) => {

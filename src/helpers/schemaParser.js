@@ -78,11 +78,12 @@ exports.normalizeAndValidateSchema = (schema = {}, values = {}) => {
     });
 
     // Go back and validate our dependencies now that we've looked at each item. Throw an exception if not met
+    expectationValues = this.processDefaults(expectationValues);
     dependencies = Object.keys(dependencies);
+    // TODO: Merge in defaults here!
     this.processDependencies(dependencies, schema, values);
 
     // Now we'll merge the rest of the schema's defaults
-    expectationValues = this.processDefaults(expectationValues);
     return expectationValues;
 };
 
@@ -250,13 +251,18 @@ exports.processExpectation = (expects = {}, value) => {
                 result.message = 'Expected hex code like #fff';
                 return result;
             }
-            return value;
+            result.passed = true;
+            result.processedValue = value;
+            return result;
         case 'color_keyword':
             if (!schema.colorKeywordValues.includes(value)) {
                 result.message = 'Expected valid color name';
                 return result;
             }
-            return value;
+
+            result.passed = true;
+            result.processedValue = value;
+            return result;
         case 'unit_scalar':
             value = parseFloat(value);
             if (isNaN(value)) {

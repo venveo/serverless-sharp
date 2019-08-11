@@ -1,8 +1,6 @@
 const adjustment = require('./adjustment');
 const size = require('./size');
 
-const NotImplementedException = require('../errors/NotImplementedException');
-
 const operationsByCategory = {
     size: size.apply,
     adjustment: adjustment.apply
@@ -21,7 +19,7 @@ exports.apply = async (image, edits) => {
 
     for (const category in editsByCategory) {
         if (editsByCategory.hasOwnProperty(category) && operationsByCategory.hasOwnProperty(category)) {
-            await operationsByCategory[category](image, editsByCategory[category]);
+            await operationsByCategory[category](image, edits);
         }
     }
 
