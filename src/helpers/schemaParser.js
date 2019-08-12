@@ -273,12 +273,12 @@ exports.processExpectation = (expects = {}, value) => {
       result.passed = true
       return result
     case 'hex_color':
-      if (!value.match(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)) {
-        result.message = 'Expected hex code like #fff'
+      if (!value.match(/^([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)) {
+        result.message = 'Expected hex code like fff'
         return result
       }
       result.passed = true
-      result.processedValue = value
+      result.processedValue = '#' + value
       return result
     case 'color_keyword':
       if (!schema.colorKeywordValues.includes(value)) {
