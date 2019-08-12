@@ -19,8 +19,3 @@ exports.blur = (image, val) => {
   result *= 0.22
   image.blur(result)
 }
-
-/*
-Result := ((Input - InputLow) / (InputHigh - InputLow))
-          * (OutputHigh - OutputLow) + OutputLow;
- */
