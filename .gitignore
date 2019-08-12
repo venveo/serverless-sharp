@@ -11,3 +11,4 @@ jspm_packages
 # Serverless directories
 .serverless
 settings.yml
+settings.*.yml
