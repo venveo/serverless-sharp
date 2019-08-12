@@ -50,7 +50,7 @@ supported:
 - **fp-x**, **fp-y** - focal point x & y - percentage, 0 to 1 for where to focus on the image when cropping with focalpoint mode
 - **s** - security hash - See security section
 - **auto** - can be a comma separated combination of: `compress`, `format`
-- **lossless** - if set, images rendered as webp will be lossless
+- **blur** - gaussian blur between 0-2000
 
 ### `auto`: format
 If `auto` includes format, the service will try to determine the ideal format to convert the image to. The rules are:
