@@ -6,8 +6,8 @@ const InvalidDimensionsException = require('../errors/InvalidDimensionsException
 
 exports.apply = async (image, edits) => {
   const { w, h, fit, crop } = edits
-  if (w.value.processedValue || h.value.processedValue) {
-    switch (fit.value.processedValue) {
+  if (w.processedValue || h.processedValue) {
+    switch (fit.processedValue) {
       case 'clamp':
         // https://github.com/venveo/serverless-sharp/issues/26
         // Should extends the edge pixels outwards to match the given dimensions.
@@ -26,16 +26,16 @@ exports.apply = async (image, edits) => {
         // https://github.com/venveo/serverless-sharp/issues/28
         throw new NotImplementedException()
       case 'fill':
-        await this.fill(image, w.value.processedValue, h.value.processedValue, edits['fill-color'].value.processedValue)
+        await this.fill(image, w.processedValue, h.processedValue, edits['fill-color'].processedValue)
         break
       case 'scale':
-        this.scale(image, w.value.processedValue, h.value.processedValue)
+        this.scale(image, w.processedValue, h.processedValue)
         break
       case 'crop':
-        await this.scaleCrop(image, w.value.processedValue, h.value.processedValue, crop.value.processedValue, edits['fp-x'].value.processedValue, edits['fp-y'].value.processedValue)
+        await this.scaleCrop(image, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue)
         break
       case 'clip':
-        this.scaleClip(image, w.value.processedValue, h.value.processedValue)
+        this.scaleClip(image, w.processedValue, h.processedValue)
         break
     }
   }
@@ -123,6 +123,10 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
   if (!paramValidators.widthOrHeightValid(width, height)) {
     throw new InvalidDimensionsException()
   }
+  // TODO: This should happen in the schemaParser
+  if (!Array.isArray(crop)) {
+    crop = []
+  }
 
   // extract metadata from image to resize
   const metadata = await image.metadata()
@@ -145,7 +149,7 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
   const newHeight = parseInt(originalHeight * factor)
 
   // if we don't have a focal point, default to center-center
-  if (crop[0] !== 'focalpoint') {
+  if (crop.length && crop[0] !== 'focalpoint') {
     fpx = 0.5
     fpy = 0.5
 
@@ -186,7 +190,6 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
   } else if (fpyTop < 0) {
     fpyTop = 0
   }
-
   image.resize({
     width: newWidth,
     height: newHeight,

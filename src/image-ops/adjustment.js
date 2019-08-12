@@ -1,6 +1,6 @@
 exports.apply = (image, edits) => {
   if (edits['bri']) {
-    this.bri(image, edits['bri'].value.processedValue)
+    this.bri(image, edits['bri'].processedValue)
   }
   if (edits['sharp']) {
     this.sharp(image)

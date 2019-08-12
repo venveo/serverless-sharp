@@ -90,15 +90,15 @@ class ImageHandler {
     // const maxColors = 256 * 256 * 256 // max colors in RGB color space
 
     const { auto } = edits
-    let autoVals = auto.value.processedValue
+    let autoVals = auto.processedValue
     if (!Array.isArray()) {
       autoVals = []
     }
 
     // Determine our quality - if it was implicitly determined, we'll use the environment setting rather than the schema
     let quality = parseInt(process.env.DEFAULT_QUALITY)
-    if (edits.q.value.implicit !== true) {
-      quality = parseInt(edits.q.value.processedValue)
+    if (edits.q.implicit !== true) {
+      quality = parseInt(edits.q.processedValue)
       if (quality < 1) {
         quality = 1
       } else if (quality > 100) {
@@ -108,7 +108,7 @@ class ImageHandler {
 
     // Get the image metadata and the initial format
     const metadata = await image.metadata()
-    let fm = edits.fm.value.processedValue
+    let fm = edits.fm.processedValue
     if (fm === null) {
       fm = metadata.format
     }

@@ -1,5 +1,6 @@
 const schema = require('../../data/schema')
 const ExpectationTypeException = require('../errors/ExpectationTypeException')
+const ParsedSchemaItem = require('../helpers/ParsedSchemaItem')
 
 /**
  * Replaces any aliased keys with its base key
@@ -69,11 +70,13 @@ exports.normalizeAndValidateSchema = (schema = {}, values = {}) => {
       if (!passedExpectation) {
         throw new ExpectationTypeException('Did not pass expectations')
       }
-      expectationValues[val] = {
-        value: result,
-        expectation: passedExpectation,
-        schema: schema[val]
-      }
+      expectationValues[val] = new ParsedSchemaItem(
+        result.processedValue,
+        result.passed,
+        result.implicit,
+        schema[val],
+        passedExpectation
+      )
     }
   })
 
@@ -99,50 +102,46 @@ exports.processDefaults = (expectationValues) => {
     if (expectationValues[val] === undefined) {
       // Handle when a default value is available on a schema
       if (fullSchema[val]['default'] !== undefined) {
-        expectationValues[val] = {
-          value: {
-            processedValue: fullSchema[val]['default'],
-            passed: true,
-            implicit: true
-          },
-          schema: fullSchema[val]
-        }
+        expectationValues[val] = new ParsedSchemaItem(
+          fullSchema[val]['default'],
+          true,
+          true,
+          fullSchema[val],
+          null
+        )
         // Apparently, expectations can have defaults as well?? We'll handle that here
       } else if (fullSchema[val].expects !== undefined && fullSchema[val].expects.length) {
         for (const expectation of fullSchema[val].expects) {
           if (expectation['default'] !== undefined) {
-            expectationValues[val] = {
-              value: {
-                processedValue: expectation['default'],
-                passed: true,
-                implicit: true
-              },
-              schema: fullSchema[val]
-            }
+            expectationValues[val] = new ParsedSchemaItem(
+              expectation['default'],
+              true,
+              true,
+              fullSchema[val],
+              null
+            )
             break
           }
         }
         // There was no expectation, so go ahead and pass it as null
         if (expectationValues[val] === undefined) {
-          expectationValues[val] = {
-            value: {
-              processedValue: null,
-              passed: true,
-              implicit: true
-            },
-            schema: fullSchema[val]
-          }
+          expectationValues[val] = new ParsedSchemaItem(
+            null,
+            true,
+            true,
+            fullSchema[val],
+            null
+          )
         }
       } else {
         // Otherwise, there's no value!
-        expectationValues[val] = {
-          value: {
-            processedValue: null,
-            passed: true,
-            implicit: true
-          },
-          schema: fullSchema[val]
-        }
+        expectationValues[val] = new ParsedSchemaItem(
+          null,
+          true,
+          true,
+          fullSchema[val],
+          null
+        )
       }
     }
   })
@@ -164,11 +163,11 @@ exports.processDependencies = (dependencies, expectationValues) => {
       if (expectationValues[key] === undefined) {
         throw new ExpectationTypeException('Dependency not met: ' + dependency)
       }
-      if (Array.isArray(expectationValues[key].value.processedValue)) {
-        if (!expectationValues[key].value.processedValue.includes(val)) {
+      if (Array.isArray(expectationValues[key].processedValue)) {
+        if (!expectationValues[key].processedValue.includes(val)) {
           throw new ExpectationTypeException('Dependency not met: ' + dependency)
         }
-      } else if (expectationValues[key].value.processedValue !== val) {
+      } else if (expectationValues[key].processedValue !== val) {
         throw new ExpectationTypeException('Dependency not met: ' + dependency)
       }
     } else {
