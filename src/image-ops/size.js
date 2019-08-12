@@ -128,6 +128,19 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
     crop = []
   }
 
+  // First we'll handle entropy mode - this one is simpler
+  if (crop.includes('entropy')) {
+    image.resize({
+      width: width,
+      height: height,
+      withoutEnlargement: false,
+      fit: sharp.fit.cover,
+      position: sharp.strategy.entropy
+    })
+    return
+  }
+
+  // Now handle focalpoint, and left, right, top, bottom
   // extract metadata from image to resize
   const metadata = await image.metadata()
 
