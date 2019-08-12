@@ -32,13 +32,12 @@ class ImageHandler {
     // We have some edits to process
     if (Object.keys(this.request.edits).length) {
       const modifiedImage = await this.applyEdits(originalImageBody, this.request.edits)
-      // TODO: Finish this
-      // const optimizedImage = await this.applyOptimizations(modifiedImage, edits, headers);
-      bufferImage = await modifiedImage.toBuffer()
-      format = modifiedImage.options.formatOut
+      const optimizedImage = await this.applyOptimizations(modifiedImage, this.request.edits, this.headers)
+      bufferImage = await optimizedImage.toBuffer()
+      format = optimizedImage.options.formatOut
     } else {
       // No edits, just return the original
-      bufferImage = new Buffer(originalImageBody, 'binary')
+      bufferImage = Buffer.from(originalImageBody, 'binary')
     }
     let contentType
     switch (format) {
@@ -87,22 +86,19 @@ class ImageHandler {
    * @returns {Promise<Sharp>}
    */
   async applyOptimizations (image, edits, headers) {
-    const minColors = 128 // arbitrary number
-    const maxColors = 256 * 256 * 256 // max colors in RGB color space
+    // const minColors = 128 // arbitrary number
+    // const maxColors = 256 * 256 * 256 // max colors in RGB color space
 
     const { auto } = edits
-
-    let autoOps = []
-
-    // Get our ops from auto
-    if (auto) {
-      autoOps = auto.split(',')
+    let autoVals = auto.value.processedValue
+    if (!Array.isArray()) {
+      autoVals = []
     }
 
-    // Determine our quality
+    // Determine our quality - if it was implicitly determined, we'll use the environment setting rather than the schema
     let quality = parseInt(process.env.DEFAULT_QUALITY)
-    if (edits.q !== undefined) {
-      quality = parseInt(edits.q)
+    if (edits.q.value.implicit !== true) {
+      quality = parseInt(edits.q.value.processedValue)
       if (quality < 1) {
         quality = 1
       } else if (quality > 100) {
@@ -110,14 +106,14 @@ class ImageHandler {
       }
     }
 
-    // Get the image meta-data and the initial format
+    // Get the image metadata and the initial format
     const metadata = await image.metadata()
-    let fm = edits.fm
-    if (fm === undefined) {
+    let fm = edits.fm.value.processedValue
+    if (fm === null) {
       fm = metadata.format
     }
 
-    if (autoOps.includes('compress')) {
+    if (autoVals.includes('compress')) {
       quality = parseInt(process.env.DEFAULT_COMPRESS_QUALITY)
       if (!metadata.hasAlpha && (fm === 'png' || fm === 'tiff')) {
         fm = 'jpeg'
@@ -126,7 +122,7 @@ class ImageHandler {
       }
     }
 
-    if (autoOps.includes('format')) {
+    if (autoVals.includes('format')) {
       // If the browser supports webp, use webp for everything but gifs
       if (headers && 'Accept' in headers) {
         if (fm !== 'gif' && headers['Accept'].indexOf('image/webp') !== -1) {
@@ -143,7 +139,7 @@ class ImageHandler {
       })
     } else if (fm === 'png') {
       // ensure that we do not reduce quality if param is not given
-      if (autoOps.includes('compress') && quality < 100 && edits.q !== undefined) {
+      if (autoVals.includes('compress') && quality < 100 && edits.q !== undefined) {
         const buffer = await image.toBuffer()
         const minQuality = quality - 20 > 0 ? quality - 20 : 0
         const pngQuantOptions = ['--speed', '3', '--quality', minQuality + '-' + quality, '-']

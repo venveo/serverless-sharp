@@ -122,6 +122,17 @@ exports.processDefaults = (expectationValues) => {
             break
           }
         }
+        // There was no expectation, so go ahead and pass it as null
+        if (expectationValues[val] === undefined) {
+          expectationValues[val] = {
+            value: {
+              processedValue: null,
+              passed: true,
+              implicit: true
+            },
+            schema: fullSchema[val]
+          }
+        }
       } else {
         // Otherwise, there's no value!
         expectationValues[val] = {
