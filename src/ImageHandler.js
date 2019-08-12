@@ -32,7 +32,7 @@ class ImageHandler {
     // We have some edits to process
     if (Object.keys(this.request.edits).length) {
       const modifiedImage = await this.applyEdits(originalImageBody, this.request.edits)
-      const optimizedImage = await this.applyOptimizations(modifiedImage, this.request.edits, this.headers)
+      const optimizedImage = await this.applyOptimizations(modifiedImage)
       bufferImage = await optimizedImage.toBuffer()
       format = optimizedImage.options.formatOut
     } else {
@@ -85,13 +85,14 @@ class ImageHandler {
    * @param headers
    * @returns {Promise<Sharp>}
    */
-  async applyOptimizations (image, edits, headers) {
+  async applyOptimizations (image) {
     // const minColors = 128 // arbitrary number
     // const maxColors = 256 * 256 * 256 // max colors in RGB color space
-
+    const { edits, headers } = this.request
     const { auto } = edits
+
     let autoVals = auto.processedValue
-    if (!Array.isArray()) {
+    if (!Array.isArray(autoVals)) {
       autoVals = []
     }
 
