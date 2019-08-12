@@ -35,11 +35,12 @@ class ImageRequest {
       const originalImage = await request
       return Promise.resolve(originalImage)
     } catch (err) {
-      return Promise.reject({
+      const error = new Error({
         status: 404,
         code: err.code,
         message: err.message
       })
+      return Promise.reject(error)
     }
   }
 
