@@ -9,12 +9,21 @@ exports.apply = async (image, edits) => {
   if (w.value.processedValue || h.value.processedValue) {
     switch (fit.value.processedValue) {
       case 'clamp':
+        // https://github.com/venveo/serverless-sharp/issues/26
+        // Should extends the edge pixels outwards to match the given dimensions.
+        // Not currently possible in Sharp.
         throw new NotImplementedException()
       case 'fillmax':
+        // https://github.com/venveo/serverless-sharp/issues/27
+        // Should resize the image while preserving aspect ratio within the dimensions given.
+        // If the width or height exceeds the available width and height, fill with solid color or blurred image
+        // Should be partially possible in Sharp. Just not a priority
         throw new NotImplementedException()
       case 'max':
+        // https://github.com/venveo/serverless-sharp/issues/28
         throw new NotImplementedException()
       case 'min':
+        // https://github.com/venveo/serverless-sharp/issues/28
         throw new NotImplementedException()
       case 'fill':
         await this.fill(image, w.value.processedValue, h.value.processedValue, edits['fill-color'].value.processedValue)
