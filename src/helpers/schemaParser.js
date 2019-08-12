@@ -97,6 +97,7 @@ exports.processDefaults = (expectationValues) => {
   const fullSchema = require('../../data/schema').parameters
   Object.keys(fullSchema).forEach((val) => {
     if (expectationValues[val] === undefined) {
+      // Handle when a default value is available on a schema
       if (fullSchema[val]['default'] !== undefined) {
         expectationValues[val] = {
           value: {
@@ -106,7 +107,23 @@ exports.processDefaults = (expectationValues) => {
           },
           schema: fullSchema[val]
         }
+        // Apparently, expectations can have defaults as well?? We'll handle that here
+      } else if (fullSchema[val].expects !== undefined && fullSchema[val].expects.length) {
+        for (const expectation of fullSchema[val].expects) {
+          if (expectation['default'] !== undefined) {
+            expectationValues[val] = {
+              value: {
+                processedValue: expectation['default'],
+                passed: true,
+                implicit: true
+              },
+              schema: fullSchema[val]
+            }
+            break
+          }
+        }
       } else {
+        // Otherwise, there's no value!
         expectationValues[val] = {
           value: {
             processedValue: null,

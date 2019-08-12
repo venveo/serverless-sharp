@@ -136,23 +136,20 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
   const newHeight = parseInt(originalHeight * factor)
 
   // if we don't have a focal point, default to center-center
-  if (crop !== 'focalpoint') {
+  if (crop[0] !== 'focalpoint') {
     fpx = 0.5
     fpy = 0.5
 
     // use position arguments to set focal point, if provided
-    if (crop !== null) {
-      const pos = crop.split(',')
-      if (pos.includes('left')) {
-        fpx = 0
-      } else if (pos.includes('right')) {
-        fpx = 1
-      }
-      if (pos.includes('top')) {
-        fpy = 0
-      } else if (pos.includes('bottom')) {
-        fpy = 1
-      }
+    if (crop.includes('left')) {
+      fpx = 0
+    } else if (crop.includes('right')) {
+      fpx = 1
+    }
+    if (crop.includes('top')) {
+      fpy = 0
+    } else if (crop.includes('bottom')) {
+      fpy = 1
     }
   }
 
