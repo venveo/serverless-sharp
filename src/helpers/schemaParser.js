@@ -48,9 +48,11 @@ exports.normalizeAndValidateSchema = (schema = {}, values = {}) => {
     // Keep track of dependencies we need to verify later
     if (schema[val].depends !== undefined) {
       const currentDeps = schema[val].depends
+      const possibleValues = []
       for (const value of currentDeps) {
-        dependencies[value] = false
+        possibleValues.push(value)
       }
+      dependencies[val] = possibleValues
     }
 
     // Check the expectations for each item. Note, each item can have multiple valid expectations.
@@ -82,7 +84,6 @@ exports.normalizeAndValidateSchema = (schema = {}, values = {}) => {
 
   // Go back and validate our dependencies now that we've looked at each item. Throw an exception if not met
   expectationValues = this.processDefaults(expectationValues)
-  dependencies = Object.keys(dependencies)
   this.processDependencies(dependencies, expectationValues)
 
   // Now we'll merge the rest of the schema's defaults
@@ -155,25 +156,46 @@ exports.processDefaults = (expectationValues) => {
  * @param values
  */
 exports.processDependencies = (dependencies, expectationValues) => {
-  dependencies.forEach((dependency) => {
-    if (dependency.indexOf('=') !== -1) {
-      const split = dependency.split('=')
-      const key = split[0]
-      const val = split[1]
-      if (expectationValues[key] === undefined) {
-        throw new ExpectationTypeException('Dependency not met: ' + dependency)
-      }
-      if (Array.isArray(expectationValues[key].processedValue)) {
-        if (!expectationValues[key].processedValue.includes(val)) {
+  const passedDependencies = {}
+  Object.keys(dependencies).forEach((paramDependency) => {
+    passedDependencies[paramDependency] = dependencies[paramDependency]
+    for (const dependency of dependencies[paramDependency]) {
+      // We have a dependency likes fm=png
+      if (dependency.indexOf('=') !== -1) {
+        const split = dependency.split('=')
+        const key = split[0] // i.e. fm
+        const val = split[1] // i.e. png
+
+        // Required key not set - this should not happen
+        if (expectationValues[key] === undefined) {
           throw new ExpectationTypeException('Dependency not met: ' + dependency)
+
+          // Our processed value is an array and it includes the value we're looking for! Winner!
+        } else if (Array.isArray(expectationValues[key].processedValue) && expectationValues[key].processedValue.includes(val)) {
+          passedDependencies[paramDependency] = true
+          break
+
+        // Expectation is equal! Winner!
+        } else if (expectationValues[key].processedValue === val) {
+          passedDependencies[paramDependency] = true
+          break
+        } else {
+          // Womp - loser!
+          continue
         }
-      } else if (expectationValues[key].processedValue !== val) {
-        throw new ExpectationTypeException('Dependency not met: ' + dependency)
+      } else {
+        // We just need to make sure this key exists
+        if (expectationValues[dependency] !== undefined) {
+          passedDependencies[paramDependency] = true
+        }
       }
-    } else {
-      if (expectationValues[dependency] === undefined) {
-        throw new ExpectationTypeException('Dependency not met: ' + dependency)
-      }
+    }
+  })
+
+  // Moment of truth, did we meet our dependencies?
+  Object.keys(passedDependencies).forEach((dep) => {
+    if (passedDependencies[dep] !== true) {
+      throw new ExpectationTypeException('Dependency not met: ' + JSON.stringify(passedDependencies[dep]))
     }
   })
 }
