@@ -51,20 +51,20 @@ class ImageRequest {
   static checkHash (event) {
     const { queryStringParameters, path } = event
     if (!queryStringParameters || queryStringParameters['s'] === undefined) {
-      throw {
+      throw new Error({
         status: 400,
         code: 'RequestTypeError',
         message: 'Security hash not present'
-      }
+      })
     }
     const hash = queryStringParameters['s']
     const isValid = security.verifyHash(path, queryStringParameters, hash)
     if (!isValid) {
-      throw {
+      throw new Error({
         status: 403,
         code: 'RequestTypeError',
         message: 'Invalid security hash'
-      }
+      })
     }
   }
 
