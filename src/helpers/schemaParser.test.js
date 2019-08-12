@@ -21,14 +21,14 @@ describe('Tests for schema validation', () => {
     const request = {
       f: 'png',
       'fp-x': '0.5',
-      'fp-y': '0.5',
-      fit: 'crop'
+      fit: 'crop',
+      q: 75 // q can't be used with png - this should be dropped
     }
     const schema = schemaParser.getSchemaForQueryParams(request)
 
     expect(() => {
       schemaParser.normalizeAndValidateSchema(schema, request)
-    }).toThrow(ExpectationTypeException)
+    }).not.toThrow(ExpectationTypeException)
   })
 
   test('Test valid', () => {

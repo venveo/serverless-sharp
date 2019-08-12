@@ -82,9 +82,9 @@ exports.normalizeAndValidateSchema = (schema = {}, values = {}) => {
     }
   })
 
-  // Go back and validate our dependencies now that we've looked at each item. Throw an exception if not met
+  // Go back and validate our dependencies now that we've looked at each item
   expectationValues = this.processDefaults(expectationValues)
-  this.processDependencies(dependencies, expectationValues)
+  expectationValues = this.processDependencies(dependencies, expectationValues)
 
   // Now we'll merge the rest of the schema's defaults
   return expectationValues
@@ -168,7 +168,7 @@ exports.processDependencies = (dependencies, expectationValues) => {
 
         // Required key not set - this should not happen
         if (expectationValues[key] === undefined) {
-          throw new ExpectationTypeException('Dependency not met: ' + dependency)
+          throw new ExpectationTypeException('Important dependency not met: ' + dependency)
 
           // Our processed value is an array and it includes the value we're looking for! Winner!
         } else if (Array.isArray(expectationValues[key].processedValue) && expectationValues[key].processedValue.includes(val)) {
@@ -195,9 +195,14 @@ exports.processDependencies = (dependencies, expectationValues) => {
   // Moment of truth, did we meet our dependencies?
   Object.keys(passedDependencies).forEach((dep) => {
     if (passedDependencies[dep] !== true) {
-      throw new ExpectationTypeException('Dependency not met: ' + JSON.stringify(passedDependencies[dep]))
+      // If we don't meet a dependency, we'll remove the option so we can proceed semi-safely
+      expectationValues[dep].processedValue = null
+      expectationValues[dep].implicit = true
+      expectationValues[dep].passed = false
     }
   })
+
+  return expectationValues
 }
 
 /**
