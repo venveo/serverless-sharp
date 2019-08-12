@@ -196,7 +196,6 @@ exports.processDependencies = (dependencies, expectationValues) => {
   Object.keys(passedDependencies).forEach((dep) => {
     if (passedDependencies[dep] !== true) {
       // If we don't meet a dependency, we'll remove the option so we can proceed semi-safely
-      expectationValues[dep].processedValue = null
       expectationValues[dep].implicit = true
       expectationValues[dep].passed = false
     }

@@ -3,7 +3,9 @@ const ImageHandler = require('./ImageHandler.js')
 
 exports.handler = async (event) => {
   const imageRequest = new ImageRequest(event)
+  await imageRequest.process() // This is important! We need to load the metadata off the image and check the format
   const imageHandler = new ImageHandler(imageRequest)
+
   try {
     const processedRequest = await imageHandler.process()
     const response = {

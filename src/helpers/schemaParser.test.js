@@ -19,7 +19,7 @@ test('replaceAliases - compare objects', () => {
 describe('Tests for schema validation', () => {
   test('Test invalid', () => {
     const request = {
-      f: 'png',
+      fm: 'png',
       'fp-x': '0.5',
       fit: 'crop',
       q: 75 // q can't be used with png - this should be dropped
@@ -29,6 +29,19 @@ describe('Tests for schema validation', () => {
     expect(() => {
       schemaParser.normalizeAndValidateSchema(schema, request)
     }).not.toThrow(ExpectationTypeException)
+  })
+
+  test('Test valid with jpg', () => {
+    const request = {
+      q: 75,
+      fm: 'jpg'
+    }
+    const schema = schemaParser.getSchemaForQueryParams(request)
+    const validatedSchema = schemaParser.normalizeAndValidateSchema(schema, request)
+
+    expect(validatedSchema.q.processedValue).toEqual(75)
+    expect(validatedSchema.q.implicit).toEqual(false)
+    expect(validatedSchema.q.passed).toEqual(true)
   })
 
   test('Test valid', () => {

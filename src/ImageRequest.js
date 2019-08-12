@@ -1,23 +1,36 @@
 const eventParser = require('./helpers/eventParser')
 const schemaParser = require('./helpers/schemaParser')
 const security = require('./helpers/security')
+const sharp = require('sharp')
 
 class ImageRequest {
   constructor (event) {
     // If the hash isn't set when it should be, we'll throw an error.
     if (process.env.SECURITY_KEY !== undefined && process.env.SECURITY_KEY !== null && process.env.SECURITY_KEY.length) {
-      ImageRequest.checkHash(event)
+      this.checkHash()
     }
 
     const { bucket, prefix } = eventParser.processSourceBucket(process.env.SOURCE_BUCKET)
     this.bucket = bucket
-
     this.key = eventParser.parseImageKey(event['path'], prefix)
+    this.event = event
+  }
 
-    const qp = ImageRequest._parseQueryParams(event)
+  /**
+   * This method does a number of async things, such as getting the image object and building a schema
+   * @return {Promise<void>}
+   */
+  async process () {
+    this.originalImageObject = await this.getOriginalImage()
+    this.originalImageBody = this.originalImageObject.Body
+
+    let qp = this._parseQueryParams()
+    qp = await this._inferOutputFormatQp(qp)
+
     this.schema = schemaParser.getSchemaForQueryParams(qp)
+    console.log(this.schema)
     this.edits = schemaParser.normalizeAndValidateSchema(this.schema, qp)
-    this.headers = event['headers']
+    this.headers = this.event.headers
   }
 
   /**
@@ -49,8 +62,8 @@ class ImageRequest {
    * original image.
    * @param {Object} event - Lambda request body.
    */
-  static checkHash (event) {
-    const { queryStringParameters, path } = event
+  checkHash () {
+    const { queryStringParameters, path } = this.event
     if (!queryStringParameters || queryStringParameters['s'] === undefined) {
       throw new Error({
         status: 400,
@@ -74,12 +87,33 @@ class ImageRequest {
    * image requests. Provides error handling for invalid or undefined path values.
    * @param {Object} event - The proxied request object.
    */
-  static _parseQueryParams (event) {
-    let qp = event['queryStringParameters']
+  _parseQueryParams () {
+    let qp = this.event.queryStringParameters
     if (!qp) {
       qp = {}
     }
     return schemaParser.replaceAliases(qp)
+  }
+
+  /**
+   * We need to set an output format if one isn't provided. This is necessary to ensure our dependencies are correctly
+   * computed.
+   * @param qp
+   * @return {*}
+   * @private
+   */
+  async _inferOutputFormatQp (qp) {
+    // One is already defined, let's roll with it. Also, use jpg not jpeg (cuz imgix)
+    if (qp['fm'] !== undefined) {
+      if (qp['fm'] === 'jpeg') {
+        qp['fm'] = 'jpg'
+      }
+      return qp
+    }
+    const image = sharp(this.originalImageBody)
+    const metadata = await image.metadata()
+    qp.fm = metadata.format === 'jpeg' ? 'jpg' : metadata.format
+    return qp
   }
 }
 

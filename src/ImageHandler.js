@@ -16,6 +16,9 @@ class ImageHandler {
     if (!(request instanceof ImageRequest)) {
       throw new Error('Expected request of type ImageRequest')
     }
+    if (!request.originalImageObject) {
+      throw new Error('Image not found or request not fully processed!')
+    }
     this.request = request
   }
 
@@ -24,8 +27,8 @@ class ImageHandler {
    */
   async process () {
     // Get the original image
-    const originalImageObject = await this.request.getOriginalImage()
-    const originalImageBody = originalImageObject.Body
+    const originalImageObject = this.request.originalImageObject
+    const originalImageBody = this.request.originalImageBody
 
     let format
     let bufferImage
