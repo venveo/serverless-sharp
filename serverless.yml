@@ -41,7 +41,7 @@ resources:
 
 functions:
   index:
-    handler: index.handler
+    handler: src/index.handler
     events:
       - http:
           path: /{any+}

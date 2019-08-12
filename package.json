@@ -15,7 +15,6 @@
   "private": false,
   "license": "MIT",
   "dependencies": {
-    "joi": "^14.3.1",
     "sharp": "^0.23.0"
   },
   "devDependencies": {
@@ -23,9 +22,11 @@
     "aws-sdk": "^2.437.0",
     "aws-sdk-mock": "^4.4.0",
     "jest": "^24.8.0",
+    "serverless": "^1.49.0",
     "serverless-apigw-binary": "^0.4.4",
     "serverless-apigwy-binary": "^1.0.0",
     "serverless-offline": "^5.7.3",
-    "serverless-plugin-simulate": "0.0.17"
+    "serverless-plugin-simulate": "0.0.17",
+    "standard": "^13.1.0"
   }
 }
