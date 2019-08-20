@@ -5,6 +5,7 @@ const sharp = require('sharp')
 
 class ImageRequest {
   constructor (event) {
+    this.event = event
     // If the hash isn't set when it should be, we'll throw an error.
     if (process.env.SECURITY_KEY !== undefined && process.env.SECURITY_KEY !== null && process.env.SECURITY_KEY.length) {
       this.checkHash()
@@ -13,7 +14,6 @@ class ImageRequest {
     const { bucket, prefix } = eventParser.processSourceBucket(process.env.SOURCE_BUCKET)
     this.bucket = bucket
     this.key = eventParser.parseImageKey(event['path'], prefix)
-    this.event = event
   }
 
   /**
