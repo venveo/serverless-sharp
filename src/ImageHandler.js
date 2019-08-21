@@ -43,8 +43,9 @@ class ImageHandler {
       bufferImage = Buffer.from(originalImageBody, 'binary')
     }
     let contentType
-    switch (format) {
+    switch (format.toLowerCase()) {
       case 'jpeg':
+      case 'jpg':
         contentType = 'image/jpeg'
         break
       case 'png':

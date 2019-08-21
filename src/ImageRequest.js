@@ -107,12 +107,14 @@ class ImageRequest {
     if (qp['fm'] !== undefined) {
       if (qp['fm'] === 'jpeg') {
         qp['fm'] = 'jpg'
+      } else {
+        qp['fm'] = qp['fm'].toLowerCase()
       }
       return qp
     }
     const image = sharp(this.originalImageBody)
     const metadata = await image.metadata()
-    qp.fm = metadata.format === 'jpeg' ? 'jpg' : metadata.format
+    qp.fm = metadata.format.toLowerCase() === 'jpeg' ? 'jpg' : metadata.format.toLowerCase()
     return qp
   }
 }
