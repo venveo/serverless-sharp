@@ -1,3 +1,4 @@
+/* eslint-env jest */
 const eventParser = require('./eventParser')
 
 test('parseImageKey gets basic path', () => {

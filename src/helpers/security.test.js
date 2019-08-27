@@ -1,3 +1,4 @@
+/* eslint-env jest */
 const security = require('./security')
 
 describe('Testing hash security', () => {

@@ -2,6 +2,7 @@ const eventParser = require('./helpers/eventParser')
 const schemaParser = require('./helpers/schemaParser')
 const security = require('./helpers/security')
 const sharp = require('sharp')
+const HashException = require('./errors/HashException')
 
 class ImageRequest {
   constructor (event) {
@@ -13,6 +14,7 @@ class ImageRequest {
 
     const { bucket, prefix } = eventParser.processSourceBucket(process.env.SOURCE_BUCKET)
     this.bucket = bucket
+    this.prefix = prefix
     this.key = eventParser.parseImageKey(event['path'], prefix)
   }
 
@@ -74,11 +76,7 @@ class ImageRequest {
     const hash = queryStringParameters['s']
     const isValid = security.verifyHash(path, queryStringParameters, hash)
     if (!isValid) {
-      throw new Error({
-        status: 403,
-        code: 'RequestTypeError',
-        message: 'Invalid security hash'
-      })
+      throw new HashException()
     }
   }
 

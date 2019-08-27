@@ -1,3 +1,4 @@
+/* eslint-env jest */
 const schemaParser = require('./schemaParser')
 const ExpectationTypeException = require('../errors/ExpectationTypeException')
 
