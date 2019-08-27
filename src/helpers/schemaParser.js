@@ -41,7 +41,7 @@ exports.getSchemaForQueryParams = (queryParameters = {}) => {
  * @return {Object}
  */
 exports.normalizeAndValidateSchema = (schema = {}, values = {}) => {
-  let dependencies = {}
+  const dependencies = {}
   let expectationValues = {}
 
   Object.keys(schema).forEach((val) => {

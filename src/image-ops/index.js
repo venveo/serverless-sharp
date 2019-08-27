@@ -1,4 +1,3 @@
-const adjustment = require('./adjustment')
 const size = require('./size')
 const stylize = require('./stylize')
 
