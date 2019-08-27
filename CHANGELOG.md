@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Dropped support for the `MAX_OUTPUT_HEIGHT` and `MAX_OUTPUT_WIDTH` to better adhere to the schema.json spec
+- Remove unused dependency `serverless-plugin-simulate` to resolve security issue
 
 ### Fixed
 - Ensure all file extensions are switched to lowercase before processing

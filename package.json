@@ -26,7 +26,6 @@
     "serverless-apigw-binary": "^0.4.4",
     "serverless-apigwy-binary": "^1.0.0",
     "serverless-offline": "^5.7.3",
-    "serverless-plugin-simulate": "0.0.17",
     "standard": "^13.1.0"
   }
 }
