@@ -3,8 +3,6 @@ defaults: &defaults
   offlinePort: 80
   region: 'us-east-1'
   environment: &defaults.environment
-    MAX_OUTPUT_HEIGHT: 2000
-    MAX_OUTPUT_WIDTH: 2000
     DEFAULT_QUALITY: 75
     DEFAULT_COMPRESS_QUALITY: 45
 

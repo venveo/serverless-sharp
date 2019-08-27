@@ -1,8 +1,6 @@
 const sharp = require('sharp')
-const paramValidators = require('../helpers/paramValidators')
 
 const NotImplementedException = require('../errors/NotImplementedException')
-const InvalidDimensionsException = require('../errors/InvalidDimensionsException')
 
 exports.apply = async (image, edits) => {
   const { w, h, fit, crop } = edits
@@ -49,9 +47,6 @@ exports.apply = async (image, edits) => {
  * @returns {*}
  */
 exports.scaleClip = (image, width = null, height = null) => {
-  if (!paramValidators.widthOrHeightValid(width, height)) {
-    throw new InvalidDimensionsException()
-  }
   image.resize({
     width: width,
     height: height,
@@ -69,9 +64,6 @@ exports.scaleClip = (image, width = null, height = null) => {
  * @returns {*}
  */
 exports.fill = async (image, width = null, height = null, color = null) => {
-  if (!paramValidators.widthOrHeightValid(width, height)) {
-    throw new InvalidDimensionsException()
-  }
   const resizeParams = {
     withoutEnlargement: false,
     fit: sharp.fit.contain
@@ -97,9 +89,6 @@ exports.fill = async (image, width = null, height = null, color = null) => {
  * @returns {*}
  */
 exports.scale = (image, width, height) => {
-  if (!paramValidators.widthAndHeightValid(width, height)) {
-    throw new InvalidDimensionsException()
-  }
   image.resize({
     width: width,
     height: height,
@@ -120,9 +109,6 @@ exports.scale = (image, width, height) => {
  */
 exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx = null, fpy = null) => {
   // top, bottom, left, right, faces, focalpoint, edges, and entropy
-  if (!paramValidators.widthOrHeightValid(width, height)) {
-    throw new InvalidDimensionsException()
-  }
   // TODO: This should happen in the schemaParser
   if (!Array.isArray(crop)) {
     crop = []
