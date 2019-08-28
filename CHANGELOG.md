@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Update Imgix schema 11.0.0 -> 11.1.1
+- Security will now allow images without security hashes to passthrough if there are no edits
 
 ### Fixed
 - Fixed issue where errors wouldn't properly pass-through to image
