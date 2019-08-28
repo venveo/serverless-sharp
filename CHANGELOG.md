@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update Imgix schema 11.0.0 -> 11.1.1
 
+### Fixed
+- Fixed issue where errors wouldn't properly pass-through to image
+
 ## [1.0.0-beta.1] - 2019-08-27
 ### Added
 - Changelog
