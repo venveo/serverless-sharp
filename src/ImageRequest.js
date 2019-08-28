@@ -30,7 +30,6 @@ class ImageRequest {
     qp = await this._inferOutputFormatQp(qp)
 
     this.schema = schemaParser.getSchemaForQueryParams(qp)
-    console.log(this.schema)
     this.edits = schemaParser.normalizeAndValidateSchema(this.schema, qp)
     this.headers = this.event.headers
   }

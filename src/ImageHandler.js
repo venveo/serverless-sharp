@@ -30,39 +30,45 @@ class ImageHandler {
     const originalImageObject = this.request.originalImageObject
     const originalImageBody = this.request.originalImageBody
 
+    let contentType = originalImageObject.ContentType
+
     let format
     let bufferImage
     // We have some edits to process
     if (Object.keys(this.request.edits).length) {
-      const modifiedImage = await this.applyEdits(originalImageBody, this.request.edits)
-      const optimizedImage = await this.applyOptimizations(modifiedImage)
-      bufferImage = await optimizedImage.toBuffer()
-      format = optimizedImage.options.formatOut
+      try {
+        const modifiedImage = await this.applyEdits(originalImageBody, this.request.edits)
+        const optimizedImage = await this.applyOptimizations(modifiedImage)
+        bufferImage = await optimizedImage.toBuffer()
+        format = optimizedImage.options.formatOut
+      } catch (err) {
+        console.error('Unhandlable image encountered', err)
+        bufferImage = Buffer.from(originalImageBody, 'binary')
+      }
     } else {
       // No edits, just return the original
       bufferImage = Buffer.from(originalImageBody, 'binary')
     }
-    let contentType
-    switch (format.toLowerCase()) {
-      case 'jpeg':
-      case 'jpg':
-        contentType = 'image/jpeg'
-        break
-      case 'png':
-        contentType = 'image/png'
-        break
-      case 'webp':
-        contentType = 'image/webp'
-        break
-      case 'gif':
-        contentType = 'image/gif'
-        break
-      case 'svg':
-        contentType = 'image/svg+xml'
-        break
-      default:
-        contentType = originalImageObject.ContentType
+    if (format) {
+      switch (format.toLowerCase()) {
+        case 'jpeg':
+        case 'jpg':
+          contentType = 'image/jpeg'
+          break
+        case 'png':
+          contentType = 'image/png'
+          break
+        case 'webp':
+          contentType = 'image/webp'
+          break
+        case 'gif':
+          contentType = 'image/gif'
+          break
+        default:
+          console.warn('Unexpected output content type encountered')
+      }
     }
+
     return {
       CacheControl: originalImageObject.CacheControl,
       Body: bufferImage.toString('base64'),
