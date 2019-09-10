@@ -18,11 +18,11 @@ exports.apply = async (image, edits) => {
         // Should be partially possible in Sharp. Just not a priority
         throw new NotImplementedException()
       case 'max':
-        // https://github.com/venveo/serverless-sharp/issues/28
-        throw new NotImplementedException()
+        this.scaleClip(image, w.processedValue, h.processedValue, false)
+        break
       case 'min':
-        // https://github.com/venveo/serverless-sharp/issues/28
-        throw new NotImplementedException()
+        await this.scaleCrop(image, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue, false)
+        break
       case 'fill':
         await this.fill(image, w.processedValue, h.processedValue, edits['fill-color'].processedValue)
         break
@@ -30,13 +30,29 @@ exports.apply = async (image, edits) => {
         this.scale(image, w.processedValue, h.processedValue)
         break
       case 'crop':
-        await this.scaleCrop(image, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue)
+        await this.scaleCrop(image, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue, true)
         break
       case 'clip':
-        this.scaleClip(image, w.processedValue, h.processedValue)
+        this.scaleClip(image, w.processedValue, h.processedValue, true)
         break
     }
   }
+}
+
+/**
+*
+* @param {Sharp} image
+* @param width
+* @param height
+* @returns {*}
+*/
+exports.scaleMax = (image, width = null, height = null) => {
+  image.resize({
+    width,
+    height,
+    withoutEnlargement: true,
+    fit: sharp.fit.inside
+  })
 }
 
 /**
@@ -48,9 +64,9 @@ exports.apply = async (image, edits) => {
  */
 exports.scaleClip = (image, width = null, height = null) => {
   image.resize({
-    width: width,
-    height: height,
-    withoutEnlargement: true,
+    width,
+    height,
+    withoutEnlargement: false,
     fit: sharp.fit.inside
   })
 }
@@ -90,8 +106,8 @@ exports.fill = async (image, width = null, height = null, color = null) => {
  */
 exports.scale = (image, width, height) => {
   image.resize({
-    width: width,
-    height: height,
+    width,
+    height,
     withoutEnlargement: true,
     fit: sharp.fit.fill
   })
@@ -107,7 +123,7 @@ exports.scale = (image, width, height) => {
  * @param fpy
  * @returns {*}
  */
-exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx = null, fpy = null) => {
+exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx = null, fpy = null, upscale = true) => {
   // top, bottom, left, right, faces, focalpoint, edges, and entropy
   // TODO: This should happen in the schemaParser
   if (!Array.isArray(crop)) {
@@ -117,9 +133,9 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
   // First we'll handle entropy mode - this one is simpler
   if (crop.includes('entropy')) {
     image.resize({
-      width: width,
-      height: height,
-      withoutEnlargement: false,
+      width,
+      height,
+      withoutEnlargement: !upscale,
       fit: sharp.fit.cover,
       position: sharp.strategy.entropy
     })
@@ -144,8 +160,8 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
 
   // compute new width & height
   const factor = Math.max(width / originalWidth, height / originalHeight)
-  const newWidth = parseInt(originalWidth * factor)
-  const newHeight = parseInt(originalHeight * factor)
+  const newWidth = factor > 1 && upscale ? parseInt(originalWidth * factor) : originalWidth
+  const newHeight = factor > 1 && upscale ? parseInt(originalHeight * factor) : originalHeight
 
   // if we don't have a focal point, default to center-center
   if (crop.length && crop[0] !== 'focalpoint') {
@@ -192,12 +208,12 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
   image.resize({
     width: newWidth,
     height: newHeight,
-    withoutEnlargement: false,
+    withoutEnlargement: !upscale,
     fit: sharp.fit.fill
   }).extract({
     left: fpxLeft,
     top: fpyTop,
-    width: width,
-    height: height
+    width,
+    height
   })
 }
