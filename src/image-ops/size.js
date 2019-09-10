@@ -123,7 +123,7 @@ exports.scale = (image, width, height) => {
  * @param fpy
  * @returns {*}
  */
-exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx = null, fpy = null, upscale = true) => {
+exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx = null, fpy = null) => {
   // top, bottom, left, right, faces, focalpoint, edges, and entropy
   // TODO: This should happen in the schemaParser
   if (!Array.isArray(crop)) {
@@ -135,7 +135,7 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
     image.resize({
       width,
       height,
-      withoutEnlargement: !upscale,
+      withoutEnlargement: false,
       fit: sharp.fit.cover,
       position: sharp.strategy.entropy
     })
@@ -160,8 +160,8 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
 
   // compute new width & height
   const factor = Math.max(width / originalWidth, height / originalHeight)
-  const newWidth = factor > 1 && upscale ? parseInt(originalWidth * factor) : originalWidth
-  const newHeight = factor > 1 && upscale ? parseInt(originalHeight * factor) : originalHeight
+  const newWidth = parseInt(originalWidth * factor)
+  const newHeight = parseInt(originalHeight * factor)
 
   // if we don't have a focal point, default to center-center
   if (crop.length && crop[0] !== 'focalpoint') {
@@ -208,7 +208,7 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
   image.resize({
     width: newWidth,
     height: newHeight,
-    withoutEnlargement: !upscale,
+    withoutEnlargement: false,
     fit: sharp.fit.fill
   }).extract({
     left: fpxLeft,
