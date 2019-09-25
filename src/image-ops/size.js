@@ -18,11 +18,11 @@ exports.apply = async (image, edits) => {
         // Should be partially possible in Sharp. Just not a priority
         throw new NotImplementedException()
       case 'max':
-        // https://github.com/venveo/serverless-sharp/issues/28
-        throw new NotImplementedException()
+        this.scaleClip(image, w.processedValue, h.processedValue, false)
+        break
       case 'min':
-        // https://github.com/venveo/serverless-sharp/issues/28
-        throw new NotImplementedException()
+        await this.scaleCrop(image, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue, false)
+        break
       case 'fill':
         await this.fill(image, w.processedValue, h.processedValue, edits['fill-color'].processedValue)
         break
@@ -30,13 +30,29 @@ exports.apply = async (image, edits) => {
         this.scale(image, w.processedValue, h.processedValue)
         break
       case 'crop':
-        await this.scaleCrop(image, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue)
+        await this.scaleCrop(image, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue, true)
         break
       case 'clip':
-        this.scaleClip(image, w.processedValue, h.processedValue)
+        this.scaleClip(image, w.processedValue, h.processedValue, true)
         break
     }
   }
+}
+
+/**
+*
+* @param {Sharp} image
+* @param width
+* @param height
+* @returns {*}
+*/
+exports.scaleMax = (image, width = null, height = null) => {
+  image.resize({
+    width,
+    height,
+    withoutEnlargement: true,
+    fit: sharp.fit.inside
+  })
 }
 
 /**
@@ -48,9 +64,9 @@ exports.apply = async (image, edits) => {
  */
 exports.scaleClip = (image, width = null, height = null) => {
   image.resize({
-    width: width,
-    height: height,
-    withoutEnlargement: true,
+    width,
+    height,
+    withoutEnlargement: false,
     fit: sharp.fit.inside
   })
 }
@@ -90,8 +106,8 @@ exports.fill = async (image, width = null, height = null, color = null) => {
  */
 exports.scale = (image, width, height) => {
   image.resize({
-    width: width,
-    height: height,
+    width,
+    height,
     withoutEnlargement: true,
     fit: sharp.fit.fill
   })
@@ -117,8 +133,8 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
   // First we'll handle entropy mode - this one is simpler
   if (crop.includes('entropy')) {
     image.resize({
-      width: width,
-      height: height,
+      width,
+      height,
       withoutEnlargement: false,
       fit: sharp.fit.cover,
       position: sharp.strategy.entropy
@@ -197,7 +213,7 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
   }).extract({
     left: fpxLeft,
     top: fpyTop,
-    width: width,
-    height: height
+    width,
+    height
   })
 }
