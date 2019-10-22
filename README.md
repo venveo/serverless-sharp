@@ -2,17 +2,17 @@
 A solution to dynamically optimize and transform images on the fly, utilizing [Sharp](https://sharp.pixelplumbing.com/en/stable/).
 
 ## Who is this for?
-This software is for people who want to optimize and transform (crop, scale, convert, etc) images from an existing S3 
+This software is for people who want to optimize and transform (crop, scale, convert, etc) images from an existing S3
 bucket without running computationally expensive processes or servers or paying for expensive third-party services.
 
 ## How does it work?
-After deploying this solution, you'll find yourself with a number of AWS resources (all priced based on usage rather 
-than monthly cost). The most important of which are: 
+After deploying this solution, you'll find yourself with a number of AWS resources (all priced based on usage rather
+than monthly cost). The most important of which are:
 - **AWS Lambda**: Pulls images from your S3 bucket, runs the transforms, and outputs the image from memory
 - **API Gateway**: Acts as a public gateway for requests to your Lambda function
 - **Cloudfront Distribution**: Caches the responses from your API Gateway so the Lambda function doesn't re-execute
 
-Once deployed, a Cloudfront CDN distribution is generated that is directed to the generated API Gateway. This distribution 
+Once deployed, a Cloudfront CDN distribution is generated that is directed to the generated API Gateway. This distribution
 ensures the Lambda function does not get run multiple times for the same image request.
 
 ## Configuration & Environment Variables
@@ -41,7 +41,7 @@ supported:
 - **w** - width - Scales image to supplied width while maintaining aspect ratio
 - **h** - height - Scales image to supplied height while maintaining aspect ratio
 
-*If both width and height are supplied, the aspect ratio will be preserved and scaled to minimum of either width/height* 
+*If both width and height are supplied, the aspect ratio will be preserved and scaled to minimum of either width/height*
 
 - **q** - quality (75) - 1-100
 - **fit** - resize fitting mode - can be one of: `fill`, `scale`, `crop`, `clip`, `min`, `max`
@@ -96,7 +96,7 @@ a "sub-directory". For example, you may use:
 `my-bucket/images`
 
 This will tell Serverless to create an IAM role with access to all objects in the my-bucket bucket with an object prefix
-of `images`. 
+of `images`.
 
 Serverless Sharp will then validate all requests to this prefix, if it doesn't start with that prefix, the system will
 automatically prepend it to the request images. This means these requests are effectively equivalent:
@@ -110,19 +110,18 @@ Probably not. Yet. But if you do, make sure you submit issues!
 
 ## Running Locally
 This package uses Serverless to allow for local development by simulating API Gateway and Lambda.
-1. `cd source/image-handler`
-2. `npm install`
-3. `cp settings.example.yml settings.yml`
-4. Configure settings.yml file
-5. Ensure you have AWS CLI configured on your machine with proper access to the S3 bucket you're using in your settings.
-6. Run `serverless offline`
+1. `npm ci`
+2. `cp settings.example.yml settings.yml`
+3. Configure settings.yml file
+4. Ensure you have AWS CLI configured on your machine with proper access to the S3 bucket you're using in your settings.
+5. Run `serverless offline`
 
 ## Deploying to AWS
 First, we need to procure sharp/libvips binaries compiled for Amazon Linux. We can do this by running the following:
 
 ```
 npm run sharp:linux
-``` 
+```
 
 This will remove any existing Sharp binaries and then reinstall them with Linux x64 in mind.
 
