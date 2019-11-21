@@ -299,7 +299,7 @@ exports.processExpectation = (expects = {}, value) => {
       result.passed = true
       return result
     case 'hex_color':
-      if (!value.match(/^([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)) {
+      if (!value.match(/(?:[0-9a-fA-F]{3}){1,2}$/)) {
         result.message = 'Expected hex code like fff'
         return result
       }
