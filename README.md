@@ -106,7 +106,7 @@ automatically prepend it to the request images. This means these requests are ef
 `localhost/my-image.png`
 
 ## Should I run this in production?
-Probably not. Yet. But if you do, make sure you submit issues!
+Sure!
 
 ## Running Locally
 This package uses Serverless to allow for local development by simulating API Gateway and Lambda.
