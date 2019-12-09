@@ -22,6 +22,7 @@ Make a copy of `settings.example.yml` and populate accordingly.
 For example: `mybucket/images`
 - `SERVERLESS_PORT` For local development, this controls what port the Serverless service runs on
 - `SECURITY_KEY` See security section
+- `SLS_IGNORE` A comma-delineated string of paths that should be ignored (for example, `favicon.ico`)
 
 ## API & Usage
 We chose to base our API around the [Imgix service](https://docs.imgix.com/apis/url) to allow for backwards compatibility

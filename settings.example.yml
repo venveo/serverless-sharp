@@ -5,6 +5,7 @@ defaults: &defaults
   environment: &defaults.environment
     DEFAULT_QUALITY: 75
     DEFAULT_COMPRESS_QUALITY: 45
+    SLS_IGNORE: favicon.ico
 
 stages:
   dev:

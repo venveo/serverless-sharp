@@ -1,7 +1,14 @@
 const ImageRequest = require('./ImageRequest.js')
 const ImageHandler = require('./ImageHandler.js')
+const security = require('./helpers/security')
 
 exports.handler = async (event) => {
+  const beforeHandle = beforeHandleRequest(event)
+
+  if (!beforeHandle.allowed) {
+    return beforeHandle.response
+  }
+
   const imageRequest = new ImageRequest(event)
   await imageRequest.process() // This is important! We need to load the metadata off the image and check the format
   const imageHandler = new ImageHandler(imageRequest)
@@ -49,4 +56,21 @@ const getResponseHeaders = (processedRequest, isErr) => {
     headers['Content-Type'] = 'application/json'
   }
   return headers
+}
+
+const beforeHandleRequest = (event) => {
+  const result = {
+    allowed: true
+  }
+  if (security.shouldSkipRequest(event)) {
+    result.allowed = false
+    result.response = {
+      statusCode: 404,
+      headers: getResponseHeaders(null, true),
+      body: null,
+      isBase64Encoded: false
+    }
+  }
+
+  return result
 }

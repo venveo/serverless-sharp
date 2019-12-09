@@ -34,3 +34,20 @@ exports.verifyHash = (path, queryStringParameters, hash) => {
   const parsed = this.calculateHash(path, queryStringParameters, hash, process.env.SECURITY_KEY)
   return parsed === hash
 }
+
+/**
+ * Returns true if the request should be 404'd immediately
+ * @param path
+ * @return {boolean}
+ */
+exports.shouldSkipRequest = (event) => {
+  const path = event.path
+  if (!process.env.SLS_IGNORE) {
+    return false
+  }
+  const filesToIgnore = process.env.SLS_IGNORE.split(',')
+  if (filesToIgnore.includes(path.substr(1))) {
+    return true
+  }
+  return false
+}
