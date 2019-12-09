@@ -258,7 +258,7 @@ exports.processExpectation = (expects = {}, value) => {
       return result
     case 'ratio':
       match = value.match(/([0-9]*[.]?[0-9]+):+(([0-9]*[.])?[0-9]+)$/)
-      if (match.length !== 3) {
+      if (match.length < 3) {
         result.message = 'Expected ratio format: 1.0:1.0'
         return result
       }
