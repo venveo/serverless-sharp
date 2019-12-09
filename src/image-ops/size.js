@@ -24,7 +24,7 @@ exports.apply = async (image, edits) => {
         await this.scaleCrop(image, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue, false)
         break
       case 'fill':
-        await this.fill(image, w.processedValue, h.processedValue, edits['fill-color'].processedValue)
+        await this.fill(image, edits.fill.processedValue, w.processedValue, h.processedValue, edits['fill-color'].processedValue)
         break
       case 'scale':
         this.scale(image, w.processedValue, h.processedValue)
@@ -79,7 +79,7 @@ exports.scaleClip = (image, width = null, height = null) => {
  * @param color
  * @returns {*}
  */
-exports.fill = async (image, width = null, height = null, color = null) => {
+exports.fill = async (image, mode, width = null, height = null, color = null) => {
   const resizeParams = {
     withoutEnlargement: false,
     fit: sharp.fit.contain
@@ -216,4 +216,29 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
     width,
     height
   })
+}
+
+/**
+ * Stretch an image to fit the dimensions requested
+ * @param {Sharp} image
+ * @param width
+ * @param height
+ * @returns {*}
+ */
+exports.blur = async (image, width = null, height = null) => {
+  const resizeParams = {
+    withoutEnlargement: false,
+    fit: sharp.fit.contain
+  }
+  if (width) {
+    resizeParams.width = width
+  }
+  if (height) {
+    resizeParams.height = height
+  }
+  // TODO: Validate color more explicitly
+  if (color) {
+    resizeParams.background = color
+  }
+  image.resize(resizeParams)
 }
