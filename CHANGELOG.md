@@ -4,9 +4,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [2.0.0] - 2019-12-09
+
+### Changed
+- A breaking change has been introduced in the way URLs are generated. Previously we were calling `encodeURIComponent`
+on each part of the requested URL, we are now calling a modified `encodeURIComponent` that excludes some characters to
+be compliant with Imgix's official php SDK:
+```php
+$path = preg_replace_callback("/([^\w\-\/\:@])/", function ($match) {
+    return rawurlencode($match[0]);
+}, $path);
+```
+
+See https://locutus.io/php/url/rawurlencode/ for details
+ 
 ### Added
 - Added environment variable `SLS_IGNORE` with default value of `favicon.ico` 
+
+## Fixed
+- Issue with Imgix compatibility regarding URL encoding. See Changed section
 
 ## [1.0.2] - 2019-12-09
 ### Added

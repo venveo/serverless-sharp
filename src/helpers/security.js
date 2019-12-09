@@ -15,12 +15,26 @@ exports.calculateHash = (path, queryStringParameters, securityKey) => {
 
   // Encode each part of the URI. (Note, we're not using URLEncode on the entire thing, as it doesn't
   // properly handle "+" signs
-  const encodedPath = decodeURIComponent(path).split('/').map((comp) => {
-    return encodeURIComponent(comp)
-  }).join('/')
+  const encodedPath = fixedEncodeURIComponent(decodeURIComponent(path))
   const source = process.env.SECURITY_KEY + encodedPath + query
   const parsed = crypto.createHash('md5').update(source).digest('hex')
   return parsed
+}
+
+/**
+ * RFC 3986 encodeURIComponent
+ * @param str
+ * @return {string}
+ */
+function fixedEncodeURIComponent (str) {
+  return str.replace(/([^\w\-\/\:@])/gi, function (match) {
+    return encodeURIComponent(match)
+      .replace(/!/g, '%21')
+      .replace(/'/g, '%27')
+      .replace(/\(/g, '%28')
+      .replace(/\)/g, '%29')
+      .replace(/\*/g, '%2A')
+  })
 }
 
 /**
