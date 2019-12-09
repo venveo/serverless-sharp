@@ -44,6 +44,7 @@ supported:
 *If both width and height are supplied, the aspect ratio will be preserved and scaled to minimum of either width/height*
 
 - **q** - quality (75) - 1-100
+- **dpr** - device-pixel-ratio (1) - scales requested image dimensions by this multiplier.
 - **fit** - resize fitting mode - can be one of: `fill`, `scale`, `crop`, `clip`, `min`, `max`
 - **fill-color** - used when `fit` is set to `fill` can be a loosely formatted color such as "red" or "rgb(255,0,0)"
 - **crop** - resize fitting mode - can be one of: `focalpoint`, `entropy`, any comma separated combination of `top`, `bottom`, `left` `right`
