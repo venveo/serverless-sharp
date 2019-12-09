@@ -1,6 +1,6 @@
 exports.apply = (image, edits) => {
-  if (edits['blur']) {
-    this.blur(image, edits['blur'].processedValue)
+  if (edits.blur) {
+    this.blur(image, edits.blur.processedValue)
   }
 }
 

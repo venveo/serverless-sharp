@@ -57,7 +57,7 @@
           "type": "color_keyword"
         }
       ],
-      "default": "fff",
+      "default": "#fff",
       "url": "https://docs.imgix.com/apis/url/bg",
       "short_description": "Colors the background of padded and partially-transparent images."
     },
@@ -1031,7 +1031,7 @@
       "aliases": [
         "fillcolor"
       ],
-      "default": "fff",
+      "default": "#fff",
       "depends": [
         "fill=solid"
       ],
@@ -1709,7 +1709,7 @@
           "type": "color_keyword"
         }
       ],
-      "default": "fff",
+      "default": "#fff",
       "depends": [
         "mask"
       ],
@@ -2522,7 +2522,7 @@
           "type": "color_keyword"
         }
       ],
-      "default": "fff",
+      "default": "#fff",
       "aliases": [
         "txtlinecolor",
         "txt-line-clr",
