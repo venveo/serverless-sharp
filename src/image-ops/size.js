@@ -3,8 +3,16 @@ const sharp = require('sharp')
 const NotImplementedException = require('../errors/NotImplementedException')
 
 exports.apply = async (image, edits) => {
-  const { w, h, fit, crop } = edits
+  const { w, h, fit, crop, dpr } = edits
   if (w.processedValue || h.processedValue) {
+    if (dpr.processedValue) {
+      if (w.processedValue) {
+        w.processedValue *= dpr.processedValue
+      }
+      if (h.processedValue) {
+        h.processedValue *= dpr.processedValue
+      }
+    }
     switch (fit.processedValue) {
       case 'clamp':
         // https://github.com/venveo/serverless-sharp/issues/26

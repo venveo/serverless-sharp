@@ -76,4 +76,24 @@ describe('Tests for schema validation', () => {
 
     expect(() => schemaParser.normalizeAndValidateSchema(schema, request)).not.toThrow(ExpectationTypeException)
   })
+
+  test('Test - max range normalization', () => {
+    const request = {
+      dpr: 100
+    }
+    const schema = schemaParser.getSchemaForQueryParams(request)
+    const validatedSchema = schemaParser.normalizeAndValidateSchema(schema, request)
+
+    expect(validatedSchema.dpr.processedValue).toEqual(5)
+  })
+
+  test('Test - min range normalization', () => {
+    const request = {
+      dpr: -1
+    }
+    const schema = schemaParser.getSchemaForQueryParams(request)
+    const validatedSchema = schemaParser.normalizeAndValidateSchema(schema, request)
+
+    expect(validatedSchema.dpr.processedValue).toEqual(0)
+  })
 })

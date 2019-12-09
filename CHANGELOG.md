@@ -5,9 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- Added support for `dpr`
+
 ### Changed
 - Updated dependencies
 - Added MIT license
+- Values outside of explicit rule min and max will now normalize to that min or max
 
 ## [1.0.1] - 2019-11-21
 ### Fixed

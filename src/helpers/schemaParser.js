@@ -290,12 +290,14 @@ exports.processExpectation = (expects = {}, value) => {
         result.message = 'NaN'
         return result
       }
-      if (expects['strict_range'] !== undefined) {
-        if (value < expects['strict_range']['min'] || value > expects['strict_range']['max']) {
-          result.message = 'Value out of range: ' + value
-          return result
+      if (expects.strict_range !== undefined) {
+        if (value < expects.strict_range.min) {
+          value = expects.strict_range.min
+        } else if (value > expects.strict_range.max) {
+          value = expects.strict_range.max
         }
       }
+      result.processedValue = value
       result.passed = true
       return result
     case 'hex_color':
