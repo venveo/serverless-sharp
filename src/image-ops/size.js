@@ -1,18 +1,23 @@
+/**
+ * This file should be restricted to dimensional size alterations to the image
+ */
+
 const sharp = require('sharp')
 
 const NotImplementedException = require('../errors/NotImplementedException')
 
+/**
+ * Apply all supported size operations
+ * @param image
+ * @param edits
+ * @return {Promise<void>}
+ */
 exports.apply = async (image, edits) => {
-  const { w, h, fit, crop, dpr } = edits
+  this.beforeApply(image, edits)
+
+  const { w, h, fit, crop } = edits
+  // The first thing we need to do is apply edits that affect the requested output size.
   if (w.processedValue || h.processedValue) {
-    if (dpr.processedValue) {
-      if (w.processedValue) {
-        w.processedValue *= dpr.processedValue
-      }
-      if (h.processedValue) {
-        h.processedValue *= dpr.processedValue
-      }
-    }
     switch (fit.processedValue) {
       case 'clamp':
         // https://github.com/venveo/serverless-sharp/issues/26
@@ -48,7 +53,6 @@ exports.apply = async (image, edits) => {
 }
 
 /**
-*
 * @param {Sharp} image
 * @param width
 * @param height
@@ -227,26 +231,19 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
 }
 
 /**
- * Stretch an image to fit the dimensions requested
- * @param {Sharp} image
- * @param width
- * @param height
- * @returns {*}
+ * We'll do any pre-work here
+ * @param image
+ * @param edits
  */
-exports.blur = async (image, width = null, height = null) => {
-  const resizeParams = {
-    withoutEnlargement: false,
-    fit: sharp.fit.contain
+exports.beforeApply = function (image, edits) {
+  const { w, h, dpr } = edits
+  // Apply dpr edits
+  if ((w.processedValue || h.processedValue) && dpr.processedValue) {
+    if (w.processedValue) {
+      w.processedValue *= dpr.processedValue
+    }
+    if (h.processedValue) {
+      h.processedValue *= dpr.processedValue
+    }
   }
-  if (width) {
-    resizeParams.width = width
-  }
-  if (height) {
-    resizeParams.height = height
-  }
-  // TODO: Validate color more explicitly
-  if (color) {
-    resizeParams.background = color
-  }
-  image.resize(resizeParams)
 }

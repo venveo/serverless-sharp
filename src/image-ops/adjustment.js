@@ -1,3 +1,12 @@
+/**
+ * This file should be used for processes that involve adjusting colors in the image.
+ */
+
+/**
+ * Applies all of the adjustment edits to the image
+ * @param image
+ * @param edits
+ */
 exports.apply = (image, edits) => {
   if (edits.bri) {
     this.bri(image, edits.bri.processedValue)

@@ -7,6 +7,12 @@ const operationsByCategory = {
   // adjustment: adjustment.apply
 }
 
+/**
+ * Applies all supported image operations to the supplied image
+ * @param image
+ * @param edits
+ * @return {Promise<void>}
+ */
 exports.apply = async (image, edits) => {
   const editsByCategory = {}
   for (const edit in edits) {

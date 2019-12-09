@@ -102,9 +102,9 @@ exports.processDefaults = (expectationValues) => {
   Object.keys(fullSchema).forEach((val) => {
     if (expectationValues[val] === undefined) {
       // Handle when a default value is available on a schema
-      if (fullSchema[val]['default'] !== undefined) {
+      if (fullSchema[val].default !== undefined) {
         expectationValues[val] = new ParsedSchemaItem(
-          fullSchema[val]['default'],
+          fullSchema[val].default,
           true,
           true,
           fullSchema[val],
@@ -113,9 +113,9 @@ exports.processDefaults = (expectationValues) => {
         // Apparently, expectations can have defaults as well?? We'll handle that here
       } else if (fullSchema[val].expects !== undefined && fullSchema[val].expects.length) {
         for (const expectation of fullSchema[val].expects) {
-          if (expectation['default'] !== undefined) {
+          if (expectation.default !== undefined) {
             expectationValues[val] = new ParsedSchemaItem(
-              expectation['default'],
+              expectation.default,
               true,
               true,
               fullSchema[val],
@@ -216,9 +216,10 @@ exports.processExpectation = (expects = {}, value) => {
     processedValue: null,
     message: null
   }
+  let items
 
   // TODO: Break this out
-  switch (expects['type']) {
+  switch (expects.type) {
     case 'string':
       if (value.length) {
         result.passed = true
@@ -228,16 +229,16 @@ exports.processExpectation = (expects = {}, value) => {
       }
       return result
     case 'list':
-      const items = value.split(',')
+      items = value.split(',')
       if (!items.length) {
         result.message = 'At least one item expected'
         return result
       }
-      if (expects['possible_values'] !== undefined) {
-        const difference = items.filter(x => !expects['possible_values'].includes(x))
+      if (expects.possible_values !== undefined) {
+        const difference = items.filter(x => !expects.possible_values.includes(x))
         if (difference.length > 0) {
           // Unexpected value encountered
-          result.message = 'Invalid value encountered. Expected one of: ' + expects['possible_values'].join(',')
+          result.message = 'Invalid value encountered. Expected one of: ' + expects.possible_values.join(',')
           return result
         }
       }
@@ -271,14 +272,14 @@ exports.processExpectation = (expects = {}, value) => {
       }
       result.processedValue = value
 
-      if (expects['strict_range'] !== undefined) {
-        if (value > expects['strict_range']['max'] || value < expects['strict_range']['min']) {
+      if (expects.strict_range !== undefined) {
+        if (value > expects.strict_range.max || value < expects.strict_range.min) {
           result.message = 'Value out of range'
           return result
         }
-      } else if (expects['possible_values'] !== undefined) {
-        if (!expects['possible_values'].includes(value)) {
-          result.message = 'Invalid value encountered. Expected one of: ' + expects['possible_values'].join(',')
+      } else if (expects.possible_values !== undefined) {
+        if (!expects.possible_values.includes(value)) {
+          result.message = 'Invalid value encountered. Expected one of: ' + expects.possible_values.join(',')
           return result
         }
       }
@@ -324,8 +325,8 @@ exports.processExpectation = (expects = {}, value) => {
         return result
       }
       result.processedValue = value
-      if (expects['strict_range'] !== undefined) {
-        if (value < expects['strict_range']['min'] || value > expects['strict_range']['max']) {
+      if (expects.strict_range !== undefined) {
+        if (value < expects.strict_range.min || value > expects.strict_range.max) {
           result.message = 'Value out of range'
           return result
         }
@@ -355,7 +356,7 @@ exports.processExpectation = (expects = {}, value) => {
       return result
     // throw new ExpectationTypeException;
     default:
-      console.error('Encountered unknown expectation type: ' + expects['type'])
+      console.error('Encountered unknown expectation type: ' + expects.type)
       break
   }
 }

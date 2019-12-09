@@ -15,7 +15,7 @@ class ImageRequest {
     const { bucket, prefix } = eventParser.processSourceBucket(process.env.SOURCE_BUCKET)
     this.bucket = bucket
     this.prefix = prefix
-    this.key = eventParser.parseImageKey(event['path'], prefix)
+    this.key = eventParser.parseImageKey(event.path, prefix)
   }
 
   /**
@@ -65,7 +65,7 @@ class ImageRequest {
    */
   checkHash () {
     const { queryStringParameters, path } = this.event
-    if (queryStringParameters && queryStringParameters['s'] === undefined) {
+    if (queryStringParameters && queryStringParameters.s === undefined) {
       throw new Error({
         status: 400,
         code: 'RequestTypeError',
@@ -73,7 +73,7 @@ class ImageRequest {
       })
     }
     if (queryStringParameters) {
-      const hash = queryStringParameters['s']
+      const hash = queryStringParameters.s
       const isValid = security.verifyHash(path, queryStringParameters, hash)
       if (!isValid) {
         throw new HashException()
@@ -104,11 +104,11 @@ class ImageRequest {
    */
   async _inferOutputFormatQp (qp) {
     // One is already defined, let's roll with it. Also, use jpg not jpeg (cuz imgix)
-    if (qp['fm'] !== undefined) {
-      if (qp['fm'] === 'jpeg') {
-        qp['fm'] = 'jpg'
+    if (qp.fm !== undefined) {
+      if (qp.fm === 'jpeg') {
+        qp.fm = 'jpg'
       } else {
-        qp['fm'] = qp['fm'].toLowerCase()
+        qp.fm = qp.fm.toLowerCase()
       }
       return qp
     }
