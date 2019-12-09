@@ -216,7 +216,7 @@ exports.processExpectation = (expects = {}, value) => {
     processedValue: null,
     message: null
   }
-  let items
+  let items, match
 
   // TODO: Break this out
   switch (expects.type) {
@@ -257,11 +257,17 @@ exports.processExpectation = (expects = {}, value) => {
       }
       return result
     case 'ratio':
-      if (!value.match(/([0-9]*[.]?[0-9]+):+([0-9]*[.])?[0-9]+$/)) {
+      match = value.match(/([0-9]*[.]?[0-9]+):+(([0-9]*[.])?[0-9]+)$/)
+      if (match.length !== 3) {
         result.message = 'Expected ratio format: 1.0:1.0'
         return result
       }
-      result.processedValue = value
+      if (parseFloat(match[1]) === 0) {
+        result.message = 'Cannot divide by zero'
+        return result
+      }
+      // For example: 16:9 = 9/16 = .5625
+      result.processedValue = parseFloat(match[2]) / parseFloat(match[1])
       result.passed = true
       return result
     case 'integer':

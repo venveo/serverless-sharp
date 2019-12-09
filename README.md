@@ -45,6 +45,7 @@ supported:
 *If both width and height are supplied, the aspect ratio will be preserved and scaled to minimum of either width/height*
 
 - **q** - quality (75) - 1-100
+- **ar** - aspect-ratio (1.0:1.0) - When fit=crop, an aspect ratio such as 16:9 can be supplied, optionally with a height or width. If neither height or width are defined, the original image size will be used 
 - **dpr** - device-pixel-ratio (1) - scales requested image dimensions by this multiplier.
 - **fit** - resize fitting mode - can be one of: `fill`, `scale`, `crop`, `clip`, `min`, `max`
 - **fill-color** - used when `fit` is set to `fill` can be a loosely formatted color such as "red" or "rgb(255,0,0)"

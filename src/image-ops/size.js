@@ -13,7 +13,7 @@ const NotImplementedException = require('../errors/NotImplementedException')
  * @return {Promise<void>}
  */
 exports.apply = async (image, edits) => {
-  this.beforeApply(image, edits)
+  await this.beforeApply(image, edits)
 
   const { w, h, fit, crop } = edits
   // The first thing we need to do is apply edits that affect the requested output size.
@@ -235,8 +235,32 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
  * @param image
  * @param edits
  */
-exports.beforeApply = function (image, edits) {
-  const { w, h, dpr } = edits
+exports.beforeApply = async function (image, edits) {
+  const { w, h, dpr, ar } = edits
+
+  // Apply aspect ratio edits
+
+  // Case 1: We have one dimension set
+  if (ar.processedValue && ((w.processedValue && !h.processedValue) || (h.processedValue && !w.processedValue))) {
+    if (w.processedValue) {
+      h.processedValue = parseInt(w.processedValue * ar.processedValue)
+    }
+    if (h.processedValue) {
+      w.processedValue = parseInt(h.processedValue / ar.processedValue)
+    }
+  }
+
+  // Case 2: We don't have dimensions set, so we need to look at the original image dimensions
+  if (ar.processedValue && ((!w.processedValue && !h.processedValue))) {
+    const metadata = await image.metadata()
+
+    const originalWidth = parseInt(metadata.width)
+    const originalHeight = parseInt(metadata.height)
+
+    h.processedValue = originalHeight * ar.processedValue
+    w.processedValue = originalWidth * ar.processedValue
+  }
+
   // Apply dpr edits
   if ((w.processedValue || h.processedValue) && dpr.processedValue) {
     if (w.processedValue) {
