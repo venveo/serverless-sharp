@@ -1,9 +1,12 @@
 # Serverless Sharp Image Processor
-A solution to dynamically optimize and transform images on the fly, utilizing [Sharp](https://sharp.pixelplumbing.com/en/stable/).
+A solution to dynamically optimize and transform images on the fly, utilizing [Sharp](https://sharp.pixelplumbing.com/en/stable/) and AWS Lambda.
 
 ## Who is this for?
-This software is for people who want to optimize and transform (crop, scale, convert, etc) images from an existing S3
+This software is for people who want to optimize and run basic transformations (crop, scale, convert, etc) on images from an existing S3
 bucket without running computationally expensive processes or servers or paying for expensive third-party services.
+
+Serverless Sharp is written to be a drop-in replacement for most essential features of Imgix and costs magnitudes less for
+most users.
 
 ## How does it work?
 After deploying this solution, you'll find yourself with a number of AWS resources (all priced based on usage rather
@@ -23,6 +26,10 @@ For example: `mybucket/images`
 - `SERVERLESS_PORT` For local development, this controls what port the Serverless service runs on
 - `SECURITY_KEY` See security section
 - `SLS_IGNORE` A comma-delineated string of paths that should be ignored (for example, `favicon.ico`)
+
+You can define multiple environments, each of which will inherit your default settings. This is useful if you have
+different buckets for staging & production, for example. You may also wish to create an environment without a sign-key
+for local development.
 
 ## API & Usage
 We chose to base our API around the [Imgix service](https://docs.imgix.com/apis/url) to allow for backwards compatibility
@@ -120,14 +127,9 @@ This package uses Serverless to allow for local development by simulating API Ga
 5. Run `serverless offline`
 
 ## Deploying to AWS
-First, we need to procure sharp/libvips binaries compiled for Amazon Linux. We can do this by running the following:
-
-```
-npm run sharp:linux
-```
-
-This will remove any existing Sharp binaries and then reinstall them with Linux x64 in mind.
-
-Ensure your `settings.yml` file is properly configured as shown in the previous steps
+Ensure your `settings.yml` file is properly configured as shown in the previous steps.
 
 Run: `serverless deploy [--stage=dev] [--settings=settings.yml]`
+
+If you need to deploy using a specific AWS profile, you should run:
+`AWS_SDK_LOAD_CONFIG=true serverless deploy [--stage=dev] [--settings=settings.yml] --aws-profile PROFILE_NAME `

@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+- Sharp is now bundled as its own layer, removing the need for swapping between platforms for local development
+
 ### Added
 - Added support for `ar` param, allowing an aspect ratio (16:9) to be supplied
 

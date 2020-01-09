@@ -7,24 +7,22 @@
     "email": "info@venveo.com"
   },
   "scripts": {
-    "sharp:linux": "npm ci --arch=x64 --platform=linux --target=8.10.0 sharp",
     "test": "jest"
   },
   "version": "1.0.0",
   "private": false,
   "license": "MIT",
-  "dependencies": {
-    "sharp": "^0.23.4"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "@types/jest": "^24.0.23",
-    "aws-sdk": "^2.585.0",
+    "@types/jest": "^24.0.25",
+    "aws-sdk": "^2.600.0",
     "aws-sdk-mock": "^4.4.0",
     "jest": "^24.9.0",
-    "serverless": "^1.59.2",
+    "serverless": "^1.60.5",
     "serverless-apigw-binary": "^0.4.4",
     "serverless-apigwy-binary": "^1.0.0",
     "serverless-offline": "^5.12.1",
+    "sharp": "^0.23.4",
     "standard": "^14.3.1"
   }
 }

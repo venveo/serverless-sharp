@@ -64,8 +64,10 @@ class ImageHandler {
         case 'gif':
           contentType = 'image/gif'
           break
+        case 'input':
+          break
         default:
-          console.warn('Unexpected output content type encountered')
+          console.warn('Unexpected output content type encountered: ' + contentType)
       }
     }
 
@@ -136,7 +138,7 @@ class ImageHandler {
     if (autoVals.includes('format')) {
       // If the browser supports webp, use webp for everything but gifs
       if (headers && 'Accept' in headers) {
-        if (fm !== 'gif' && headers['Accept'].indexOf('image/webp') !== -1) {
+        if (fm !== 'gif' && headers.Accept.indexOf('image/webp') !== -1) {
           fm = 'webp'
         }
       }
@@ -190,7 +192,7 @@ class ImageHandler {
    * @returns {string}
    */
   findBin (binName) {
-    process.env['PATH'] = process.env['PATH'] + ':' + process.env['LAMBDA_TASK_ROOT']
+    process.env.PATH = process.env.PATH + ':' + process.env.LAMBDA_TASK_ROOT
     const binPath = path.resolve('./bin/', process.platform, binName)
 
     if (!fs.existsSync(binPath)) {

@@ -3,6 +3,7 @@ const ImageHandler = require('./ImageHandler.js')
 const security = require('./helpers/security')
 
 exports.handler = async (event) => {
+  // console.log('EVENT\n' + JSON.stringify(event, null, 2))
   const beforeHandle = beforeHandleRequest(event)
 
   if (!beforeHandle.allowed) {

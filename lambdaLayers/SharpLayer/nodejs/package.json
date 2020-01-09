@@ -1,0 +1,17 @@
+{
+  "name": "docker-lambda",
+  "version": "0.15.3",
+  "description": "A Docker image and test runner that (very closely) mimics the live AWS Lambda environment",
+  "repository": "lambci/docker-lambda",
+  "author": "Michael Hart <michael@soothbooth.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.11.12"
+  },
+  "devDependencies": {
+    "should": "^8.4.0"
+  },
+  "dependencies": {
+    "sharp": "^0.23.4"
+  }
+}
