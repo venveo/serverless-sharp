@@ -4,13 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [2.0.1] - 2020-01-09
 
 ### Changed
 - Sharp is now bundled as its own layer, removing the need for swapping between platforms for local development
+- Updated to latest version of Sharp (0.23.4)
 
 ### Added
 - Added support for `ar` param, allowing an aspect ratio (16:9) to be supplied
+
+### Fixed
+- Fixed a potential bug with automatic webp formatting in non-webp-supporting browsers
 
 ## [2.0.0] - 2019-12-09
 
