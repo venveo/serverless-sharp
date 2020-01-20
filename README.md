@@ -21,8 +21,10 @@ ensures the Lambda function does not get run multiple times for the same image r
 ## Configuration & Environment Variables
 Make a copy of `settings.example.yml` and populate accordingly.
 
-- `SOURCE_BUCKET` An S3 bucket in your account where your images are stored - you can include a path here if you like.
+- `SOURCE_BUCKET` An S3 bucket in your account where your images are stored - you can include a path prefix here if you like.
 For example: `mybucket/images`
+- `SOURCE_BUCKET_BASE` Same as `SOURCE_BUCKET` except without the path prefix
+- `SOURCE_BUCKET_PREFIX` The prefix of your source bucket, if needed
 - `SERVERLESS_PORT` For local development, this controls what port the Serverless service runs on
 - `SECURITY_KEY` See security section
 - `SLS_IGNORE` A comma-delineated string of paths that should be ignored (for example, `favicon.ico`)

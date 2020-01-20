@@ -9,7 +9,10 @@ provider:
       Action:
         - "s3:GetObject"
       Resource: "arn:aws:s3:::${self:custom.settings.environment.SOURCE_BUCKET}/*"
-
+    - Effect: "Allow"
+      Action:
+        - "cloudfront:CreateInvalidation"
+      Resource: '*'
 layers:
   sharp:
     path: lambdaLayers/SharpLayer # required, path to layer contents on disk
@@ -51,7 +54,18 @@ resources:
                 HTTPPort: 80
                 HTTPSPort: 443
                 OriginProtocolPolicy: https-only
-
+#    CreateInvalidationPermissionS3:
+#      Type: AWS::Lambda::Permission
+#      Properties:
+#        FunctionName:
+#          'Fn::GetAtt':
+#            - CreateInvalidationLambdaFunction
+#            - Arn
+#        Principal: 's3.amazonaws.com'
+#        Action: 'lambda:InvokeFunction'
+#        SourceAccount:
+#          Ref: AWS::AccountId
+#        SourceArn: 'arn:aws:s3:::${self:custom.settings.environment.SOURCE_BUCKET_BASE}'
 functions:
   index:
     handler: src/index.handler
@@ -63,6 +77,18 @@ functions:
           method: get
           contentHandling: CONVERT_TO_BINARY
     environment: ${self:custom.settings.environment}
+  createInvalidation:
+    handler: src/invalidator.handler
+    events:
+      - s3:
+          bucket: ${self:custom.settings.environment.SOURCE_BUCKET_BASE}
+          event: s3:ObjectRemoved:*
+          rules:
+            - prefix: "${self:custom.settings.environment.SOURCE_BUCKET_PREFIX}"
+          existing: true
+    environment:
+      CLOUDFRONT_DISTRIBUTION_ID:
+        Ref: CloudFrontDistribution
 Outputs:
   CloudFrontDistributionOutput:
     Value:
