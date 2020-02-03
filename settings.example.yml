@@ -8,6 +8,7 @@ defaults: &defaults
     SLS_IGNORE: favicon.ico
     MAX_IMAGE_WIDTH: 2000
     MAX_IMAGE_HEIGHT: 1000
+    PNGQUANT_SPEED: 10
 
 stages:
   dev:
