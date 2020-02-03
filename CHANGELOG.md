@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - fill-color for hex color codes now supports 3-,4-,6-, and 8-digit formats
+- incoming image size limitations can now be configured and enforced with environment variables, preventing large images
+from timing out
 
 ## [2.0.1] - 2020-01-09
 
