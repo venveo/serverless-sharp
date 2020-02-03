@@ -86,6 +86,7 @@ class ImageHandler {
    */
   async applyEdits (originalImage, edits) {
     const image = sharp(originalImage)
+    await imageOps.restrictSize(image, await image.metadata())
     await imageOps.apply(image, edits)
     return image
   }

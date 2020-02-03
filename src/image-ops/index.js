@@ -28,3 +28,14 @@ exports.apply = async (image, edits) => {
     }
   }
 }
+
+exports.restrictSize = async (image, metadata) => {
+  const maxImgWidth = process.env.MAX_IMAGE_WIDTH !== null ? parseInt(process.env.MAX_IMAGE_WIDTH) : null;
+  const maxImgHeight = process.env.MAX_IMAGE_HEIGHT !== null ? parseInt(process.env.MAX_IMAGE_HEIGHT) : null;
+  if ((maxImgWidth && metadata.width > maxImgWidth) || (maxImgHeight && metadata.height > maxImgHeight)) {
+    const aspectRatio = parseFloat(metadata.width) / metadata.height
+    const width = aspectRatio >= 1 ? maxImgWidth : null,
+        height = width === null ? maxImgHeight : null
+    await size.scaleMax(image, width, height)
+  }
+}
