@@ -156,7 +156,6 @@ class ImageHandler {
       if (autoVals.includes('compress') && quality < 100 && edits.q !== undefined) {
         const minQuality = quality - 20 > 0 ? quality - 20 : 0
         const pngQuantOptions = ['--speed', process.env.PNGQUANT_SPEED || '10', '--quality', minQuality + '-' + quality, '-']
-        console.log(pngQuantOptions)
         const binaryLocation = this.findBin('pngquant')
         if (binaryLocation) {
           const buffer = await image.toBuffer()
