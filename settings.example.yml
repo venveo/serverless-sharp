@@ -6,6 +6,8 @@ defaults: &defaults
     DEFAULT_QUALITY: 75
     DEFAULT_COMPRESS_QUALITY: 45
     SLS_IGNORE: favicon.ico
+    MAX_IMAGE_WIDTH: 2000
+    MAX_IMAGE_HEIGHT: 1000
 
 stages:
   dev:
