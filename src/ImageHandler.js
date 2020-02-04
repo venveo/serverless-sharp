@@ -155,10 +155,14 @@ class ImageHandler {
       // ensure that we do not reduce quality if param is not given
       if (autoVals.includes('compress') && quality < 100 && edits.q !== undefined) {
         const minQuality = quality - 20 > 0 ? quality - 20 : 0
-        const pngQuantOptions = ['--speed', process.env.PNGQUANT_SPEED || '10', '--quality', minQuality + '-' + quality, '-']
+        const pngQuantOptions = [
+            '--speed', process.env.PNGQUANT_SPEED || '10',
+            '--quality', minQuality + '-' + quality,
+            '-' // use stdin
+        ]
         const binaryLocation = this.findBin('pngquant')
         if (binaryLocation) {
-          const buffer = await image.toBuffer()
+          const buffer = await image.png({compressionLevel:0}).toBuffer()
           const pngquant = spawnSync(binaryLocation, pngQuantOptions, { input: buffer })
           image = sharp(pngquant.stdout)
         } else {
