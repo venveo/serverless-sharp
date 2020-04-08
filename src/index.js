@@ -63,7 +63,7 @@ const beforeHandleRequest = (event) => {
   const result = {
     allowed: true
   }
-  if (security.shouldSkipRequest(event)) {
+  if (security.shouldSkipRequest(event.path)) {
     result.allowed = false
     result.response = {
       statusCode: 404,
