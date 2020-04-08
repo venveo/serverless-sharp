@@ -65,3 +65,17 @@ exports.shouldSkipRequest = (event) => {
   }
   return false
 }
+
+/**
+ * Returns true if the requested path is valid, otherwise false and should be 404'd immediately
+ * @param event
+ * @return {boolean}
+ */
+exports.isValidPath = (event) => {
+  const path = event.path
+  const validPathRegex = RegExp(process.env.VALID_PATH_REGEX)
+  if (!validPathRegex.test(path)) {
+    return false
+  }
+  return true
+}
