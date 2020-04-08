@@ -72,6 +72,15 @@ const beforeHandleRequest = (event) => {
       isBase64Encoded: false
     }
   }
+  if (!security.isValidPath(event)) {
+    result.allowed = false
+    result.response = {
+      statusCode: 404,
+      headers: getResponseHeaders(null, true),
+      body: null,
+      isBase64Encoded: false
+    }
+  }
 
   return result
 }
