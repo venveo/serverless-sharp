@@ -54,28 +54,20 @@ exports.verifyHash = (path, queryStringParameters, hash) => {
  * @param path
  * @return {boolean}
  */
-exports.shouldSkipRequest = (event) => {
-  const path = event.path
-  if (!process.env.SLS_IGNORE) {
-    return false
+exports.shouldSkipRequest = (path) => {
+  // Check if the file is explicitly ignored
+  if (process.env.SLS_IGNORE) {
+    const filesToIgnore = process.env.SLS_IGNORE.split(',')
+    // Remove the starting slash and check if the file should be ignored
+    if (filesToIgnore.includes(path.substr(1))) {
+      return true
+    }
   }
-  const filesToIgnore = process.env.SLS_IGNORE.split(',')
-  if (filesToIgnore.includes(path.substr(1))) {
-    return true
-  }
-  return false
-}
 
-/**
- * Returns true if the requested path is valid, otherwise false and should be 404'd immediately
- * @param event
- * @return {boolean}
- */
-exports.isValidPath = (event) => {
-  const path = event.path
-  const validPathRegex = RegExp(process.env.VALID_PATH_REGEX)
-  if (!validPathRegex.test(path)) {
+  // Check if the path matches our regex pattern
+  if (!process.env.SLS_VALID_PATH_REGEX) {
     return false
   }
-  return true
+  const validPathRegex = RegExp(process.env.SLS_VALID_PATH_REGEX)
+  return !validPathRegex.test(path)
 }

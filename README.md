@@ -25,6 +25,7 @@ Make a copy of `settings.example.yml` and populate accordingly.
 For example: `mybucket/images`
 - `SERVERLESS_PORT` For local development, this controls what port the Serverless service runs on
 - `SECURITY_KEY` See security section
+- `SLS_VALID_PATH_REGEX` Regular expression for path validation - see Security section
 - `SLS_IGNORE` A comma-delineated string of paths that should be ignored (for example, `favicon.ico`)
 
 You can define multiple environments, each of which will inherit your default settings. This is useful if you have
@@ -114,6 +115,17 @@ automatically prepend it to the request images. This means these requests are ef
 `localhost/images/my-image.png`
 
 `localhost/my-image.png`
+
+### SLS_VALID_PATH_REGEX
+The SLS_VALID_PATH_REGEX setting allows you to explicitly control what assets may be handled by the Lambda function. If the
+request path fails this test, a 404 response will be served.
+
+Example:
+```yaml
+# All requests must start with /images/
+SLS_VALID_PATH_REGEX: ^\/images\/.*`
+```
+ 
 
 ## Should I run this in production?
 Sure!

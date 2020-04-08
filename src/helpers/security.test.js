@@ -101,3 +101,27 @@ describe('Testing hash security', () => {
     )).toBeTruthy()
   })
 })
+
+describe('Testing shouldSkipRequest', () => {
+  const path = '/images/example.png'
+  test('No settings', () => {
+    expect(security.shouldSkipRequest(path)).toBeFalsy()
+  })
+
+  test('Ignored file', () => {
+    process.env.SLS_IGNORE = 'images/example.png,favicon.ico'
+    expect(security.shouldSkipRequest(path)).toBeTruthy()
+  })
+
+  test('RegEx Pattern - Skip', () => {
+    process.env.SLS_IGNORE = 'favicon.ico'
+    process.env.SLS_VALID_PATH_REGEX = "^\/images\/.+"
+    expect(security.shouldSkipRequest(path)).toBeFalsy()
+  })
+
+  test('RegEx Pattern - Dont Skip', () => {
+    process.env.SLS_IGNORE = 'favicon.ico'
+    process.env.SLS_VALID_PATH_REGEX = "^\/public-images\/.+"
+    expect(security.shouldSkipRequest(path)).toBeTruthy()
+  })
+})
