@@ -7,14 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.2] - 2020-02-04
 
 ### Changed
-- improved speed of input buffering for pngquant by skipping compression
+- Improved speed of input buffering for `pngquant` by skipping compression
 
 ### Added
-- pngquant speed can now be configured in settings, defaults to fastest speed
+- `pngquant` speed can now be configured in settings, defaults to fastest speed
 
 ### Fixed
-- fill-color for hex color codes now supports 3-,4-,6-, and 8-digit formats
-- incoming image size limitations can now be configured and enforced with environment variables, preventing large images
+- `fill-color` for hex color codes now supports 3-,4-,6-, and 8-digit formats
+- Incoming image size limitations can now be configured and enforced with environment variables, preventing large images
 from timing out
 
 ## [2.0.1] - 2020-01-09
