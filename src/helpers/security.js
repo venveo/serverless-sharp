@@ -16,7 +16,7 @@ exports.calculateHash = (path, queryStringParameters, securityKey) => {
   // Encode each part of the URI. (Note, we're not using URLEncode on the entire thing, as it doesn't
   // properly handle "+" signs
   const encodedPath = fixedEncodeURIComponent(decodeURIComponent(path))
-  const source = process.env.SECURITY_KEY + encodedPath + query
+  const source = securityKey + encodedPath + query
   const parsed = crypto.createHash('md5').update(source).digest('hex')
   return parsed
 }
