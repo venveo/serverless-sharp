@@ -45,7 +45,7 @@ function fixedEncodeURIComponent (str) {
  * @returns {boolean}
  */
 exports.verifyHash = (path, queryStringParameters, hash) => {
-  const parsed = this.calculateHash(path, queryStringParameters, hash, process.env.SECURITY_KEY)
+  const parsed = this.calculateHash(path, queryStringParameters, process.env.SECURITY_KEY)
   return parsed === hash
 }
 
