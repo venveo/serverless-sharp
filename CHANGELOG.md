@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Error that could occur when cropping via focalpoint and a non-integer is encountered
 
+## Changed
+- Update Standard from 14.3.1 to 14.3.3
+- Update Serverless from 1.60.5 to 1.69.0
+- Update serverless-offline from 5.12.1 to 6.1.4
+- Update Jest from 24.9.0 to 25.5.4
+- Update aws-sdk from 2.600.0 to 2.668.0
+- Update aws-sdk-mock from 4.5.0 to 5.1.0
+
 ## [2.0.2] - 2020-02-04
 
 ### Changed
