@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Error that could occur when cropping via focalpoint and a non-integer is encountered
 
 ## Changed
+- checkHash now throws a 400 HashException when a security hash is not present
 - Update Standard from 14.3.1 to 14.3.3
 - Update Serverless from 1.60.5 to 1.69.0
 - Update serverless-offline from 5.12.1 to 6.1.4
