@@ -248,6 +248,8 @@ exports.scaleCrop = async (image, width = null, height = null, crop = null, fpx 
   } else if (fpyTop < 0) {
     fpyTop = 0
   }
+  width = Math.ceil(width)
+  height = Math.ceil(height)
   image.resize({
     width: newWidth,
     height: newHeight,
