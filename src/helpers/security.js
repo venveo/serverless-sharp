@@ -16,7 +16,7 @@ exports.calculateHash = (path, queryStringParameters, securityKey) => {
   // Encode each part of the URI. (Note, we're not using URLEncode on the entire thing, as it doesn't
   // properly handle "+" signs
   const encodedPath = fixedEncodeURIComponent(decodeURIComponent(path))
-  const source = process.env.SECURITY_KEY + encodedPath + query
+  const source = securityKey + encodedPath + query
   const parsed = crypto.createHash('md5').update(source).digest('hex')
   return parsed
 }
@@ -45,7 +45,7 @@ function fixedEncodeURIComponent (str) {
  * @returns {boolean}
  */
 exports.verifyHash = (path, queryStringParameters, hash) => {
-  const parsed = this.calculateHash(path, queryStringParameters, hash, process.env.SECURITY_KEY)
+  const parsed = this.calculateHash(path, queryStringParameters, process.env.SECURITY_KEY)
   return parsed === hash
 }
 
@@ -54,14 +54,20 @@ exports.verifyHash = (path, queryStringParameters, hash) => {
  * @param path
  * @return {boolean}
  */
-exports.shouldSkipRequest = (event) => {
-  const path = event.path
-  if (!process.env.SLS_IGNORE) {
+exports.shouldSkipRequest = (path) => {
+  // Check if the file is explicitly ignored
+  if (process.env.SLS_IGNORE) {
+    const filesToIgnore = process.env.SLS_IGNORE.split(',')
+    // Remove the starting slash and check if the file should be ignored
+    if (filesToIgnore.includes(path.substr(1))) {
+      return true
+    }
+  }
+
+  // Check if the path matches our regex pattern
+  if (!process.env.SLS_VALID_PATH_REGEX) {
     return false
   }
-  const filesToIgnore = process.env.SLS_IGNORE.split(',')
-  if (filesToIgnore.includes(path.substr(1))) {
-    return true
-  }
-  return false
+  const validPathRegex = RegExp(process.env.SLS_VALID_PATH_REGEX)
+  return !validPathRegex.test(path)
 }

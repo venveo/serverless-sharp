@@ -2,7 +2,7 @@
 #ifndef _ORC_OPCODE_H_
 #define _ORC_OPCODE_H_
 
-#include <orc/orcutils.h>
+#include <orc/orc.h>
 #include <orc/orclimits.h>
 
 ORC_BEGIN_DECLS
@@ -45,12 +45,17 @@ struct _OrcStaticOpcode {
   OrcOpcodeEmulateNFunc emulateN;
 };
 
-OrcStaticOpcode * orc_opcode_find_by_name (const char *name);
-void orc_opcode_init (void);
-OrcOpcodeSet *orc_opcode_set_get (const char *name);
-OrcOpcodeSet *orc_opcode_set_get_nth (int opcode_major);
-int orc_opcode_set_find_by_name (OrcOpcodeSet *opcode_set, const char *name);
-int orc_opcode_register_static (OrcStaticOpcode *sopcode, char *prefix);
+ORC_API OrcStaticOpcode * orc_opcode_find_by_name (const char *name);
+
+ORC_API void orc_opcode_init (void);
+
+ORC_API OrcOpcodeSet *orc_opcode_set_get (const char *name);
+
+ORC_API OrcOpcodeSet *orc_opcode_set_get_nth (int opcode_major);
+
+ORC_API int orc_opcode_set_find_by_name (OrcOpcodeSet *opcode_set, const char *name);
+
+ORC_API int orc_opcode_register_static (OrcStaticOpcode *sopcode, char *prefix);
 
 ORC_END_DECLS
 

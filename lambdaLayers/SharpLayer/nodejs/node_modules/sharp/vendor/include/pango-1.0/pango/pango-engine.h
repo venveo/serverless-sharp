@@ -30,7 +30,7 @@
 
 G_BEGIN_DECLS
 
-#ifdef PANGO_ENABLE_ENGINE
+#ifndef PANGO_DISABLE_DEPRECATED
 
 /**
  * PANGO_RENDER_TYPE_NONE:
@@ -287,6 +287,11 @@ struct _PangoEngineInfo
   gint n_scripts;
 };
 
+/* We should to ignore these unprefixed symbols when going through
+ * this header with the introspection scanner
+ */
+#ifndef __GI_SCANNER__
+
 /**
  * script_engine_list: (skip)
  * @engines: location to store a pointer to an array of engines.
@@ -444,7 +449,9 @@ prefix ## _register_type (GTypeModule *module)				  \
 #define PANGO_MODULE_ENTRY(func) script_engine_##func
 #endif
 
-#endif /* PANGO_ENABLE_ENGINE */
+#endif /* PANGO_DISABLE_DEPRECATED */
+
+#endif /* __GI_SCANNER__ */
 
 G_END_DECLS
 

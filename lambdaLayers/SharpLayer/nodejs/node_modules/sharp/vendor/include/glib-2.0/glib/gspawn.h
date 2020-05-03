@@ -46,7 +46,7 @@ G_BEGIN_DECLS
  * @G_SPAWN_ERROR_ACCES: execv() returned `EACCES`
  * @G_SPAWN_ERROR_PERM: execv() returned `EPERM`
  * @G_SPAWN_ERROR_TOO_BIG: execv() returned `E2BIG`
- * @G_SPAWN_ERROR_2BIG: deprecated alias for %G_SPAWN_ERROR_TOO_BIG
+ * @G_SPAWN_ERROR_2BIG: deprecated alias for %G_SPAWN_ERROR_TOO_BIG (deprecated since GLib 2.32)
  * @G_SPAWN_ERROR_NOEXEC: execv() returned `ENOEXEC`
  * @G_SPAWN_ERROR_NAMETOOLONG: execv() returned `ENAMETOOLONG`
  * @G_SPAWN_ERROR_NOENT: execv() returned `ENOENT`
@@ -73,9 +73,7 @@ typedef enum
   G_SPAWN_ERROR_ACCES,  /* execv() returned EACCES */
   G_SPAWN_ERROR_PERM,   /* execv() returned EPERM */
   G_SPAWN_ERROR_TOO_BIG,/* execv() returned E2BIG */
-#ifndef G_DISABLE_DEPRECATED
-  G_SPAWN_ERROR_2BIG = G_SPAWN_ERROR_TOO_BIG,
-#endif
+  G_SPAWN_ERROR_2BIG GLIB_DEPRECATED_ENUMERATOR_IN_2_32_FOR(G_SPAWN_ERROR_TOO_BIG) = G_SPAWN_ERROR_TOO_BIG,
   G_SPAWN_ERROR_NOEXEC, /* execv() returned ENOEXEC */
   G_SPAWN_ERROR_NAMETOOLONG, /* ""  "" ENAMETOOLONG */
   G_SPAWN_ERROR_NOENT,       /* ""  "" ENOENT */
@@ -215,6 +213,19 @@ gboolean g_spawn_async_with_pipes (const gchar          *working_directory,
                                    gint                 *standard_error,
                                    GError              **error);
 
+/* Lets you provide fds for stdin/stdout/stderr */
+GLIB_AVAILABLE_IN_2_58
+gboolean g_spawn_async_with_fds (const gchar          *working_directory,
+                                 gchar               **argv,
+                                 gchar               **envp,
+                                 GSpawnFlags           flags,
+                                 GSpawnChildSetupFunc  child_setup,
+                                 gpointer              user_data,
+                                 GPid                 *child_pid,
+                                 gint                  stdin_fd,
+                                 gint                  stdout_fd,
+                                 gint                  stderr_fd,
+                                 GError              **error);
 
 /* If standard_output or standard_error are non-NULL, the full
  * standard output or error of the command will be placed there.

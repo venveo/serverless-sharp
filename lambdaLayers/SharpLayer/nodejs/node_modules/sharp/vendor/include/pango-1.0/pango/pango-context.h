@@ -25,6 +25,7 @@
 #include <pango/pango-font.h>
 #include <pango/pango-fontmap.h>
 #include <pango/pango-attributes.h>
+#include <pango/pango-direction.h>
 
 G_BEGIN_DECLS
 
@@ -111,6 +112,13 @@ void                      pango_context_set_matrix           (PangoContext      
 						              const PangoMatrix *matrix);
 PANGO_AVAILABLE_IN_1_6
 const PangoMatrix *       pango_context_get_matrix           (PangoContext      *context);
+
+PANGO_AVAILABLE_IN_1_44
+void                      pango_context_set_round_glyph_positions (PangoContext *context,
+                                                                   gboolean      round_positions);
+PANGO_AVAILABLE_IN_1_44
+gboolean                  pango_context_get_round_glyph_positions (PangoContext *context);
+
 
 /* Break a string of Unicode characters into segments with
  * consistent shaping/language engine and bidrectional level.

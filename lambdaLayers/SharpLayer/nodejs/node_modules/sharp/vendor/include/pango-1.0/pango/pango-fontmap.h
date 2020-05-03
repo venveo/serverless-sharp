@@ -47,56 +47,12 @@ G_BEGIN_DECLS
 #define PANGO_TYPE_FONT_MAP              (pango_font_map_get_type ())
 #define PANGO_FONT_MAP(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), PANGO_TYPE_FONT_MAP, PangoFontMap))
 #define PANGO_IS_FONT_MAP(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), PANGO_TYPE_FONT_MAP))
-
-typedef struct _PangoContext PangoContext;
-
-PANGO_AVAILABLE_IN_ALL
-GType         pango_font_map_get_type       (void) G_GNUC_CONST;
-PANGO_AVAILABLE_IN_1_22
-PangoContext * pango_font_map_create_context (PangoFontMap               *fontmap);
-PANGO_AVAILABLE_IN_ALL
-PangoFont *   pango_font_map_load_font     (PangoFontMap                 *fontmap,
-					    PangoContext                 *context,
-					    const PangoFontDescription   *desc);
-PANGO_AVAILABLE_IN_ALL
-PangoFontset *pango_font_map_load_fontset  (PangoFontMap                 *fontmap,
-					    PangoContext                 *context,
-					    const PangoFontDescription   *desc,
-					    PangoLanguage                *language);
-PANGO_AVAILABLE_IN_ALL
-void          pango_font_map_list_families (PangoFontMap                 *fontmap,
-					    PangoFontFamily            ***families,
-					    int                          *n_families);
-PANGO_AVAILABLE_IN_1_32
-guint         pango_font_map_get_serial    (PangoFontMap                 *fontmap);
-PANGO_AVAILABLE_IN_1_34
-void          pango_font_map_changed       (PangoFontMap                 *fontmap);
-
-#ifdef PANGO_ENABLE_BACKEND
-
-/**
- * PANGO_FONT_MAP_CLASS:
- * @klass: a #GObject.
- *
- * Casts a #GObject to a #PangoFontMapClass.
- */
-/**
- * PANGO_IS_FONT_MAP_CLASS:
- * @klass: a #GObject.
- *
- * Returns: %TRUE if @klass is a subtype of #PangoFontMapClass.
- */
-/**
- * PANGO_FONT_MAP_GET_CLASS:
- * @obj: a #PangoFontMap.
- *
- * Returns: class of @obj
- */
 #define PANGO_FONT_MAP_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST ((klass), PANGO_TYPE_FONT_MAP, PangoFontMapClass))
 #define PANGO_IS_FONT_MAP_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), PANGO_TYPE_FONT_MAP))
 #define PANGO_FONT_MAP_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS ((obj), PANGO_TYPE_FONT_MAP, PangoFontMapClass))
 
 typedef struct _PangoFontMapClass PangoFontMapClass;
+typedef struct _PangoContext PangoContext;
 
 /**
  * PangoFontMap:
@@ -143,15 +99,15 @@ struct _PangoFontMapClass
   /*< public >*/
 
   PangoFont *   (*load_font)     (PangoFontMap               *fontmap,
-				  PangoContext               *context,
-				  const PangoFontDescription *desc);
+                                  PangoContext               *context,
+                                  const PangoFontDescription *desc);
   void          (*list_families) (PangoFontMap               *fontmap,
-				  PangoFontFamily          ***families,
-				  int                        *n_families);
+                                  PangoFontFamily          ***families,
+                                  int                        *n_families);
   PangoFontset *(*load_fontset)  (PangoFontMap               *fontmap,
-				  PangoContext               *context,
-				  const PangoFontDescription *desc,
-				  PangoLanguage              *language);
+                                  PangoContext               *context,
+                                  const PangoFontDescription *desc,
+                                  PangoLanguage              *language);
 
   const char     *shape_engine_type;
 
@@ -165,10 +121,28 @@ struct _PangoFontMapClass
   void (*_pango_reserved2) (void);
 };
 
-PANGO_DEPRECATED_IN_1_38
-const char   *pango_font_map_get_shape_engine_type (PangoFontMap *fontmap);
+PANGO_AVAILABLE_IN_ALL
+GType         pango_font_map_get_type       (void) G_GNUC_CONST;
+PANGO_AVAILABLE_IN_1_22
+PangoContext * pango_font_map_create_context (PangoFontMap               *fontmap);
+PANGO_AVAILABLE_IN_ALL
+PangoFont *   pango_font_map_load_font     (PangoFontMap                 *fontmap,
+					    PangoContext                 *context,
+					    const PangoFontDescription   *desc);
+PANGO_AVAILABLE_IN_ALL
+PangoFontset *pango_font_map_load_fontset  (PangoFontMap                 *fontmap,
+					    PangoContext                 *context,
+					    const PangoFontDescription   *desc,
+					    PangoLanguage                *language);
+PANGO_AVAILABLE_IN_ALL
+void          pango_font_map_list_families (PangoFontMap                 *fontmap,
+					    PangoFontFamily            ***families,
+					    int                          *n_families);
+PANGO_AVAILABLE_IN_1_32
+guint         pango_font_map_get_serial    (PangoFontMap                 *fontmap);
+PANGO_AVAILABLE_IN_1_34
+void          pango_font_map_changed       (PangoFontMap                 *fontmap);
 
-#endif /* PANGO_ENABLE_BACKEND */
 
 G_END_DECLS
 

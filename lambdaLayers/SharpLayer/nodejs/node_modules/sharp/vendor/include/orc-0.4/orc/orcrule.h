@@ -2,7 +2,7 @@
 #ifndef _ORC_RULE_H_
 #define _ORC_RULE_H_
 
-#include <orc/orcutils.h>
+#include <orc/orc.h>
 #include <orc/orclimits.h>
 #include <orc/orcopcode.h>
 
@@ -39,9 +39,10 @@ struct _OrcRuleSet {
   int n_rules;
 };
 
-OrcRuleSet * orc_rule_set_new (OrcOpcodeSet *opcode_set, OrcTarget *target,
+ORC_API OrcRuleSet * orc_rule_set_new (OrcOpcodeSet *opcode_set, OrcTarget *target,
     unsigned int required_flags);
-void orc_rule_register (OrcRuleSet *rule_set, const char *opcode_name,
+
+ORC_API void orc_rule_register (OrcRuleSet *rule_set, const char *opcode_name,
     OrcRuleEmitFunc emit, void *emit_user);
 
 

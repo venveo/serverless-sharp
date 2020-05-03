@@ -14,7 +14,7 @@ This module is targeted to developers creating tools that build N-API native add
 
 It implements a set of functions that aid in determining the N-API version supported by the currently running Node instance and the set of N-API versions against which the N-API native add-on is designed to be built. Other functions determine whether a particular N-API version can be built and can issue console warnings for unsupported N-API versions. 
 
-Unlike the modules this code is designed to facilite building, this module is written entirely in JavaScript. 
+Unlike the modules this code is designed to facilitate building, this module is written entirely in JavaScript. 
 
 ## Quick start
 
@@ -22,7 +22,7 @@ Unlike the modules this code is designed to facilite building, this module is wr
 $ npm install napi-build-utils
 ```
 
-The module exports a set of functions documented [here](./index.md). For exmaple:
+The module exports a set of functions documented [here](./index.md). For example:
 
 ```javascript
 var napiBuildUtils = require('napi-build-utils');

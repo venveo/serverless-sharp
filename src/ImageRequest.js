@@ -66,11 +66,7 @@ class ImageRequest {
   checkHash () {
     const { queryStringParameters, path } = this.event
     if (queryStringParameters && queryStringParameters.s === undefined) {
-      throw new Error({
-        status: 400,
-        code: 'RequestTypeError',
-        message: 'Security hash not present'
-      })
+      throw new HashException()
     }
     if (queryStringParameters) {
       const hash = queryStringParameters.s

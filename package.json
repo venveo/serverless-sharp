@@ -14,15 +14,15 @@
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {
-    "@types/jest": "^24.0.25",
-    "aws-sdk": "^2.600.0",
-    "aws-sdk-mock": "^4.4.0",
-    "jest": "^24.9.0",
-    "serverless": "^1.60.5",
+    "@types/jest": "^25.2.1",
+    "aws-sdk": "^2.668.0",
+    "aws-sdk-mock": "^5.1.0",
+    "jest": "^25.5.0",
+    "serverless": "^1.69.0",
     "serverless-apigw-binary": "^0.4.4",
     "serverless-apigwy-binary": "^1.0.0",
-    "serverless-offline": "^5.12.1",
-    "sharp": "^0.23.4",
-    "standard": "^14.3.1"
+    "serverless-offline": "^6.1.4",
+    "sharp": "0.25.2",
+    "standard": "^14.3.3"
   }
 }

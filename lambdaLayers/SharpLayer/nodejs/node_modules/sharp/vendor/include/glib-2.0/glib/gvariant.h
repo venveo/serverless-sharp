@@ -80,7 +80,7 @@ GVariantClass                   g_variant_classify                      (GVarian
 GLIB_AVAILABLE_IN_ALL
 GVariant *                      g_variant_new_boolean                   (gboolean              value);
 GLIB_AVAILABLE_IN_ALL
-GVariant *                      g_variant_new_byte                      (guchar                value);
+GVariant *                      g_variant_new_byte                      (guint8                value);
 GLIB_AVAILABLE_IN_ALL
 GVariant *                      g_variant_new_int16                     (gint16                value);
 GLIB_AVAILABLE_IN_ALL
@@ -133,7 +133,7 @@ GVariant *                      g_variant_new_fixed_array               (const G
 GLIB_AVAILABLE_IN_ALL
 gboolean                        g_variant_get_boolean                   (GVariant             *value);
 GLIB_AVAILABLE_IN_ALL
-guchar                          g_variant_get_byte                      (GVariant             *value);
+guint8                          g_variant_get_byte                      (GVariant             *value);
 GLIB_AVAILABLE_IN_ALL
 gint16                          g_variant_get_int16                     (GVariant             *value);
 GLIB_AVAILABLE_IN_ALL
@@ -327,7 +327,8 @@ typedef enum
   G_VARIANT_PARSE_ERROR_UNEXPECTED_TOKEN,
   G_VARIANT_PARSE_ERROR_UNKNOWN_KEYWORD,
   G_VARIANT_PARSE_ERROR_UNTERMINATED_STRING_CONSTANT,
-  G_VARIANT_PARSE_ERROR_VALUE_EXPECTED
+  G_VARIANT_PARSE_ERROR_VALUE_EXPECTED,
+  G_VARIANT_PARSE_ERROR_RECURSION
 } GVariantParseError;
 #define G_VARIANT_PARSE_ERROR (g_variant_parse_error_quark ())
 

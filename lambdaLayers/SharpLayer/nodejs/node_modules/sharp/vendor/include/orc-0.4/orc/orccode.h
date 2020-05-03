@@ -2,14 +2,13 @@
 #ifndef _ORC_CODE_H_
 #define _ORC_CODE_H_
 
-#include <orc/orcutils.h>
+#include <orc/orc.h>
 #include <orc/orclimits.h>
 #include <orc/orcexecutor.h>
 #include <orc/orcinstruction.h>
 
 ORC_BEGIN_DECLS
 
-typedef struct _OrcCodeChunk OrcCodeChunk;
 typedef struct _OrcCodeVariable OrcCodeVariable;
 
 
@@ -43,16 +42,10 @@ struct _OrcCode {
 };
 
 
-void orc_code_allocate_codemem (OrcCode *code, int size);
+ORC_API void orc_code_allocate_codemem (OrcCode *code, int size);
 
-OrcCode * orc_code_new (void);
-void orc_code_free (OrcCode *code);
-
-#ifdef ORC_ENABLE_UNSTABLE_API
-
-void orc_code_chunk_free (OrcCodeChunk *chunk);
-
-#endif
+ORC_API OrcCode * orc_code_new (void);
+ORC_API void      orc_code_free (OrcCode *code);
 
 ORC_END_DECLS
 

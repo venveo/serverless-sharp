@@ -10,8 +10,8 @@ The main repository can be found
 
 * [napi-build-utils](#module_napi-build-utils)
     * [.isNapiRuntime(runtime)](#module_napi-build-utils.isNapiRuntime) ⇒ <code>boolean</code>
-    * [.isSupportedVersion(napiVerison)](#module_napi-build-utils.isSupportedVersion) ⇒ <code>boolean</code>
-    * [.logUnsupportedVersion(napiVerison, log)](#module_napi-build-utils.logUnsupportedVersion)
+    * [.isSupportedVersion(napiVersion)](#module_napi-build-utils.isSupportedVersion) ⇒ <code>boolean</code>
+    * [.logUnsupportedVersion(napiVersion, log)](#module_napi-build-utils.logUnsupportedVersion)
     * [.getBestNapiBuildVersion()](#module_napi-build-utils.getBestNapiBuildVersion) ⇒ <code>number</code> \| <code>undefined</code>
     * [.getNapiBuildVersions()](#module_napi-build-utils.getNapiBuildVersions) ⇒ <code>Array.&lt;string&gt;</code>
     * [.getNapiVersion()](#module_napi-build-utils.getNapiVersion) ⇒ <code>string</code> \| <code>undefined</code>
@@ -29,7 +29,7 @@ Implements a consistent name of `napi` for N-API runtimes.
 
 <a name="module_napi-build-utils.isSupportedVersion"></a>
 
-### napi-build-utils.isSupportedVersion(napiVerison) ⇒ <code>boolean</code>
+### napi-build-utils.isSupportedVersion(napiVersion) ⇒ <code>boolean</code>
 Determines whether the specified N-API version is supported
 by both the currently running Node instance and the package.
 
@@ -37,11 +37,11 @@ by both the currently running Node instance and the package.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| napiVerison | <code>string</code> | The N-API version to check. |
+| napiVersion | <code>string</code> | The N-API version to check. |
 
 <a name="module_napi-build-utils.logUnsupportedVersion"></a>
 
-### napi-build-utils.logUnsupportedVersion(napiVerison, log)
+### napi-build-utils.logUnsupportedVersion(napiVersion, log)
 Issues a warning to the supplied log if the N-API version is not supported
 by the current Node instance or if the N-API version is not supported
 by the package.
@@ -50,7 +50,7 @@ by the package.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| napiVerison | <code>string</code> | The N-API version to check. |
+| napiVersion | <code>string</code> | The N-API version to check. |
 | log | <code>Object</code> | The log object to which the warnings are to be issued. Must implement the `warn` method. |
 
 <a name="module_napi-build-utils.getBestNapiBuildVersion"></a>
@@ -69,7 +69,7 @@ supported by the current Node instance.
 <a name="module_napi-build-utils.getNapiBuildVersions"></a>
 
 ### napi-build-utils.getNapiBuildVersions() ⇒ <code>Array.&lt;string&gt;</code>
-Returns an array of N-APi versions supported by the package.
+Returns an array of N-API versions supported by the package.
 
 **Kind**: static method of [<code>napi-build-utils</code>](#module_napi-build-utils)  
 <a name="module_napi-build-utils.getNapiVersion"></a>

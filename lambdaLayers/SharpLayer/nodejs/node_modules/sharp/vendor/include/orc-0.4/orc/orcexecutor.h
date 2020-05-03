@@ -2,7 +2,7 @@
 #ifndef _ORC_EXECUTOR_H_
 #define _ORC_EXECUTOR_H_
 
-#include <orc/orcutils.h>
+#include <orc/orc.h>
 #include <orc/orclimits.h>
 
 ORC_BEGIN_DECLS
@@ -92,24 +92,41 @@ struct _OrcExecutorAlt {
 
 
 
-OrcExecutor * orc_executor_new (OrcProgram *program);
-void orc_executor_free (OrcExecutor *ex);
-void orc_executor_set_program (OrcExecutor *ex, OrcProgram *program);
-void orc_executor_set_array (OrcExecutor *ex, int var, void *ptr);
-void orc_executor_set_stride (OrcExecutor *ex, int var, int stride);
-void orc_executor_set_array_str (OrcExecutor *ex, const char *name, void *ptr);
-void orc_executor_set_param (OrcExecutor *ex, int var, int value);
-void orc_executor_set_param_str (OrcExecutor *ex, const char *name, int value);
-void orc_executor_set_param_float (OrcExecutor *ex, int var, float value);
-void orc_executor_set_param_int64 (OrcExecutor *ex, int var, orc_int64 value);
-void orc_executor_set_param_double (OrcExecutor *ex, int var, double value);
-int orc_executor_get_accumulator (OrcExecutor *ex, int var);
-int orc_executor_get_accumulator_str (OrcExecutor *ex, const char *name);
-void orc_executor_set_n (OrcExecutor *ex, int n);
-void orc_executor_set_m (OrcExecutor *ex, int m);
-void orc_executor_emulate (OrcExecutor *ex);
-void orc_executor_run (OrcExecutor *ex);
-void orc_executor_run_backup (OrcExecutor *ex);
+ORC_API OrcExecutor * orc_executor_new (OrcProgram *program);
+
+ORC_API void orc_executor_free (OrcExecutor *ex);
+
+ORC_API void orc_executor_set_program (OrcExecutor *ex, OrcProgram *program);
+
+ORC_API void orc_executor_set_array (OrcExecutor *ex, int var, void *ptr);
+
+ORC_API void orc_executor_set_stride (OrcExecutor *ex, int var, int stride);
+
+ORC_API void orc_executor_set_array_str (OrcExecutor *ex, const char *name, void *ptr);
+
+ORC_API void orc_executor_set_param (OrcExecutor *ex, int var, int value);
+
+ORC_API void orc_executor_set_param_str (OrcExecutor *ex, const char *name, int value);
+
+ORC_API void orc_executor_set_param_float (OrcExecutor *ex, int var, float value);
+
+ORC_API void orc_executor_set_param_int64 (OrcExecutor *ex, int var, orc_int64 value);
+
+ORC_API void orc_executor_set_param_double (OrcExecutor *ex, int var, double value);
+
+ORC_API int orc_executor_get_accumulator (OrcExecutor *ex, int var);
+
+ORC_API int orc_executor_get_accumulator_str (OrcExecutor *ex, const char *name);
+
+ORC_API void orc_executor_set_n (OrcExecutor *ex, int n);
+
+ORC_API void orc_executor_set_m (OrcExecutor *ex, int m);
+
+ORC_API void orc_executor_emulate (OrcExecutor *ex);
+
+ORC_API void orc_executor_run (OrcExecutor *ex);
+
+ORC_API void orc_executor_run_backup (OrcExecutor *ex);
 
 
 ORC_END_DECLS

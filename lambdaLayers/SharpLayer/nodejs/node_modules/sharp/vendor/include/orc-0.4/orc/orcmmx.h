@@ -22,11 +22,18 @@ typedef enum {
 
 #define ORC_MMX_SHUF(a,b,c,d) ((((a)&3)<<6)|(((b)&3)<<4)|(((c)&3)<<2)|(((d)&3)<<0))
 
+ORC_API
 const char * orc_x86_get_regname_mmx(int i);
+
+ORC_API
 void orc_x86_emit_mov_memoffset_mmx (OrcCompiler *compiler, int size, int offset,
     int reg1, int reg2, int is_aligned);
+
+ORC_API
 void orc_x86_emit_mov_memindex_mmx (OrcCompiler *compiler, int size, int offset,
     int reg1, int regindex, int shift, int reg2, int is_aligned);
+
+ORC_API
 void orc_x86_emit_mov_mmx_memoffset (OrcCompiler *compiler, int size, int reg1, int offset,
     int reg2, int aligned, int uncached);
 #if 0
@@ -58,9 +65,10 @@ void orc_mmx_emit_pextrw_memoffset (OrcCompiler *p, int imm, int src,
 void orc_mmx_emit_shiftimm (OrcCompiler *p, const char *insn_name,
     int code, int modrm_code, int shift, int reg);
 #endif
-unsigned int orc_mmx_get_cpu_flags (void);
 
-void orc_mmx_load_constant (OrcCompiler *compiler, int reg, int size,
+ORC_API unsigned int orc_mmx_get_cpu_flags (void);
+
+ORC_API void orc_mmx_load_constant (OrcCompiler *compiler, int reg, int size,
     orc_uint64 value);
 
 #endif

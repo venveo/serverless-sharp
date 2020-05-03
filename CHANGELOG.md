@@ -4,17 +4,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+- Add `SLS_VALID_PATH_REGEX` setting to explicitly control what paths are allowed (Thanks @bs-thomas) (#52)
+- Add support for deploying to custom region (#61)
+
+### Fixed
+- Error that could occur when cropping via focalpoint and a non-integer is encountered
+- Errors would always return 500 instead of correct error code (#45)
+
+## Changed
+- Update platform from Node 10 to Node 12 (#59)
+- Update Sharp from 0.23.4 to 0.25.2
+- The proper response code is now returned on error
+- checkHash now throws a 400 HashException when a security hash is not present
+- Update Standard from 14.3.1 to 14.3.3
+- Update Serverless from 1.60.5 to 1.69.0
+- Update serverless-offline from 5.12.1 to 6.1.4
+- Update Jest from 24.9.0 to 25.5.4
+- Update aws-sdk from 2.600.0 to 2.668.0
+- Update aws-sdk-mock from 4.5.0 to 5.1.0
+
 ## [2.0.2] - 2020-02-04
 
 ### Changed
-- improved speed of input buffering for pngquant by skipping compression
+- Improved speed of input buffering for `pngquant` by skipping compression
 
 ### Added
-- pngquant speed can now be configured in settings, defaults to fastest speed
+- `pngquant` speed can now be configured in settings, defaults to fastest speed
 
 ### Fixed
-- fill-color for hex color codes now supports 3-,4-,6-, and 8-digit formats
-- incoming image size limitations can now be configured and enforced with environment variables, preventing large images
+- `fill-color` for hex color codes now supports 3-,4-,6-, and 8-digit formats
+- Incoming image size limitations can now be configured and enforced with environment variables, preventing large images
 from timing out
 
 ## [2.0.1] - 2020-01-09

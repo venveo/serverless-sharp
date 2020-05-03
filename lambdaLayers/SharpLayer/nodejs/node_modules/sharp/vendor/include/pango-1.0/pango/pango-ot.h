@@ -30,9 +30,12 @@
 #include <pango/pango-script.h>
 #include <pango/pango-language.h>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 G_BEGIN_DECLS
 
-#ifdef PANGO_ENABLE_ENGINE
+#ifndef PANGO_DISABLE_DEPRECATED
 
 /**
  * PangoOTTag:
@@ -389,7 +392,7 @@ PANGO_DEPRECATED
 void            pango_ot_ruleset_description_free  (PangoOTRulesetDescription       *desc);
 
 
-#endif /* PANGO_ENABLE_ENGINE */
+#endif /* PANGO_DISABLE_DEPRECATED */
 
 G_END_DECLS
 
