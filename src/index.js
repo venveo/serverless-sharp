@@ -2,36 +2,37 @@ const ImageRequest = require('./ImageRequest.js')
 const ImageHandler = require('./ImageHandler.js')
 const security = require('./helpers/security')
 
-exports.handler = async (event) => {
+exports.handler = async (event, context, callback) => {
   // console.log('EVENT\n' + JSON.stringify(event, null, 2))
   const beforeHandle = beforeHandleRequest(event)
 
   if (!beforeHandle.allowed) {
-    return beforeHandle.response
+    context.succeed(beforeHandle.response)
+    return
   }
 
-  const imageRequest = new ImageRequest(event)
-  await imageRequest.process() // This is important! We need to load the metadata off the image and check the format
-  const imageHandler = new ImageHandler(imageRequest)
-
   try {
+    const imageRequest = new ImageRequest(event)
+    await imageRequest.process() // This is important! We need to load the metadata off the image and check the format
+    const imageHandler = new ImageHandler(imageRequest)
+
     const processedRequest = await imageHandler.process()
+
     const response = {
       statusCode: 200,
       headers: getResponseHeaders(processedRequest, null),
       body: processedRequest.Body,
       isBase64Encoded: true
     }
-    return response
+    context.succeed(response)
   } catch (err) {
-    console.log(err)
     const response = {
       statusCode: err.status,
       headers: getResponseHeaders(null, true),
       body: JSON.stringify(err),
       isBase64Encoded: false
     }
-    return response
+    context.succeed(response)
   }
 }
 
@@ -54,7 +55,7 @@ const getResponseHeaders = (processedRequest, isErr) => {
     headers['Content-Type'] = processedRequest.ContentType
   }
   if (isErr) {
-    headers['Content-Type'] = 'application/json'
+    headers['Content-Type'] = 'text/plain'
   }
   return headers
 }

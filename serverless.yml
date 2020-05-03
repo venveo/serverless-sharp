@@ -72,7 +72,8 @@ custom:
   settingsFilePath: ${opt:settings,'./settings.yml'}
   settings: ${file(${self:custom.settingsFilePath}):stages.${self:provider.stage}}
   serverless-offline:
-    port: ${self:custom.settings.offlinePort}
+    httpPort: ${self:custom.settings.offlinePort}
+    noPrependStageInUrl: true
   apigwBinary:
     types:
       - '*/*'
