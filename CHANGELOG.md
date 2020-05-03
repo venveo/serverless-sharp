@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add `SLS_VALID_PATH_REGEX` setting to explicitly control what paths are allowed (Thanks @bs-thomas) (#52)
 - Add support for deploying to custom region (#61)
+- Added support for SSL & custom domain (Thanks @bs-thomas) (#47)
 
 ### Fixed
 - Error that could occur when cropping via focalpoint and a non-integer is encountered

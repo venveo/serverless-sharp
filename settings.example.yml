@@ -18,9 +18,11 @@ stages:
       <<: *defaults.environment
       SOURCE_BUCKET: 'my-bucket/prefix/path'
       SECURITY_KEY: ''
+      CUSTOM_DOMAIN: ''
   prod:
     <<: *defaults
     environment:
       <<: *defaults.environment
       SOURCE_BUCKET: 'random-string-here'
       SECURITY_KEY: ''
+      CUSTOM_DOMAIN: 'my.domain.com'

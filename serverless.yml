@@ -25,6 +25,8 @@ layers:
     retain: false
 
 resources:
+  Conditions: 
+    CreateCertificate: !Not [!Equals ["${self:custom.settings.environment.CUSTOM_DOMAIN, ''}", ""]]
   Resources:
     CloudFrontDistribution:
       Type: AWS::CloudFront::Distribution
@@ -52,7 +54,25 @@ resources:
                 HTTPPort: 80
                 HTTPSPort: 443
                 OriginProtocolPolicy: https-only
-
+          Aliases:
+            Fn::If:
+            - CreateCertificate
+            - - '${self:custom.settings.environment.CUSTOM_DOMAIN, self:custom.empty}'
+            - Ref: AWS::NoValue
+          ViewerCertificate:
+            Fn::If:
+            - CreateCertificate
+            - AcmCertificateArn:
+                Ref: Certificate
+              SslSupportMethod: 'sni-only'
+              MinimumProtocolVersion: 'TLSv1'
+            - Ref: AWS::NoValue
+    Certificate:
+      Type: AWS::CertificateManager::Certificate
+      Condition: CreateCertificate
+      Properties:
+        DomainName: '${self:custom.settings.environment.CUSTOM_DOMAIN}'
+        ValidationMethod: DNS
 functions:
   index:
     handler: src/index.handler
@@ -69,6 +89,7 @@ Outputs:
     Value:
       'Fn::GetAtt': [ CloudFrontDistribution, DomainName ]
 custom:
+  empty: ''
   settingsFilePath: ${opt:settings,'./settings.yml'}
   settings: ${file(${self:custom.settingsFilePath}):stages.${self:provider.stage}}
   serverless-offline:
