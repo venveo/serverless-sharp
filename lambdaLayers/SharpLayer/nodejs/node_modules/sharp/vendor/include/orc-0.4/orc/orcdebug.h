@@ -29,7 +29,7 @@
 #define _ORC_DEBUG_H_
 
 #include <stdarg.h>
-#include <orc/orcutils.h>
+#include <orc/orc.h>
 #include <stdlib.h>
 
 ORC_BEGIN_DECLS
@@ -145,13 +145,11 @@ typedef enum {
   } \
 } while(0)
 
-void orc_debug_set_print_function (OrcDebugPrintFunc func);
-int orc_debug_get_level (void);
-void orc_debug_set_level (int level);
+ORC_API void orc_debug_set_print_function (OrcDebugPrintFunc func);
+ORC_API int orc_debug_get_level (void);
+ORC_API void orc_debug_set_level (int level);
 
-void _orc_debug_init (void);
-
-void orc_debug_print (int level, const char *file, const char *func,
+ORC_API void orc_debug_print (int level, const char *file, const char *func,
     int line, const char *format, ...);
 
 ORC_END_DECLS

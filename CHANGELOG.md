@@ -12,9 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Error that could occur when cropping via focalpoint and a non-integer is encountered
-- Errors would always return 500 instead of correct error code
+- Errors would always return 500 instead of correct error code (#45)
 
 ## Changed
+- Update platform from Node 10 to Node 12 (#59)
+- Update Sharp from 0.23.4 to 0.25.2
 - The proper response code is now returned on error
 - checkHash now throws a 400 HashException when a security hash is not present
 - Update Standard from 14.3.1 to 14.3.3

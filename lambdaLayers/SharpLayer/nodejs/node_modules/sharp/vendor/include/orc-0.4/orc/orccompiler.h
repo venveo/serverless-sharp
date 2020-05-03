@@ -2,7 +2,7 @@
 #ifndef _ORC_COMPILER_H_
 #define _ORC_COMPILER_H_
 
-#include <orc/orcutils.h>
+#include <orc/orc.h>
 #include <orc/orclimits.h>
 #include <orc/orcexecutor.h>
 #include <orc/orccode.h>
@@ -138,24 +138,31 @@ struct _OrcCompiler {
 };
 
 
-int orc_compiler_label_new (OrcCompiler *compiler);
-int orc_compiler_get_constant (OrcCompiler *compiler, int size, int value);
-int orc_compiler_get_constant_long (OrcCompiler *compiler, orc_uint32 a,
-    orc_uint32 b, orc_uint32 c, orc_uint32 d);
-int orc_compiler_try_get_constant_long (OrcCompiler *compiler, orc_uint32 a,
-    orc_uint32 b, orc_uint32 c, orc_uint32 d);
-int orc_compiler_get_temp_constant (OrcCompiler *compiler, int size, int value);
-int orc_compiler_get_temp_reg (OrcCompiler *compiler);
-int orc_compiler_get_constant_reg (OrcCompiler *compiler);
-void orc_compiler_error (OrcCompiler *compiler, const char *fmt, ...);
+ORC_API int orc_compiler_label_new (OrcCompiler *compiler);
 
-void orc_compiler_append_code (OrcCompiler *p, const char *fmt, ...)
-  ORC_GNU_PRINTF(2,3);
+ORC_API int orc_compiler_get_constant (OrcCompiler *compiler, int size, int value);
+
+ORC_API int orc_compiler_get_constant_long (OrcCompiler *compiler, orc_uint32 a,
+  orc_uint32 b, orc_uint32 c, orc_uint32 d);
+
+ORC_API int orc_compiler_try_get_constant_long (OrcCompiler *compiler, orc_uint32 a,
+  orc_uint32 b, orc_uint32 c, orc_uint32 d);
+
+ORC_API int orc_compiler_get_temp_constant (OrcCompiler *compiler, int size, int value);
+
+ORC_API int orc_compiler_get_temp_reg (OrcCompiler *compiler);
+
+ORC_API int orc_compiler_get_constant_reg (OrcCompiler *compiler);
+
+ORC_API void orc_compiler_error (OrcCompiler *compiler, const char *fmt, ...);
+
+ORC_API void orc_compiler_append_code (OrcCompiler *p, const char *fmt, ...) ORC_GNU_PRINTF(2,3);
  
 #ifdef ORC_ENABLE_UNSTABLE_API
 
-int orc_compiler_flag_check (const char *flag);
+ORC_API int orc_compiler_flag_check (const char *flag);
 
+/* FIXME: remove, these were never actually exported as public symbols, so unusable  */
 extern int _orc_compiler_flag_backup;
 extern int _orc_compiler_flag_emulate;
 extern int _orc_compiler_flag_debug;

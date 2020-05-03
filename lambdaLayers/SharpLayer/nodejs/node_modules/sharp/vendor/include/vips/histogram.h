@@ -62,6 +62,10 @@ int vips_hist_ismonotonic( VipsImage *in, gboolean *out, ... )
 int vips_hist_entropy( VipsImage *in, double *out, ... )
 	__attribute__((sentinel));
 
+int vips_case( VipsImage *index, VipsImage **cases, VipsImage **out, int n, 
+	... )
+	__attribute__((sentinel));
+
 #ifdef __cplusplus
 }
 #endif /*__cplusplus*/

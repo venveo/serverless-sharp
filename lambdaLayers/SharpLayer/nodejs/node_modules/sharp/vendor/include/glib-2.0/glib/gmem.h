@@ -110,6 +110,18 @@ gpointer g_try_realloc_n  (gpointer	 mem,
 			   gsize	 n_blocks,
 			   gsize	 n_block_bytes) G_GNUC_WARN_UNUSED_RESULT;
 
+#if defined(g_has_typeof) && GLIB_VERSION_MAX_ALLOWED >= GLIB_VERSION_2_58
+#define g_clear_pointer(pp, destroy)                                           \
+  G_STMT_START {                                                               \
+    G_STATIC_ASSERT (sizeof *(pp) == sizeof (gpointer));                       \
+    __typeof__((pp)) _pp = (pp);                                               \
+    __typeof__(*(pp)) _ptr = *_pp;                                             \
+    *_pp = NULL;                                                               \
+    if (_ptr)                                                                  \
+      (destroy) (_ptr);                                                        \
+  } G_STMT_END                                                                 \
+  GLIB_AVAILABLE_MACRO_IN_2_34
+#else /* __GNUC__ */
 #define g_clear_pointer(pp, destroy) \
   G_STMT_START {                                                               \
     G_STATIC_ASSERT (sizeof *(pp) == sizeof (gpointer));                       \
@@ -126,7 +138,9 @@ gpointer g_try_realloc_n  (gpointer	 mem,
         *_pp.out = NULL;                                                       \
         _destroy (_p);                                                         \
       }                                                                        \
-  } G_STMT_END
+  } G_STMT_END                                                                 \
+  GLIB_AVAILABLE_MACRO_IN_2_34
+#endif /* __GNUC__ */
 
 /**
  * g_steal_pointer:
@@ -196,8 +210,14 @@ g_steal_pointer (gpointer pp)
 }
 
 /* type safety */
+#if defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8)) && !defined(__cplusplus) && GLIB_VERSION_MAX_ALLOWED >= GLIB_VERSION_2_58
+#define g_steal_pointer(pp) ((__typeof__(*pp)) (g_steal_pointer) (pp))
+#else  /* __GNUC__ */
+/* This version does not depend on gcc extensions, but gcc does not warn
+ * about incompatible-pointer-types: */
 #define g_steal_pointer(pp) \
   (0 ? (*(pp)) : (g_steal_pointer) (pp))
+#endif /* __GNUC__ */
 
 /* Optimise: avoid the call to the (slower) _n function if we can
  * determine at compile-time that no overflow happens.

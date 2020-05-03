@@ -2,7 +2,7 @@
 #ifndef _ORC_ONCE_H_
 #define _ORC_ONCE_H_
 
-#include <orc/orcutils.h>
+#include <orc/orc.h>
 
 ORC_BEGIN_DECLS
 
@@ -15,8 +15,8 @@ struct _OrcOnce {
   void *value;
 };
 
-void orc_once_mutex_lock (void);
-void orc_once_mutex_unlock (void);
+ORC_API void orc_once_mutex_lock (void);
+ORC_API void orc_once_mutex_unlock (void);
 
 ORC_END_DECLS
 

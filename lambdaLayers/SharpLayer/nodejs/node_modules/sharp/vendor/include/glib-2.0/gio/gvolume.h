@@ -34,8 +34,10 @@ G_BEGIN_DECLS
  * G_VOLUME_IDENTIFIER_KIND_HAL_UDI:
  *
  * The string used to obtain a Hal UDI with g_volume_get_identifier().
+ *
+ * Deprecated: 2.58: Do not use, HAL is deprecated.
  */
-#define G_VOLUME_IDENTIFIER_KIND_HAL_UDI "hal-udi"
+#define G_VOLUME_IDENTIFIER_KIND_HAL_UDI "hal-udi" GLIB_DEPRECATED_MACRO_IN_2_58
 
 /**
  * G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE:
@@ -70,8 +72,8 @@ G_BEGIN_DECLS
  *
  * The string used to obtain the volume class with g_volume_get_identifier().
  *
- * Known volume classes include `device` and `network`. Other classes may
- * be added in the future.
+ * Known volume classes include `device`, `network`, and `loop`. Other
+ * classes may be added in the future.
  *
  * This is intended to be used by applications to classify #GVolume
  * instances into different sections - for example a file manager or

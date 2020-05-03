@@ -2,7 +2,7 @@ service: ${self:custom.settings.serviceName}
 
 provider:
   name: aws
-  runtime: nodejs10.x
+  runtime: nodejs12.x
   stage: ${opt:stage,'dev'}
   region: ${self:custom.settings.region}
   iamRoleStatements:
@@ -20,7 +20,7 @@ layers:
         - node_modules/**
     description: sharp@0.23.4
     compatibleRuntimes:
-      - nodejs10.x
+      - nodejs12.x
     licenseInfo: Apache License 2.0
     retain: false
 

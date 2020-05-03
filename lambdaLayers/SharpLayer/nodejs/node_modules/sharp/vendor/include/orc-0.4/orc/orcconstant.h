@@ -29,6 +29,7 @@ struct _OrcConstant {
   unsigned int full_value[4];
   int use_count;
   int is_long;
+  int label;
 };
 
 

@@ -76,6 +76,7 @@ typedef struct _GFileInfoClass   GFileInfoClass;
  * A key in the "standard" namespace for checking if the file is a symlink.
  * Typically the actual type is something else, if we followed the symlink
  * to get the type.
+ * On Windows NTFS mountpoints are considered to be symlinks as well.
  * Corresponding #GFileAttributeType is %G_FILE_ATTRIBUTE_TYPE_BOOLEAN.
  **/
 #define G_FILE_ATTRIBUTE_STANDARD_IS_SYMLINK "standard::is-symlink"         /* boolean */
@@ -577,8 +578,10 @@ typedef struct _GFileInfoClass   GFileInfoClass;
  * G_FILE_ATTRIBUTE_UNIX_MODE:
  *
  * A key in the "unix" namespace for getting the mode of the file
- * (e.g. whether the file is a regular file, symlink, etc). See lstat()
- * documentation. This attribute is only available for UNIX file systems.
+ * (e.g. whether the file is a regular file, symlink, etc). See the
+ * documentation for `lstat()`: this attribute is equivalent to the `st_mode`
+ * member of `struct stat`, and includes both the file type and permissions.
+ * This attribute is only available for UNIX file systems.
  * Corresponding #GFileAttributeType is %G_FILE_ATTRIBUTE_TYPE_UINT32.
  **/
 #define G_FILE_ATTRIBUTE_UNIX_MODE "unix::mode"                   /* uint32 */
@@ -644,7 +647,8 @@ typedef struct _GFileInfoClass   GFileInfoClass;
  *
  * A key in the "unix" namespace for checking if the file represents a
  * UNIX mount point. This attribute is %TRUE if the file is a UNIX mount
- * point. This attribute is only available for UNIX file systems.
+ * point. Since 2.58, `/` is considered to be a mount point.
+ * This attribute is only available for UNIX file systems.
  * Corresponding #GFileAttributeType is %G_FILE_ATTRIBUTE_TYPE_BOOLEAN.
  **/
 #define G_FILE_ATTRIBUTE_UNIX_IS_MOUNTPOINT "unix::is-mountpoint" /* boolean */
@@ -670,6 +674,33 @@ typedef struct _GFileInfoClass   GFileInfoClass;
  * is %G_FILE_ATTRIBUTE_TYPE_BOOLEAN.
  **/
 #define G_FILE_ATTRIBUTE_DOS_IS_SYSTEM "dos::is-system"           /* boolean */
+
+/**
+ * G_FILE_ATTRIBUTE_DOS_IS_MOUNTPOINT:
+ *
+ * A key in the "dos" namespace for checking if the file is a NTFS mount point
+ * (a volume mount or a junction point).
+ * This attribute is %TRUE if file is a reparse point of type
+ * [IO_REPARSE_TAG_MOUNT_POINT](https://msdn.microsoft.com/en-us/library/dd541667.aspx).
+ * This attribute is only available for DOS file systems.
+ * Corresponding #GFileAttributeType is %G_FILE_ATTRIBUTE_TYPE_BOOLEAN.
+ *
+ * Since: 2.60
+ **/
+#define G_FILE_ATTRIBUTE_DOS_IS_MOUNTPOINT "dos::is-mountpoint"   /* boolean */
+
+/**
+ * G_FILE_ATTRIBUTE_DOS_REPARSE_POINT_TAG:
+ *
+ * A key in the "dos" namespace for getting the file NTFS reparse tag.
+ * This value is 0 for files that are not reparse points.
+ * See the [Reparse Tags](https://msdn.microsoft.com/en-us/library/dd541667.aspx)
+ * page for possible reparse tag values. Corresponding #GFileAttributeType
+ * is %G_FILE_ATTRIBUTE_TYPE_UINT32.
+ *
+ * Since: 2.60
+ **/
+#define G_FILE_ATTRIBUTE_DOS_REPARSE_POINT_TAG "dos::reparse-point-tag"   /* uint32 */
 
 /* Owner attributes */
 
@@ -1017,9 +1048,13 @@ GLIB_AVAILABLE_IN_ALL
 const char *      g_file_info_get_content_type       (GFileInfo         *info);
 GLIB_AVAILABLE_IN_ALL
 goffset           g_file_info_get_size               (GFileInfo         *info);
-GLIB_AVAILABLE_IN_ALL
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+GLIB_DEPRECATED_IN_2_62_FOR(g_file_info_get_modification_date_time)
 void              g_file_info_get_modification_time  (GFileInfo         *info,
-						      GTimeVal          *result);
+                                                      GTimeVal          *result);
+G_GNUC_END_IGNORE_DEPRECATIONS
+GLIB_AVAILABLE_IN_2_62
+GDateTime *       g_file_info_get_modification_date_time (GFileInfo     *info);
 GLIB_AVAILABLE_IN_ALL
 const char *      g_file_info_get_symlink_target     (GFileInfo         *info);
 GLIB_AVAILABLE_IN_ALL
@@ -1064,9 +1099,14 @@ void              g_file_info_set_content_type       (GFileInfo         *info,
 GLIB_AVAILABLE_IN_ALL
 void              g_file_info_set_size               (GFileInfo         *info,
 						      goffset            size);
-GLIB_AVAILABLE_IN_ALL
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+GLIB_DEPRECATED_IN_2_62_FOR(g_file_info_set_modification_date_time)
 void              g_file_info_set_modification_time  (GFileInfo         *info,
-						      GTimeVal          *mtime);
+                                                      GTimeVal          *mtime);
+G_GNUC_END_IGNORE_DEPRECATIONS
+GLIB_AVAILABLE_IN_2_62
+void              g_file_info_set_modification_date_time (GFileInfo     *info,
+                                                          GDateTime     *mtime);
 GLIB_AVAILABLE_IN_ALL
 void              g_file_info_set_symlink_target     (GFileInfo         *info,
 						      const char        *symlink_target);

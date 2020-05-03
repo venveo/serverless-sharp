@@ -160,11 +160,11 @@ typedef enum
 /**
  * GSignalMatchType:
  * @G_SIGNAL_MATCH_ID: The signal id must be equal.
- * @G_SIGNAL_MATCH_DETAIL: The signal detail be equal.
+ * @G_SIGNAL_MATCH_DETAIL: The signal detail must be equal.
  * @G_SIGNAL_MATCH_CLOSURE: The closure must be the same.
  * @G_SIGNAL_MATCH_FUNC: The C closure callback must be the same.
  * @G_SIGNAL_MATCH_DATA: The closure data must be the same.
- * @G_SIGNAL_MATCH_UNBLOCKED: Only unblocked signals may matched.
+ * @G_SIGNAL_MATCH_UNBLOCKED: Only unblocked signals may be matched.
  * 
  * The match types specify what g_signal_handlers_block_matched(),
  * g_signal_handlers_unblock_matched() and g_signal_handlers_disconnect_matched()
@@ -436,6 +436,22 @@ guint	 g_signal_handlers_disconnect_matched (gpointer		  instance,
 					       gpointer		  func,
 					       gpointer		  data);
 
+GLIB_AVAILABLE_IN_2_62
+void	 g_clear_signal_handler		      (gulong            *handler_id_ptr,
+					       gpointer           instance);
+
+#define  g_clear_signal_handler(handler_id_ptr, instance)           \
+  G_STMT_START {                                                    \
+    G_STATIC_ASSERT (sizeof *(handler_id_ptr) == sizeof (gulong));  \
+    gulong _handler_id = *(handler_id_ptr);                         \
+                                                                    \
+    if (_handler_id > 0)                                            \
+      {                                                             \
+        g_signal_handler_disconnect ((instance), _handler_id);      \
+        *(handler_id_ptr) = 0;                                      \
+      }                                                             \
+  } G_STMT_END                                                      \
+  GLIB_AVAILABLE_MACRO_IN_2_62
 
 /* --- overriding and chaining --- */
 GLIB_AVAILABLE_IN_ALL

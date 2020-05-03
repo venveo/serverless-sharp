@@ -66,9 +66,12 @@ struct _GMountOperationClass
 
   /**
    * GMountOperationClass::ask_question:
-   * @op:
-   * @message:
-   * @choices: (array zero-terminated=1) (element-type utf8):
+   * @op: a #GMountOperation
+   * @message: string containing a message to display to the user
+   * @choices: (array zero-terminated=1) (element-type utf8): an array of
+   *    strings for each possible choice
+   *
+   * Virtual implementation of #GMountOperation::ask-question.
    */
   void (* ask_question) (GMountOperation       *op,
 			 const char            *message,
@@ -81,10 +84,14 @@ struct _GMountOperationClass
 
   /**
    * GMountOperationClass::show_processes:
-   * @op:
-   * @message:
-   * @processes: (element-type GPid):
-   * @choices: (array zero-terminated=1) (element-type utf8):
+   * @op: a #GMountOperation
+   * @message: string containing a message to display to the user
+   * @processes: (element-type GPid): an array of #GPid for processes blocking
+   *    the operation
+   * @choices: (array zero-terminated=1) (element-type utf8): an array of
+   *    strings for each possible choice
+   *
+   * Virtual implementation of #GMountOperation::show-processes.
    *
    * Since: 2.22
    */
@@ -149,6 +156,21 @@ void          g_mount_operation_set_choice        (GMountOperation *op,
 GLIB_AVAILABLE_IN_ALL
 void          g_mount_operation_reply             (GMountOperation *op,
 						   GMountOperationResult result);
+GLIB_AVAILABLE_IN_2_58
+gboolean      g_mount_operation_get_is_tcrypt_hidden_volume (GMountOperation *op);
+GLIB_AVAILABLE_IN_2_58
+void          g_mount_operation_set_is_tcrypt_hidden_volume (GMountOperation *op,
+                                                             gboolean hidden_volume);
+GLIB_AVAILABLE_IN_2_58
+gboolean      g_mount_operation_get_is_tcrypt_system_volume (GMountOperation *op);
+GLIB_AVAILABLE_IN_2_58
+void          g_mount_operation_set_is_tcrypt_system_volume (GMountOperation *op,
+                                                             gboolean system_volume);
+GLIB_AVAILABLE_IN_2_58
+guint  g_mount_operation_get_pim           (GMountOperation *op);
+GLIB_AVAILABLE_IN_2_58
+void          g_mount_operation_set_pim           (GMountOperation *op,
+                                                   guint pim);
 
 G_END_DECLS
 
