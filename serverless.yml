@@ -4,6 +4,7 @@ provider:
   name: aws
   runtime: nodejs10.x
   stage: ${opt:stage,'dev'}
+  region: ${self:custom.settings.region}
   iamRoleStatements:
     - Effect: "Allow"
       Action:
