@@ -125,7 +125,11 @@ Example:
 # All requests must start with /images/
 SLS_VALID_PATH_REGEX: ^\/images\/.*`
 ```
- 
+
+### CUSTOM_DOMAIN
+Setting the `CUSTOM_DOMAIN` setting will configure your Cloudfront distribution with a custom domain as well as a
+standard Amazon issued SSL certificate. The SSL certificate is verified via DNS, so you'll need to access your ACM
+console during the initial deployment to finish configuring the DNS records.
 
 ## Should I run this in production?
 Sure!
