@@ -25,7 +25,7 @@ layers:
     retain: false
 
 resources:
-  Conditions: 
+  Conditions:
     CreateCertificate: !Not [!Equals ["${self:custom.settings.environment.CUSTOM_DOMAIN, ''}", ""]]
   Resources:
     CloudFrontDistribution:
@@ -75,6 +75,16 @@ resources:
         ValidationMethod: DNS
 functions:
   index:
+    package:
+      individually: true
+      excludeDevDependencies: true
+      browser: false
+      exclude:
+        - node_modules/**
+        - docs/**
+        - .idea/**
+        - bin/darwin/**
+        - coverage/**
     handler: src/index.handler
     layers:
       - {Ref: SharpLambdaLayer}
