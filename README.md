@@ -27,6 +27,8 @@ For example: `mybucket/images`
 - `SECURITY_KEY` See security section
 - `SLS_VALID_PATH_REGEX` Regular expression for path validation - see Security section
 - `SLS_IGNORE` A comma-delineated string of paths that should be ignored (for example, `favicon.ico`)
+- `CUSTOM_DOMAIN` See CUSTOM_DOMAIN section
+- `DEFAULT_CACHE_CONTROL` Sets the Cache-Control header on objects that don't have one set
 
 You can define multiple environments, each of which will inherit your default settings. This is useful if you have
 different buckets for staging & production, for example. You may also wish to create an environment without a sign-key

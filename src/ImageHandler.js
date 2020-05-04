@@ -1,11 +1,10 @@
-const AWS = require('aws-sdk')
 const sharp = require('sharp')
 const fs = require('fs')
 const path = require('path')
 const { spawnSync } = require('child_process')
 
+const settings = require('./helpers/settings')
 const ImageRequest = require('./ImageRequest')
-
 const imageOps = require('./image-ops')
 
 class ImageHandler {
@@ -110,7 +109,7 @@ class ImageHandler {
     }
 
     // Determine our quality - if it was implicitly determined, we'll use the environment setting rather than the schema
-    let quality = parseInt(process.env.DEFAULT_QUALITY)
+    let quality = settings.getSetting('DEFAULT_QUALITY')
     if (edits.q.implicit !== true) {
       quality = parseInt(edits.q.processedValue)
       if (quality < 1) {
@@ -128,7 +127,7 @@ class ImageHandler {
     }
 
     if (autoVals.includes('compress')) {
-      quality = parseInt(process.env.DEFAULT_COMPRESS_QUALITY)
+      quality = settings.getSetting('DEFAULT_COMPRESS_QUALITY')
       if (!metadata.hasAlpha && (fm === 'png' || fm === 'tiff')) {
         fm = 'jpeg'
       } else if (metadata.hasAlpha && fm === 'png') {
@@ -156,13 +155,13 @@ class ImageHandler {
       if (autoVals.includes('compress') && quality < 100 && edits.q !== undefined) {
         const minQuality = quality - 20 > 0 ? quality - 20 : 0
         const pngQuantOptions = [
-            '--speed', process.env.PNGQUANT_SPEED || '10',
-            '--quality', minQuality + '-' + quality,
-            '-' // use stdin
+          '--speed', settings.getSetting('PNGQUANT_SPEED'),
+          '--quality', minQuality + '-' + quality,
+          '-' // use stdin
         ]
         const binaryLocation = this.findBin('pngquant')
         if (binaryLocation) {
-          const buffer = await image.png({compressionLevel:0}).toBuffer()
+          const buffer = await image.png({ compressionLevel: 0 }).toBuffer()
           const pngquant = spawnSync(binaryLocation, pngQuantOptions, { input: buffer })
           image = sharp(pngquant.stdout)
         } else {

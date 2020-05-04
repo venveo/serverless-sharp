@@ -1,6 +1,7 @@
 const ImageRequest = require('./ImageRequest.js')
 const ImageHandler = require('./ImageHandler.js')
 const security = require('./helpers/security')
+const settings = require('./helpers/settings')
 
 exports.handler = async (event, context, callback) => {
   // console.log('EVENT\n' + JSON.stringify(event, null, 2))
@@ -48,11 +49,16 @@ const getResponseHeaders = (processedRequest, isErr) => {
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Allow-Credentials': true
   }
-  if (processedRequest && 'CacheControl' in processedRequest) {
-    headers['Cache-Control'] = processedRequest.CacheControl
-  }
-  if (processedRequest && 'ContentType' in processedRequest) {
-    headers['Content-Type'] = processedRequest.ContentType
+  const cacheControlDefault = settings.getSetting('DEFAULT_CACHE_CONTROL')
+  if (processedRequest) {
+    if ('CacheControl' in processedRequest && processedRequest.CacheControl !== undefined) {
+      headers['Cache-Control'] = processedRequest.CacheControl
+    } else if (cacheControlDefault) {
+      headers['Cache-Control'] = cacheControlDefault
+    }
+    if ('ContentType' in processedRequest) {
+      headers['Content-Type'] = processedRequest.ContentType
+    }
   }
   if (isErr) {
     headers['Content-Type'] = 'text/plain'

@@ -1,4 +1,5 @@
 const eventParser = require('./eventParser')
+const settings = require('./settings')
 
 /**
  * Computes a hash based on the path, query string params
@@ -45,7 +46,7 @@ function fixedEncodeURIComponent (str) {
  * @returns {boolean}
  */
 exports.verifyHash = (path, queryStringParameters, hash) => {
-  const parsed = this.calculateHash(path, queryStringParameters, process.env.SECURITY_KEY)
+  const parsed = this.calculateHash(path, queryStringParameters, settings.getSetting('SECURITY_KEY'))
   return parsed === hash
 }
 
@@ -56,8 +57,8 @@ exports.verifyHash = (path, queryStringParameters, hash) => {
  */
 exports.shouldSkipRequest = (path) => {
   // Check if the file is explicitly ignored
-  if (process.env.SLS_IGNORE) {
-    const filesToIgnore = process.env.SLS_IGNORE.split(',')
+  if (settings.getSetting('SLS_IGNORE')) {
+    const filesToIgnore = settings.getSetting('SLS_IGNORE')
     // Remove the starting slash and check if the file should be ignored
     if (filesToIgnore.includes(path.substr(1))) {
       return true
@@ -65,9 +66,9 @@ exports.shouldSkipRequest = (path) => {
   }
 
   // Check if the path matches our regex pattern
-  if (!process.env.SLS_VALID_PATH_REGEX) {
+  if (!settings.getSetting('SLS_VALID_PATH_REGEX')) {
     return false
   }
-  const validPathRegex = RegExp(process.env.SLS_VALID_PATH_REGEX)
+  const validPathRegex = settings.getSetting('SLS_VALID_PATH_REGEX')
   return !validPathRegex.test(path)
 }

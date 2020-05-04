@@ -1,4 +1,4 @@
-module.exports = class ExpectationTypeException extends Error {
+module.exports = class HashException extends Error {
   constructor (message = 'Invalid security hash') {
     super()
     this.name = 'HashException'

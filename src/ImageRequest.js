@@ -3,16 +3,17 @@ const schemaParser = require('./helpers/schemaParser')
 const security = require('./helpers/security')
 const sharp = require('sharp')
 const HashException = require('./errors/HashException')
+const settings = require('./helpers/settings')
 
 class ImageRequest {
   constructor (event) {
     this.event = event
     // If the hash isn't set when it should be, we'll throw an error.
-    if (process.env.SECURITY_KEY !== undefined && process.env.SECURITY_KEY !== null && process.env.SECURITY_KEY.length) {
+    if (settings.getSetting('SECURITY_KEY')) {
       this.checkHash()
     }
 
-    const { bucket, prefix } = eventParser.processSourceBucket(process.env.SOURCE_BUCKET)
+    const { bucket, prefix } = eventParser.processSourceBucket(settings.getSetting('SOURCE_BUCKET'))
     this.bucket = bucket
     this.prefix = prefix
     this.key = eventParser.parseImageKey(event.path, prefix)
