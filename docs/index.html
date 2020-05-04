@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Serverless Sharp</title>
     <link rel="stylesheet" href="https://unpkg.com/docute@4/dist/docute.css">
+    <style>
+        /* Import desired font from Google fonts */
+        @import url('https://fonts.googleapis.com/css?family=Lato');
+
+        /* Apply the font to body (to override the default one) */
+        body {
+            font-family: Lato, sans-serif;
+        }
+    </style>
 </head>
 <body>
 <div id="docute"></div>
@@ -12,7 +21,10 @@
 <script>
   new Docute({
     title: 'Serverless Sharp',
+    dark: 'dark',
     target: '#docute',
+    highlight: ['yaml', 'js', 'git', 'shell-session', 'regex'],
+    editLinkBase: 'https://github.com/venveo/serverless-sharp/tree/master/docs',
     nav: [
       {
         title: 'Home',
@@ -27,11 +39,36 @@
       // A sidebar item, with child links
       {
         title: 'Introduction',
-        link: '/'
+        children: [
+          {
+            title: 'About',
+            link: '/'
+          },
+          {
+            title: 'Quick Start',
+            link: '/intro/quickstart'
+          }
+        ]
       },
       {
         title: 'Configuration',
         link: '/configuration'
+      },
+      {
+        title: 'Usage',
+        children: [
+          {
+            title: 'Parameters',
+            link: '/usage/parameters'
+          },          {
+            title: 'Security',
+            link: '/usage/security'
+          },
+          {
+            title: 'Integration',
+            link: '/usage/integration'
+          },
+        ]
       },
       {
         title: 'Deployment',
