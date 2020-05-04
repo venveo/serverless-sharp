@@ -11,7 +11,7 @@ const settings = {
     type: TYPE_INTEGER
   },
   DEFAULT_COMPRESS_QUALITY: {
-    default: 45,
+    default: 75,
     type: TYPE_INTEGER
   },
   SLS_IGNORE: {

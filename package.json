@@ -7,7 +7,8 @@
     "email": "info@venveo.com"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "docs": "serve ./docs"
   },
   "version": "1.0.0",
   "private": false,
