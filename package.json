@@ -10,7 +10,7 @@
     "test": "jest",
     "docs": "serve ./docs"
   },
-  "version": "2.0.3.1",
+  "version": "2.0.3",
   "private": false,
   "license": "MIT",
   "dependencies": {},
@@ -18,11 +18,11 @@
     "@types/jest": "^25.2.1",
     "aws-sdk": "^2.668.0",
     "aws-sdk-mock": "^5.1.0",
-    "jest": "^25.5.0",
+    "jest": "^26.0.1",
     "serverless": "^1.69.0",
     "serverless-apigw-binary": "^0.4.4",
     "serverless-apigwy-binary": "^1.0.0",
-    "serverless-offline": "^6.1.4",
+    "serverless-offline": "^6.1.5",
     "sharp": "0.25.2",
     "standard": "^14.3.3"
   }
