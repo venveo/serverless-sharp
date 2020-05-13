@@ -36,10 +36,12 @@ class ImageHandler {
     // We have some edits to process
     if (Object.keys(this.request.edits).length) {
       try {
-        const modifiedImage = await this.applyEdits(originalImageBody, this.request.edits)
-        const optimizedImage = await this.applyOptimizations(modifiedImage)
-        bufferImage = await optimizedImage.toBuffer()
-        format = optimizedImage.options.formatOut
+        // We're calling rotate on this immediately in order to ensure metadata for rotation doesn't get lost
+        const pipeline = sharp(originalImageBody).rotate()
+        await this.applyEdits(pipeline, this.request.edits)
+        await this.applyOptimizations(pipeline)
+        bufferImage = await pipeline.toBuffer()
+        format = pipeline.options.formatOut
       } catch (err) {
         console.error('Unhandlable image encountered', err)
         bufferImage = Buffer.from(originalImageBody, 'binary')
@@ -80,14 +82,12 @@ class ImageHandler {
   /**
    * Applies image modifications to the original image based on edits
    * specified in the ImageRequest.
-   * @param {Buffer} originalImage - The original image.
+   * @param {sharp} originalImage - The original image.
    * @param {Object} edits - The edits to be made to the original image.
    */
-  async applyEdits (originalImage, edits) {
-    const image = sharp(originalImage)
+  async applyEdits (image, edits) {
     await imageOps.restrictSize(image, await image.metadata())
     await imageOps.apply(image, edits)
-    return image
   }
 
   /**

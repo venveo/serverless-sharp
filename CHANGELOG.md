@@ -4,7 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.3.1] - 2020-05-04
+## [2.0.5] - 2020-05-13
+
+### Fixed
+- Fixed bug where an image that is rotated with EXIF data loses its rotation (#67)
+
+## [2.0.4] - 2020-05-04
+
+No changes
+
+## [2.0.3] - 2020-05-04
 
 ### Fixed
 - Fixed bug with Serverless not excluding dev-dependencies and failing to deploy due to large file size
