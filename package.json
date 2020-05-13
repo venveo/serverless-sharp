@@ -10,7 +10,7 @@
     "test": "jest",
     "docs": "serve ./docs"
   },
-  "version": "2.0.5",
+  "version": "2.0.6",
   "private": false,
   "license": "MIT",
   "dependencies": {},

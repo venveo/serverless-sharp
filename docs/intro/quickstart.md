@@ -20,7 +20,7 @@ Once you have installed Serverless for your environment, follow this guide to co
 Clone the latest version of the project into a directory of your choice:
 
 ```git
-git clone -b 'v2.0.2' --single-branch --depth 1 https://github.com/venveo/serverless-sharp.git 
+git clone -b 'v2.0.6' --single-branch --depth 1 https://github.com/venveo/serverless-sharp.git 
 ```
 
 <Note type="tip">
