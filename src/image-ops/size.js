@@ -9,7 +9,7 @@ const NotImplementedException = require('../errors/NotImplementedException')
 
 /**
  * Apply all supported size operations
- * @param image
+ * @param {sharp} image
  * @param edits
  * @return {Promise<void>}
  */
@@ -54,7 +54,7 @@ exports.apply = async (image, edits) => {
 }
 
 /**
-* @param {Sharp} image
+* @param {sharp} image
 * @param width
 * @param height
 * @returns {*}
@@ -70,7 +70,7 @@ exports.scaleMax = (image, width = null, height = null) => {
 
 /**
  *
- * @param {Sharp} image
+ * @param {sharp} image
  * @param width
  * @param height
  * @returns {*}
@@ -86,7 +86,7 @@ exports.scaleClip = (image, width = null, height = null) => {
 
 /**
  *
- * @param {Sharp} image
+ * @param {sharp} image
  * @param width
  * @param height
  * @param color
@@ -103,38 +103,37 @@ exports.fill = async (image, mode, width = null, height = null, color = null) =>
   if (height) {
     resizeParams.height = height
   }
-  // TODO: Validate color more explicitly
   if (color) {
     // either a color keyword or 3- (RGB), 4- (ARGB) 6- (RRGGBB) or 8-digit (AARRGGBB) hexadecimal values
-    if (schema['colorKeywordValues'].includes(color)) {
+    if (schema.colorKeywordValues.includes(color)) {
       // is a color keyword
       resizeParams.background = color
     } else if (/^#[0-9A-Fa-f]{3}$/.test(color)) {
       // 3-digit (RGB)
-      const r = parseInt(color[1]+color[1], 16),
-          g = parseInt(color[2]+color[2], 16),
-          b = parseInt(color[3]+color[3], 16)
-      resizeParams.background = {r, g, b}
+      const r = parseInt(color[1] + color[1], 16)
+      const g = parseInt(color[2] + color[2], 16)
+      const b = parseInt(color[3] + color[3], 16)
+      resizeParams.background = { r, g, b }
     } else if (/^#[0-9A-Fa-f]{4}$/.test(color)) {
       // 4-digit (ARGB)
-      const alpha = parseInt(color[1]+color[1], 16) / 255.0,
-          r = parseInt(color[2]+color[2], 16),
-          g = parseInt(color[3]+color[3], 16),
-          b = parseInt(color[4]+color[4], 16)
-      resizeParams.background = {alpha, r, g, b}
+      const alpha = parseInt(color[1] + color[1], 16) / 255.0
+      const r = parseInt(color[2] + color[2], 16)
+      const g = parseInt(color[3] + color[3], 16)
+      const b = parseInt(color[4] + color[4], 16)
+      resizeParams.background = { alpha, r, g, b }
     } else if (/^#[0-9A-Fa-f]{6}$/.test(color)) {
       // 6-digit (RRGGBB)
-      const r = parseInt(color[1]+color[2], 16),
-          g = parseInt(color[3]+color[4], 16),
-          b = parseInt(color[5]+color[6], 16)
-      resizeParams.background = {r, g, b}
+      const r = parseInt(color[1] + color[2], 16)
+      const g = parseInt(color[3] + color[4], 16)
+      const b = parseInt(color[5] + color[6], 16)
+      resizeParams.background = { r, g, b }
     } else if (/^#[0-9A-Fa-f]{8}$/.test(color)) {
       // 8-digit (AARRGGBB)
-      const alpha = parseInt(color[1]+color[2], 16) / 255.0,
-          r = parseInt(color[3]+color[4], 16),
-          g = parseInt(color[5]+color[6], 16),
-          b = parseInt(color[7]+color[8], 16)
-      resizeParams.background = {alpha, r, g, b}
+      const alpha = parseInt(color[1] + color[2], 16) / 255.0
+      const r = parseInt(color[3] + color[4], 16)
+      const g = parseInt(color[5] + color[6], 16)
+      const b = parseInt(color[7] + color[8], 16)
+      resizeParams.background = { alpha, r, g, b }
     }
   }
   image.resize(resizeParams)
@@ -158,7 +157,7 @@ exports.scale = (image, width, height) => {
 
 /**
  * Handle cropping modes
- * @param {Sharp} image
+ * @param {sharp} image
  * @param width
  * @param height
  * @param crop
