@@ -26,7 +26,11 @@ layers:
 
 resources:
   Conditions:
-    CreateCertificate: !Not [!Equals ["${self:custom.settings.environment.CUSTOM_DOMAIN, ''}", ""]]
+    CustomDomain: !Not [!Equals ["${self:custom.settings.environment.CUSTOM_DOMAIN, ''}", ""]]
+    ArnCertificate: !Not [!Equals ["${self:custom.settings.environment.ACM_CERTIFICATE_ARN, ''}", ""]]
+    CreateCertificate: !And
+      - !Not [!Equals ["${self:custom.settings.environment.CUSTOM_DOMAIN, ''}", ""]]
+      - !Equals ["${self:custom.settings.environment.ACM_CERTIFICATE_ARN, ''}", ""]
   Resources:
     CloudFrontDistribution:
       Type: AWS::CloudFront::Distribution
@@ -56,14 +60,16 @@ resources:
                 OriginProtocolPolicy: https-only
           Aliases:
             Fn::If:
-            - CreateCertificate
+            - CustomDomain
             - - '${self:custom.settings.environment.CUSTOM_DOMAIN, self:custom.empty}'
             - Ref: AWS::NoValue
           ViewerCertificate:
             Fn::If:
             - CreateCertificate
-            - AcmCertificateArn:
-                Ref: Certificate
+            - AcmCertificateArn: !If
+              - ArnCertificate
+              - self:custom.settings.environment.ACM_CERTIFICATE_ARN
+              - Ref: Certificate
               SslSupportMethod: 'sni-only'
               MinimumProtocolVersion: 'TLSv1'
             - Ref: AWS::NoValue
@@ -71,8 +77,8 @@ resources:
       Type: AWS::CertificateManager::Certificate
       Condition: CreateCertificate
       Properties:
-        DomainName: '${self:custom.settings.environment.CUSTOM_DOMAIN}'
         ValidationMethod: DNS
+        DomainName: '${self:custom.settings.environment.CUSTOM_DOMAIN}'
 functions:
   index:
     package:
