@@ -41,6 +41,13 @@ exports.handler = async (event, context, callback) => {
         body: imageRequest.originalImageBody.toString('utf8'),
         isBase64Encoded: false
       }
+      if(imageRequest.key.match(/(.css)$/)){
+        response.headers['Content-Type'] = 'text/css'
+      }else if (imageRequest.key.match(/(.js)$/)){
+        response.headers['Content-Type'] = 'text/javascript'
+      }else if (imageRequest.key.match(/(.html)$/)){
+        response.headers['Content-Type'] = 'text/html'
+      }
     }
     context.succeed(response)
   }
