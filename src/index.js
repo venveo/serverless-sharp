@@ -11,9 +11,10 @@ exports.handler = async (event, context, callback) => {
     context.succeed(beforeHandle.response)
     return
   }
+  let imageRequest = null
 
   try {
-    const imageRequest = new ImageRequest(event)
+    imageRequest = new ImageRequest(event)
     await imageRequest.process() // This is important! We need to load the metadata off the image and check the format
     const imageHandler = new ImageHandler(imageRequest)
 
@@ -27,11 +28,19 @@ exports.handler = async (event, context, callback) => {
     }
     context.succeed(response)
   } catch (err) {
-    const response = {
+    let response = {
       statusCode: err.status,
       headers: getResponseHeaders(null, true),
       body: JSON.stringify(err),
       isBase64Encoded: false
+    }
+    if(imageRequest && imageRequest.originalImageBody){
+      response = {
+        statusCode: 200,
+        headers: getResponseHeaders(null, true),
+        body: imageRequest.originalImageBody.toString('utf8'),
+        isBase64Encoded: false
+      }
     }
     context.succeed(response)
   }
