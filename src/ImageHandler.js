@@ -1,6 +1,7 @@
 const sharp = require('sharp')
 const fs = require('fs')
 const path = require('path')
+const https = require('https');
 const { spawnSync } = require('child_process')
 
 const settings = require('./helpers/settings')
@@ -72,11 +73,38 @@ class ImageHandler {
       }
     }
 
+    const uploadStatusCode = this.request.destUrl ? await this.uploadImage(this.request.destUrl, bufferImage, contentType) : undefined;
+
     return {
       CacheControl: originalImageObject.CacheControl,
-      Body: bufferImage.toString('base64'),
+      Body: this.shouldReturnEmptyBody(uploadStatusCode) ? "" : bufferImage.toString('base64'),
       ContentType: contentType
     }
+  }
+
+  shouldReturnEmptyBody(uploadResult) {
+    return uploadResult === 200;
+  }
+
+  async uploadImage(destUrl, bufferImage, contentType) {
+    return new Promise((resolve, reject) => {
+      const options = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': contentType,
+          'Content-Length': Buffer.byteLength(bufferImage)
+        }
+      };
+      const request = https.request(destUrl, options, (response) => {
+        resolve(response.statusCode);
+      });
+      request.on('error', function (e) {
+        console.error('Error while uploading image: ' + e.message);
+        reject(e);
+      });
+      request.write(bufferImage);
+      request.end();
+    });
   }
 
   /**
