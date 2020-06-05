@@ -31,6 +31,8 @@ class ImageRequest {
     let qp = this._parseQueryParams()
     qp = await this._inferOutputFormatQp(qp)
 
+    this.destUrl = qp.dest || undefined
+
     this.schema = schemaParser.getSchemaForQueryParams(qp)
     this.edits = schemaParser.normalizeAndValidateSchema(this.schema, qp)
     this.headers = this.event.headers

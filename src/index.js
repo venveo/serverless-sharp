@@ -20,7 +20,7 @@ exports.handler = async (event, context, callback) => {
     const processedRequest = await imageHandler.process()
 
     const response = {
-      statusCode: 200,
+      statusCode: processedRequest.Body ? 200 : 204,
       headers: getResponseHeaders(processedRequest, null),
       body: processedRequest.Body,
       isBase64Encoded: true
