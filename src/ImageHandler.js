@@ -95,7 +95,7 @@ class ImageHandler {
           'Content-Length': Buffer.byteLength(bufferImage)
         }
       };
-      const request = https.request(destUrl, options, (response) => {
+      const request = https.request(new URL(destUrl), options, (response) => {
         resolve(response.statusCode);
       });
       request.on('error', function (e) {
