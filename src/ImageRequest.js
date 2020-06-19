@@ -5,6 +5,7 @@ const sharp = require('sharp')
 const HashException = require('./errors/HashException')
 const settings = require('./helpers/settings')
 const S3Exception = require('./errors/S3Exception')
+const https = require('https')
 
 class ImageRequest {
   constructor (event) {
@@ -25,13 +26,15 @@ class ImageRequest {
    * @return {Promise<void>}
    */
   async process () {
-    this.originalImageObject = await this.getOriginalImage()
+    let qp = this._parseQueryParams()
+
+    this.sourceUrl = qp.source || undefined
+    this.destUrl = qp.dest || undefined
+
+    this.originalImageObject = await this.getOriginalImage(this.sourceUrl)
     this.originalImageBody = this.originalImageObject.Body
 
-    let qp = this._parseQueryParams()
     qp = await this._inferOutputFormatQp(qp)
-
-    this.destUrl = qp.dest || undefined
 
     this.schema = schemaParser.getSchemaForQueryParams(qp)
     this.edits = schemaParser.normalizeAndValidateSchema(this.schema, qp)
@@ -39,12 +42,44 @@ class ImageRequest {
   }
 
   /**
-   * Gets the original image from an Amazon S3 bucket.
-   * @param {String} bucket - The name of the bucket containing the image.
-   * @param {String} key - The key name corresponding to the image.
+   * Gets the original image either from an Amazon S3 bucket or a signed S3 URL.
+   * @param {String} sourceUrl - The original image URL (if any).
    * @return {Promise} - The original image or an error.
    */
-  async getOriginalImage () {
+  async getOriginalImage (sourceUrl) {
+    if (sourceUrl) {
+      return this.getOriginalImageFromUrl(sourceUrl)
+    } else {
+      return this.getOriginalImageFromS3()
+    }
+  }
+
+  async getOriginalImageFromUrl(sourceUrl) {
+    return new Promise((resolve, reject) => {
+      const request = https.get(new URL(sourceUrl), (res) => {
+        let contentBuffer = []
+        let totalBytesInBuffer = 0
+        res.on('data', (chunk) => {
+          contentBuffer.push(chunk)
+          totalBytesInBuffer += chunk.length
+        });
+        res.on('end', () => {
+          resolve({
+              Body: Buffer.concat(contentBuffer, totalBytesInBuffer),
+              ContentType: res.headers["content-type"],
+              CacheControl: res.headers["cache-control"]
+          })
+        })
+      })
+      request.on('error', function (e) {
+        console.error('Error while downloading source image: ' + e.message);
+        reject(e);
+      });
+      request.end();
+    })
+  }
+
+  async getOriginalImageFromS3() {
     const S3 = require('aws-sdk/clients/s3')
     const s3 = new S3()
     const imageLocation = { Bucket: this.bucket, Key: decodeURIComponent(this.key) }
