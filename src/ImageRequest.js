@@ -5,6 +5,7 @@ const sharp = require('sharp')
 const HashException = require('./errors/HashException')
 const settings = require('./helpers/settings')
 const S3Exception = require('./errors/S3Exception')
+const ImageDownloadException = require('./errors/ImageDownloadException')
 const https = require('https')
 
 class ImageRequest {
@@ -64,11 +65,15 @@ class ImageRequest {
           totalBytesInBuffer += chunk.length
         });
         res.on('end', () => {
-          resolve({
+          if(res.statusCode === 200) {
+            resolve({
               Body: Buffer.concat(contentBuffer, totalBytesInBuffer),
               ContentType: res.headers["content-type"],
               CacheControl: res.headers["cache-control"]
-          })
+            })
+          } else {
+            reject(new ImageDownloadException(res.statusCode, res.statusMessage))
+          }
         })
       })
       request.on('error', function (e) {
