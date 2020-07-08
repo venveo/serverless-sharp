@@ -384,9 +384,6 @@
       ],
       "expects": [
         {
-          "type": "hex_color"
-        },
-        {
           "type": "color_keyword"
         },
         {
