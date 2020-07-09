@@ -12,6 +12,7 @@
     "should": "^8.4.0"
   },
   "dependencies": {
+    "axios": "^0.19.2",
     "sharp": "^0.25.2"
   }
 }
