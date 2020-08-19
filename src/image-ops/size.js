@@ -35,7 +35,7 @@ exports.apply = async (image, edits) => {
         this.scaleMax(image, w.processedValue, h.processedValue)
         break
       case 'min':
-        await this.scaleCrop(image, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue, false)
+        await this.scaleCrop(image, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue)
         break
       case 'fill':
         await this.fill(image, edits.fill.processedValue, w.processedValue, h.processedValue, edits['fill-color'].processedValue)
@@ -44,10 +44,10 @@ exports.apply = async (image, edits) => {
         this.scale(image, w.processedValue, h.processedValue)
         break
       case 'crop':
-        await this.scaleCrop(image, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue, true)
+        await this.scaleCrop(image, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue)
         break
       case 'clip':
-        this.scaleClip(image, w.processedValue, h.processedValue, true)
+        this.scaleClip(image, w.processedValue, h.processedValue)
         break
     }
   }
