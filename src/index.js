@@ -44,10 +44,12 @@ exports.handler = async (event, context, callback) => {
  * @param {boolean} isErr - has an error been thrown?
  */
 const getResponseHeaders = (processedRequest, isErr) => {
+  const timenow = new Date()
   const headers = {
     'Access-Control-Allow-Methods': 'GET',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Credentials': true
+    'Access-Control-Allow-Credentials': true,
+    'Last-Modified': timenow.toString()
   }
   const cacheControlDefault = settings.getSetting('DEFAULT_CACHE_CONTROL')
   if (processedRequest) {
