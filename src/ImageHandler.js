@@ -75,7 +75,8 @@ class ImageHandler {
     return {
       CacheControl: originalImageObject.CacheControl,
       Body: bufferImage.toString('base64'),
-      ContentType: contentType
+      ContentType: contentType,
+      ContentLength: Buffer.byteLength(bufferImage, 'base64')
     }
   }
 
@@ -153,7 +154,7 @@ class ImageHandler {
     } else if (fm === 'png') {
       // ensure that we do not reduce quality if param is not given
       if (autoVals.includes('compress') && quality < 100 && edits.q !== undefined) {
-        const minQuality = quality - 20 > 0 ? quality - 20 : 0
+        const minQuality = (quality - 20) > 0 ? (quality - 20) : 0
         const pngQuantOptions = [
           '--speed', settings.getSetting('PNGQUANT_SPEED'),
           '--quality', minQuality + '-' + quality,
@@ -161,9 +162,9 @@ class ImageHandler {
         ]
         const binaryLocation = this.findBin('pngquant')
         if (binaryLocation) {
-          const buffer = await image.png({ compressionLevel: 0 }).toBuffer()
+          const buffer = await image.png().toBuffer()
           const pngquant = spawnSync(binaryLocation, pngQuantOptions, { input: buffer })
-          image = sharp(pngquant.stdout)
+          image = await sharp(pngquant.stdout).png()
         } else {
           console.warn('Skipping pngquant - could not find executable!')
           await image.png({

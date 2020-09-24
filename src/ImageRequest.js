@@ -27,6 +27,7 @@ class ImageRequest {
   async process () {
     this.originalImageObject = await this.getOriginalImage()
     this.originalImageBody = this.originalImageObject.Body
+    this.originalImageSize = this.originalImageObject.ContentLength
 
     let qp = this._parseQueryParams()
     qp = await this._inferOutputFormatQp(qp)

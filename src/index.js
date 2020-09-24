@@ -4,7 +4,6 @@ const security = require('./helpers/security')
 const settings = require('./helpers/settings')
 
 exports.handler = async (event, context, callback) => {
-  // console.log('EVENT\n' + JSON.stringify(event, null, 2))
   const beforeHandle = beforeHandleRequest(event)
 
   if (!beforeHandle.allowed) {
@@ -19,6 +18,13 @@ exports.handler = async (event, context, callback) => {
 
     const processedRequest = await imageHandler.process()
 
+    const originalImageSize = imageRequest.originalImageSize
+    const newImageSize = processedRequest.ContentLength
+    const sizeDifference = newImageSize - originalImageSize
+
+    if (sizeDifference > 0) {
+      console.warn('Output size was larger than input size', { newImageSize, originalImageSize, sizeDifference })
+    }
     const response = {
       statusCode: 200,
       headers: getResponseHeaders(processedRequest, null),
@@ -28,6 +34,8 @@ exports.handler = async (event, context, callback) => {
     if (context && context.succeed) { context.succeed(response) }
     return response
   } catch (err) {
+    console.error('EVENT\n' + JSON.stringify(event, null, 2))
+    console.error(JSON.stringify(err))
     const response = {
       statusCode: err.status,
       headers: getResponseHeaders(null, true),

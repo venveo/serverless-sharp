@@ -3,6 +3,7 @@ service: ${self:custom.settings.serviceName}
 provider:
   name: aws
   runtime: nodejs12.x
+  timeout: 10
   stage: ${opt:stage,'dev'}
   region: ${self:custom.settings.region}
   iamRoleStatements:
