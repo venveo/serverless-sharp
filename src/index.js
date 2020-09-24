@@ -8,8 +8,9 @@ exports.handler = async (event, context, callback) => {
   const beforeHandle = beforeHandleRequest(event)
 
   if (!beforeHandle.allowed) {
-    context.succeed(beforeHandle.response)
-    return
+    if(context && context.succeed)
+      context.succeed(beforeHandle.response)
+    return beforeHandle.response
   }
 
   try {
@@ -25,7 +26,9 @@ exports.handler = async (event, context, callback) => {
       body: processedRequest.Body,
       isBase64Encoded: true
     }
-    context.succeed(response)
+    if(context && context.succeed)
+      context.succeed(response)
+    return response
   } catch (err) {
     const response = {
       statusCode: err.status,
@@ -33,7 +36,9 @@ exports.handler = async (event, context, callback) => {
       body: JSON.stringify(err),
       isBase64Encoded: false
     }
-    context.succeed(response)
+    if(context && context.succeed)
+      context.succeed(response)
+    return response
   }
 }
 
