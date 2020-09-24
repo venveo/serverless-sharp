@@ -7,6 +7,7 @@
 - No longer require serverless-apiw-binary and serverless-apigwy-binary (@tyrauber)
 - Responses now include a Last-Modified header with the generation time for an image (@tyrauber)
 - Security hash is no longer case-sensitive
+- Index function now always returns a response to support middleware applications (@tyrauber)
 
 ### Fixed
 - Fix potential issue processing font expectations (@tyrauber)
