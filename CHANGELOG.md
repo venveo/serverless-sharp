@@ -6,6 +6,7 @@
 - ImageRequest exceptions now throw S3Exception instead of generic Error (@marco-primiceri)
 - No longer require serverless-apiw-binary and serverless-apigwy-binary (@tyrauber)
 - Responses now include a Last-Modified header with the generation time for an image (@tyrauber)
+- Security hash is no longer case-sensitive
 
 ### Fixed
 - Fix potential issue processing font expectations (@tyrauber)
