@@ -1,8 +1,15 @@
 # Changelog
-All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [Unreleased]
+
+### Changed
+- ImageRequest exceptions now throw S3Exception instead of generic Error (@marco-primiceri)
+- No longer require serverless-apiw-binary and serverless-apigwy-binary (@tyrauber)
+- Responses now include a Last-Modified header with the generation time for an image (@tyrauber)
+
+### Fixed
+- Fix potential issue processing font expectations (@tyrauber)
+- Properly capture S3 exceptions (@marco-primiceri)
 
 ## [2.0.6] - 2020-05-13
 
