@@ -76,6 +76,18 @@ describe('Testing hash security', () => {
       },
       '69e5b437c344d538a1d723ae4b5154a8'
     )).toBeTruthy()
+
+    // Tests complex security key as well as capitalized hash
+    process.env.SECURITY_KEY = '#1224$12'
+    expect(security.verifyHash(
+      'test/my-image.jpg.jpg',
+      {
+        q: 100,
+        h: 100,
+        w: 700
+      },
+      '1B43B1D02BE0090698118229933CA2B0'
+    )).toBeTruthy()
   })
 
   test('verifyHash security encoded', () => {
@@ -115,13 +127,13 @@ describe('Testing shouldSkipRequest', () => {
 
   test('RegEx Pattern - Skip', () => {
     process.env.SLS_IGNORE = 'favicon.ico'
-    process.env.SLS_VALID_PATH_REGEX = "^\/images\/.+"
+    process.env.SLS_VALID_PATH_REGEX = '^\/images\/.+'
     expect(security.shouldSkipRequest(path)).toBeFalsy()
   })
 
   test('RegEx Pattern - Dont Skip', () => {
     process.env.SLS_IGNORE = 'favicon.ico'
-    process.env.SLS_VALID_PATH_REGEX = "^\/public-images\/.+"
+    process.env.SLS_VALID_PATH_REGEX = '^\/public-images\/.+'
     expect(security.shouldSkipRequest(path)).toBeTruthy()
   })
 })

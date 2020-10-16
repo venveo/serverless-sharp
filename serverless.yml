@@ -3,6 +3,7 @@ service: ${self:custom.settings.serviceName}
 provider:
   name: aws
   runtime: nodejs12.x
+  timeout: 10
   stage: ${opt:stage,'dev'}
   region: ${self:custom.settings.region}
   iamRoleStatements:
@@ -10,6 +11,9 @@ provider:
       Action:
         - "s3:GetObject"
       Resource: "arn:aws:s3:::${self:custom.settings.environment.SOURCE_BUCKET}/*"
+  apiGateway:
+    binaryMediaTypes:
+      - '*/*'
 
 layers:
   sharp:
@@ -105,10 +109,6 @@ custom:
   serverless-offline:
     httpPort: ${self:custom.settings.offlinePort}
     noPrependStageInUrl: true
-  apigwBinary:
-    types:
-      - '*/*'
+
 plugins:
   - serverless-offline
-  - serverless-apigw-binary
-  - serverless-apigwy-binary
