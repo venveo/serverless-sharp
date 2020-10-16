@@ -34,6 +34,7 @@ class ImageRequest {
 
     this.originalImageObject = await this.getOriginalImage(this.sourceUrl)
     this.originalImageBody = this.originalImageObject.Body
+    this.originalImageSize = this.originalImageObject.ContentLength
 
     qp = await this._inferOutputFormatQp(qp)
 
