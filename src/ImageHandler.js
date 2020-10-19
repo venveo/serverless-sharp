@@ -175,7 +175,7 @@ class ImageHandler {
 
     // adjust quality based on file type
     if (fm === 'jpg' || fm === 'jpeg') {
-      await image.jpeg({
+      await image.flatten({background: {r:255,g:255,b:255}}).jpeg({
         quality: quality,
         trellisQuantisation: true
       })
