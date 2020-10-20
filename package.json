@@ -8,9 +8,7 @@
   },
   "scripts": {
     "test": "jest",
-    "docs": "serve ./docs",
-    "build": "sls package",
-    "deploy": "sls deploy"
+    "docs": "serve ./docs"
   },
   "version": "2.0.6",
   "private": false,
