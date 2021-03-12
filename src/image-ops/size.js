@@ -32,7 +32,7 @@ exports.apply = async (image, edits) => {
         // Should be partially possible in Sharp. Just not a priority
         throw new NotImplementedException()
       case 'max':
-        this.scaleClip(image, w.processedValue, h.processedValue, false)
+        this.scaleMax(image, w.processedValue, h.processedValue, false)
         break
       case 'min':
         await this.scaleCrop(image, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue, false)
