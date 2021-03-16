@@ -18,6 +18,7 @@
 - pngquant was not working properly
 - fit=max was not working properly (@kylecotter)
 - Fix config for custom CloudFormation Outputs. (@dashmug)
+- Don't process SVGs in format=auto (@kylecotter)
 
 ## [2.0.6] - 2020-05-13
 
