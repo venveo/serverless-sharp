@@ -77,6 +77,10 @@ resources:
       Properties:
         DomainName: '${self:custom.settings.environment.CUSTOM_DOMAIN}'
         ValidationMethod: DNS
+  Outputs:
+    CloudFrontDistributionOutput:
+      Value:
+        'Fn::GetAtt': [ CloudFrontDistribution, DomainName ]
 functions:
   index:
     package:
@@ -98,10 +102,6 @@ functions:
           method: get
           contentHandling: CONVERT_TO_BINARY
     environment: ${self:custom.settings.environment}
-Outputs:
-  CloudFrontDistributionOutput:
-    Value:
-      'Fn::GetAtt': [ CloudFrontDistribution, DomainName ]
 custom:
   empty: ''
   settingsFilePath: ${opt:settings,'./settings.yml'}
