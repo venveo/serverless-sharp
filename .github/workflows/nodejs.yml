@@ -27,4 +27,3 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: cp settings.example.yml settings.yml
-      - run: npm run build
