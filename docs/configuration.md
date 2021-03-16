@@ -15,7 +15,6 @@ This is useful if you have different buckets for staging & production. You may a
 ```yaml
 defaults: &defaults
   serviceName: image-handler
-  offlinePort: 80
   region: 'us-east-1'
   environment: &defaults.environment
     DEFAULT_QUALITY: 75
