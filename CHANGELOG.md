@@ -10,6 +10,7 @@
 - Index function now always returns a response to support middleware applications (@tyrauber)
 - Lambda timeout increased from default (6 seconds) to 10 seconds
 - Improve CI workflow (@dashmug)
+- Update to Sharp 0.27.2
 
 ### Fixed
 - Fix potential issue processing font expectations (@tyrauber)

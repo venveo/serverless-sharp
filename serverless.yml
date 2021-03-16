@@ -85,8 +85,6 @@ functions:
   index:
     package:
       individually: true
-      excludeDevDependencies: true
-      browser: false
       exclude:
         - node_modules/**
         - docs/**
