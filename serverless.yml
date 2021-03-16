@@ -24,9 +24,9 @@ layers:
     package:
       include:
         - node_modules/**
-    description: sharp@0.23.4
+    description: sharp@0.27.2
     compatibleRuntimes:
-      - nodejs12.x
+      - nodejs14.x
     licenseInfo: Apache License 2.0
     retain: false
 
@@ -113,9 +113,3 @@ custom:
   empty: ''
   settingsFilePath: ${opt:settings,'./settings.yml'}
   settings: ${file(${self:custom.settingsFilePath}):stages.${self:provider.stage}}
-  serverless-offline:
-    httpPort: ${self:custom.settings.offlinePort}
-    noPrependStageInUrl: true
-
-plugins:
-  - serverless-offline

@@ -15,6 +15,7 @@
 - Improve CI workflow (@dashmug)
 - Update to Sharp 0.27.2
 - Update Lambda runtime to Node 14
+- Removed Serverless Offline plugin due to lack of Node 14 compatibility
 
 ### Fixed
 - Fix potential issue processing font expectations (@tyrauber)
