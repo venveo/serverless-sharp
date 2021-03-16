@@ -26,3 +26,4 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
       - run: npm test
+      - run: cp settings.example.yml settings.yml

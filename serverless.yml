@@ -3,13 +3,19 @@ service: ${self:custom.settings.serviceName}
 provider:
   name: aws
   runtime: nodejs12.x
+  timeout: 10
   stage: ${opt:stage,'dev'}
   region: ${self:custom.settings.region}
-  iamRoleStatements:
-    - Effect: "Allow"
-      Action:
-        - "s3:GetObject"
-      Resource: "arn:aws:s3:::${self:custom.settings.environment.SOURCE_BUCKET}/*"
+  iam:
+    role:
+      statements:
+        - Effect: "Allow"
+          Action:
+            - "s3:GetObject"
+          Resource: "arn:aws:s3:::${self:custom.settings.environment.SOURCE_BUCKET}/*"
+  apiGateway:
+    binaryMediaTypes:
+      - '*/*'
 
 layers:
   sharp:
@@ -65,26 +71,28 @@ resources:
             - Ref: AWS::NoValue
           ViewerCertificate:
             Fn::If:
-            - CreateCertificate
-            - AcmCertificateArn: !If
-              - ArnCertificate
-              - self:custom.settings.environment.ACM_CERTIFICATE_ARN
-              - Ref: Certificate
-              SslSupportMethod: 'sni-only'
-              MinimumProtocolVersion: 'TLSv1'
-            - Ref: AWS::NoValue
+              - CreateCertificate
+              - AcmCertificateArn: !If
+                - ArnCertificate
+                - self:custom.settings.environment.ACM_CERTIFICATE_ARN
+                - Ref: Certificate
+                SslSupportMethod: 'sni-only'
+                MinimumProtocolVersion: 'TLSv1'
+              - Ref: AWS::NoValue
     Certificate:
       Type: AWS::CertificateManager::Certificate
       Condition: CreateCertificate
       Properties:
         ValidationMethod: DNS
         DomainName: '${self:custom.settings.environment.CUSTOM_DOMAIN}'
+  Outputs:
+    CloudFrontDistributionOutput:
+      Value:
+        'Fn::GetAtt': [ CloudFrontDistribution, DomainName ]
 functions:
   index:
     package:
       individually: true
-      excludeDevDependencies: true
-      browser: false
       exclude:
         - node_modules/**
         - docs/**
@@ -93,17 +101,14 @@ functions:
         - coverage/**
     handler: src/index.handler
     layers:
-      - {Ref: SharpLambdaLayer}
+      - { Ref: SharpLambdaLayer }
     events:
       - http:
           path: /{any+}
           method: get
-          contentHandling: CONVERT_TO_BINARY
+          response:
+            contentHandling: CONVERT_TO_BINARY
     environment: ${self:custom.settings.environment}
-Outputs:
-  CloudFrontDistributionOutput:
-    Value:
-      'Fn::GetAtt': [ CloudFrontDistribution, DomainName ]
 custom:
   empty: ''
   settingsFilePath: ${opt:settings,'./settings.yml'}
@@ -111,10 +116,6 @@ custom:
   serverless-offline:
     httpPort: ${self:custom.settings.offlinePort}
     noPrependStageInUrl: true
-  apigwBinary:
-    types:
-      - '*/*'
+
 plugins:
   - serverless-offline
-  - serverless-apigw-binary
-  - serverless-apigwy-binary

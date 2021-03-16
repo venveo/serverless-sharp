@@ -4,6 +4,7 @@ const security = require('./helpers/security')
 const sharp = require('sharp')
 const HashException = require('./errors/HashException')
 const settings = require('./helpers/settings')
+const S3Exception = require('./errors/S3Exception')
 
 class ImageRequest {
   constructor (event) {
@@ -26,6 +27,7 @@ class ImageRequest {
   async process () {
     this.originalImageObject = await this.getOriginalImage()
     this.originalImageBody = this.originalImageObject.Body
+    this.originalImageSize = this.originalImageObject.ContentLength
 
     let qp = this._parseQueryParams()
     qp = await this._inferOutputFormatQp(qp)
@@ -50,11 +52,7 @@ class ImageRequest {
       const originalImage = await request
       return Promise.resolve(originalImage)
     } catch (err) {
-      const error = new Error({
-        status: 404,
-        code: err.code,
-        message: err.message
-      })
+      const error = new S3Exception(err.statusCode, err.code, err.message)
       return Promise.reject(error)
     }
   }

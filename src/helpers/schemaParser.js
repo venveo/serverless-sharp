@@ -360,6 +360,11 @@ exports.processExpectation = (expects = {}, value) => {
       result.processedValue = value
       result.passed = true
       return result
+    case 'font':
+      // TODO:
+      result.processedValue = value
+      result.passed = true
+      return result
     // throw new ExpectationTypeException;
     default:
       console.error('Encountered unknown expectation type: ' + expects.type)

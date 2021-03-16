@@ -4,12 +4,11 @@ const security = require('./helpers/security')
 const settings = require('./helpers/settings')
 
 exports.handler = async (event, context, callback) => {
-  // console.log('EVENT\n' + JSON.stringify(event, null, 2))
   const beforeHandle = beforeHandleRequest(event)
 
   if (!beforeHandle.allowed) {
-    context.succeed(beforeHandle.response)
-    return
+    if (context && context.succeed) { context.succeed(beforeHandle.response) }
+    return beforeHandle.response
   }
 
   try {
@@ -19,21 +18,32 @@ exports.handler = async (event, context, callback) => {
 
     const processedRequest = await imageHandler.process()
 
+    const originalImageSize = imageRequest.originalImageSize
+    const newImageSize = processedRequest.ContentLength
+    const sizeDifference = newImageSize - originalImageSize
+
+    if (sizeDifference > 0) {
+      console.warn('Output size was larger than input size', { newImageSize, originalImageSize, sizeDifference })
+    }
     const response = {
       statusCode: 200,
       headers: getResponseHeaders(processedRequest, null),
       body: processedRequest.Body,
       isBase64Encoded: true
     }
-    context.succeed(response)
+    if (context && context.succeed) { context.succeed(response) }
+    return response
   } catch (err) {
+    console.error('EVENT\n' + JSON.stringify(event, null, 2))
+    console.error(JSON.stringify(err))
     const response = {
       statusCode: err.status,
       headers: getResponseHeaders(null, true),
       body: JSON.stringify(err),
       isBase64Encoded: false
     }
-    context.succeed(response)
+    if (context && context.succeed) { context.succeed(response) }
+    return response
   }
 }
 
@@ -44,10 +54,12 @@ exports.handler = async (event, context, callback) => {
  * @param {boolean} isErr - has an error been thrown?
  */
 const getResponseHeaders = (processedRequest, isErr) => {
+  const timenow = new Date()
   const headers = {
     'Access-Control-Allow-Methods': 'GET',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Credentials': true
+    'Access-Control-Allow-Credentials': true,
+    'Last-Modified': timenow.toString()
   }
   const cacheControlDefault = settings.getSetting('DEFAULT_CACHE_CONTROL')
   if (processedRequest) {
