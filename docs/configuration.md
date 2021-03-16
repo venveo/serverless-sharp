@@ -35,12 +35,14 @@ stages:
       <<: *defaults.environment
       SECURITY_KEY: ''
       CUSTOM_DOMAIN: ''
+      ACM_CERTIFICATE_ARN: ''
   prod:
     <<: *defaults
     environment:
       <<: *defaults.environment
       SECURITY_KEY: 'random-string-here'
       CUSTOM_DOMAIN: 'img.mydomain.com'
+      ACM_CERTIFICATE_ARN: ''
 ```
 
 ## Environment Settings
@@ -50,6 +52,7 @@ The majority of the application and environment specific settings are configured
  |Setting|Default|
  |-|-|
  |[CUSTOM_DOMAIN](#custom_domain)|*empty*|
+ |[ACM_CERTIFICATE_ARN])(#acm_certificate_arn)|*empty*]
  |[DEFAULT_CACHE_CONTROL](#default_cache_control)|*empty*|
  |[DEFAULT_COMPRESS_QUALITY](#default_compress_quality)|75|
  |[DEFAULT_QUALITY](#default_quality)|75|
@@ -81,6 +84,12 @@ This requires deployment in the `us-east-1` region!
 During deployment, you'll need to go into your Amazon ACM console and verify the domain.
 
 </Note>
+
+### `ACM_CERTIFICATE_ARN`
+- type: `string`
+- DEFAULT: *empty*
+
+Use an existing ACM Certificate, by supplying the ACM Certificate Arn.
 
 ### `DEFAULT_CACHE_CONTROL`
 

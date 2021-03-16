@@ -20,6 +20,7 @@ stages:
       SOURCE_BUCKET: 'my-bucket/prefix/path'
       SECURITY_KEY: ''
       CUSTOM_DOMAIN: ''
+      ACM_CERTIFICATE_ARN: ''
   prod:
     <<: *defaults
     environment:
@@ -27,3 +28,4 @@ stages:
       SOURCE_BUCKET: 'random-string-here'
       SECURITY_KEY: ''
       CUSTOM_DOMAIN: 'my.domain.com'
+      ACM_CERTIFICATE_ARN: ''
