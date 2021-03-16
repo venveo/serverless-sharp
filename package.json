@@ -15,13 +15,12 @@
   "version": "2.0.6",
   "private": false,
   "license": "MIT",
-  "dependencies": {},
   "devDependencies": {
     "@types/jest": "^25.2.1",
     "aws-sdk": "^2.668.0",
     "aws-sdk-mock": "^5.1.0",
     "jest": "^26.0.1",
-    "serverless": "^1.69.0",
+    "serverless": "^2.29.0",
     "serverless-offline": "^6.1.5",
     "sharp": "0.25.2",
     "standard": "^14.3.3"

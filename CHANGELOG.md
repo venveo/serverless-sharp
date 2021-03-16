@@ -9,11 +9,14 @@
 - Security hash is no longer case-sensitive
 - Index function now always returns a response to support middleware applications (@tyrauber)
 - Lambda timeout increased from default (6 seconds) to 10 seconds
+- Improve CI workflow (@dashmug)
 
 ### Fixed
 - Fix potential issue processing font expectations (@tyrauber)
 - Properly capture S3 exceptions (@marco-primiceri)
 - pngquant was not working properly
+- fit=max was not working properly (@kylecotter)
+- Fix config for custom CloudFormation Outputs. (@dashmug)
 
 ## [2.0.6] - 2020-05-13
 
