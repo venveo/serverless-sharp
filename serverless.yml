@@ -6,11 +6,13 @@ provider:
   timeout: 10
   stage: ${opt:stage,'dev'}
   region: ${self:custom.settings.region}
-  iamRoleStatements:
-    - Effect: "Allow"
-      Action:
-        - "s3:GetObject"
-      Resource: "arn:aws:s3:::${self:custom.settings.environment.SOURCE_BUCKET}/*"
+  iam:
+    role:
+      statements:
+        - Effect: "Allow"
+          Action:
+            - "s3:GetObject"
+          Resource: "arn:aws:s3:::${self:custom.settings.environment.SOURCE_BUCKET}/*"
   apiGateway:
     binaryMediaTypes:
       - '*/*'
@@ -30,7 +32,7 @@ layers:
 
 resources:
   Conditions:
-    CreateCertificate: !Not [!Equals ["${self:custom.settings.environment.CUSTOM_DOMAIN, ''}", ""]]
+    CreateCertificate: !Not [ !Equals [ "${self:custom.settings.environment.CUSTOM_DOMAIN, ''}", "" ] ]
   Resources:
     CloudFrontDistribution:
       Type: AWS::CloudFront::Distribution
@@ -60,17 +62,17 @@ resources:
                 OriginProtocolPolicy: https-only
           Aliases:
             Fn::If:
-            - CreateCertificate
-            - - '${self:custom.settings.environment.CUSTOM_DOMAIN, self:custom.empty}'
-            - Ref: AWS::NoValue
+              - CreateCertificate
+              - - '${self:custom.settings.environment.CUSTOM_DOMAIN, self:custom.empty}'
+              - Ref: AWS::NoValue
           ViewerCertificate:
             Fn::If:
-            - CreateCertificate
-            - AcmCertificateArn:
-                Ref: Certificate
-              SslSupportMethod: 'sni-only'
-              MinimumProtocolVersion: 'TLSv1'
-            - Ref: AWS::NoValue
+              - CreateCertificate
+              - AcmCertificateArn:
+                  Ref: Certificate
+                SslSupportMethod: 'sni-only'
+                MinimumProtocolVersion: 'TLSv1'
+              - Ref: AWS::NoValue
     Certificate:
       Type: AWS::CertificateManager::Certificate
       Condition: CreateCertificate
@@ -93,7 +95,7 @@ functions:
         - coverage/**
     handler: src/index.handler
     layers:
-      - {Ref: SharpLambdaLayer}
+      - { Ref: SharpLambdaLayer }
     events:
       - http:
           path: /{any+}
