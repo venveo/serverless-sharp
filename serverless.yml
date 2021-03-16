@@ -98,7 +98,8 @@ functions:
       - http:
           path: /{any+}
           method: get
-          contentHandling: CONVERT_TO_BINARY
+          response:
+            contentHandling: CONVERT_TO_BINARY
     environment: ${self:custom.settings.environment}
 custom:
   empty: ''
