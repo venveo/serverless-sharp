@@ -137,9 +137,9 @@ class ImageHandler {
     }
 
     if (autoVals.includes('format')) {
-      // If the browser supports webp, use webp for everything but gifs
+      // If the browser supports webp, use webp for everything but gifs and svgs
       if (headers && 'Accept' in headers) {
-        if (fm !== 'gif' && headers.Accept.indexOf('image/webp') !== -1) {
+        if (fm !== 'gif' && fm !== 'svg' && headers.Accept.indexOf('image/webp') !== -1) {
           fm = 'webp'
         }
       }
