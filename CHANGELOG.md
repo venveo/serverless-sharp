@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- Adds ACM_CERTIFICATE_ARN configuration variable (@tyrauber)
+
 ### Changed
 - ImageRequest exceptions now throw S3Exception instead of generic Error (@marco-primiceri)
 - No longer require serverless-apiw-binary and serverless-apigwy-binary (@tyrauber)
