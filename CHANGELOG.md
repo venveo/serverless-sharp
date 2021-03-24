@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [2.0.7] - 2021-03-24
 
 ### Added
 - Adds ACM_CERTIFICATE_ARN configuration variable (@tyrauber)
