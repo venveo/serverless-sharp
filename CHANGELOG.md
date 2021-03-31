@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.1.1] - 2021-03-31
+### Changed
+- Updated to Sharp 0.28.0
+
 ## [2.1.0] - 2021-03-24
 
 ### Added
