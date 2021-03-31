@@ -137,9 +137,9 @@ class ImageHandler {
     }
 
     if (autoVals.includes('format')) {
-      // If the browser supports webp, use webp for everything but gifs and svgs
-      if (headers && 'Accept' in headers) {
-        if (fm !== 'gif' && fm !== 'svg' && headers.Accept.indexOf('image/webp') !== -1) {
+      if (headers && 'Accept' in headers && fm !== 'gif' && fm !== 'svg') {
+        // If the browser supports webp, use webp for everything but gifs and svgs
+        if (headers.Accept.indexOf('image/webp') !== -1) {
           fm = 'webp'
         }
       }
@@ -147,35 +147,21 @@ class ImageHandler {
 
     // adjust quality based on file type
     if (fm === 'jpg' || fm === 'jpeg') {
-      await image.jpeg({
-        quality: quality,
-        trellisQuantisation: true
-      })
-    } else if (fm === 'png') {
-      // ensure that we do not reduce quality if param is not given
       if (autoVals.includes('compress') && quality < 100 && edits.q !== undefined) {
-        const minQuality = (quality - 20) > 0 ? (quality - 20) : 0
-        const pngQuantOptions = [
-          '--speed', settings.getSetting('PNGQUANT_SPEED'),
-          '--quality', minQuality + '-' + quality,
-          '-' // use stdin
-        ]
-        const binaryLocation = this.findBin('pngquant')
-        if (binaryLocation) {
-          const buffer = await image.png().toBuffer()
-          const pngquant = spawnSync(binaryLocation, pngQuantOptions, { input: buffer })
-          image = await sharp(pngquant.stdout).png()
-        } else {
-          console.warn('Skipping pngquant - could not find executable!')
-          await image.png({
-            quality: quality
-          })
-        }
+        await image.jpeg({
+          quality: quality,
+          mozjpeg: true
+        })
       } else {
+        await image.jpeg({
+          quality: quality,
+          trellisQuantisation: true
+        })
+      }
+    } else if (fm === 'png') {
         await image.png({
           quality: quality
         })
-      }
     } else if (fm === 'webp') {
       const options = {
         quality: quality
@@ -189,21 +175,6 @@ class ImageHandler {
     }
 
     return image
-  }
-
-  /**
-   * TODO: Move me out of here
-   * @param binName
-   * @returns {string}
-   */
-  findBin (binName) {
-    process.env.PATH = process.env.PATH + ':' + process.env.LAMBDA_TASK_ROOT
-    const binPath = path.resolve('./bin/', process.platform, binName)
-
-    if (!fs.existsSync(binPath)) {
-      console.warn('Supposedly could not find binPath, continue anyway.')
-    }
-    return binPath
   }
 }
 
