@@ -2,15 +2,17 @@ service: ${self:custom.settings.serviceName}
 
 provider:
   name: aws
-  runtime: nodejs12.x
+  runtime: nodejs14.x
   timeout: 10
   stage: ${opt:stage,'dev'}
   region: ${self:custom.settings.region}
-  iamRoleStatements:
-    - Effect: "Allow"
-      Action:
-        - "s3:GetObject"
-      Resource: "arn:aws:s3:::${self:custom.settings.environment.SOURCE_BUCKET}/*"
+  iam:
+    role:
+      statements:
+        - Effect: "Allow"
+          Action:
+            - "s3:GetObject"
+          Resource: "arn:aws:s3:::${self:custom.settings.environment.SOURCE_BUCKET}/*"
   apiGateway:
     binaryMediaTypes:
       - '*/*'
@@ -22,15 +24,19 @@ layers:
     package:
       include:
         - node_modules/**
-    description: sharp@0.23.4
+    description: sharp@0.27.2
     compatibleRuntimes:
-      - nodejs12.x
+      - nodejs14.x
     licenseInfo: Apache License 2.0
     retain: false
 
 resources:
   Conditions:
-    CreateCertificate: !Not [!Equals ["${self:custom.settings.environment.CUSTOM_DOMAIN, ''}", ""]]
+    CustomDomain: !Not [!Equals ["${self:custom.settings.environment.CUSTOM_DOMAIN, ''}", ""]]
+    ArnCertificate: !Not [!Equals ["${self:custom.settings.environment.ACM_CERTIFICATE_ARN, ''}", ""]]
+    CreateCertificate: !And
+      - !Not [!Equals ["${self:custom.settings.environment.CUSTOM_DOMAIN, ''}", ""]]
+      - !Equals ["${self:custom.settings.environment.ACM_CERTIFICATE_ARN, ''}", ""]
   Resources:
     CloudFrontDistribution:
       Type: AWS::CloudFront::Distribution
@@ -60,29 +66,33 @@ resources:
                 OriginProtocolPolicy: https-only
           Aliases:
             Fn::If:
-            - CreateCertificate
+            - CustomDomain
             - - '${self:custom.settings.environment.CUSTOM_DOMAIN, self:custom.empty}'
             - Ref: AWS::NoValue
           ViewerCertificate:
             Fn::If:
-            - CreateCertificate
-            - AcmCertificateArn:
-                Ref: Certificate
-              SslSupportMethod: 'sni-only'
-              MinimumProtocolVersion: 'TLSv1'
-            - Ref: AWS::NoValue
+              - CreateCertificate
+              - AcmCertificateArn: !If
+                - ArnCertificate
+                - self:custom.settings.environment.ACM_CERTIFICATE_ARN
+                - Ref: Certificate
+                SslSupportMethod: 'sni-only'
+                MinimumProtocolVersion: 'TLSv1'
+              - Ref: AWS::NoValue
     Certificate:
       Type: AWS::CertificateManager::Certificate
       Condition: CreateCertificate
       Properties:
-        DomainName: '${self:custom.settings.environment.CUSTOM_DOMAIN}'
         ValidationMethod: DNS
+        DomainName: '${self:custom.settings.environment.CUSTOM_DOMAIN}'
+  Outputs:
+    CloudFrontDistributionOutput:
+      Value:
+        'Fn::GetAtt': [ CloudFrontDistribution, DomainName ]
 functions:
   index:
     package:
       individually: true
-      excludeDevDependencies: true
-      browser: false
       exclude:
         - node_modules/**
         - docs/**
@@ -91,24 +101,15 @@ functions:
         - coverage/**
     handler: src/index.handler
     layers:
-      - {Ref: SharpLambdaLayer}
+      - { Ref: SharpLambdaLayer }
     events:
       - http:
           path: /{any+}
           method: get
-          contentHandling: CONVERT_TO_BINARY
+          response:
+            contentHandling: CONVERT_TO_BINARY
     environment: ${self:custom.settings.environment}
-Outputs:
-  CloudFrontDistributionOutput:
-    Value:
-      'Fn::GetAtt': [ CloudFrontDistribution, DomainName ]
 custom:
   empty: ''
   settingsFilePath: ${opt:settings,'./settings.yml'}
   settings: ${file(${self:custom.settingsFilePath}):stages.${self:provider.stage}}
-  serverless-offline:
-    httpPort: ${self:custom.settings.offlinePort}
-    noPrependStageInUrl: true
-
-plugins:
-  - serverless-offline
