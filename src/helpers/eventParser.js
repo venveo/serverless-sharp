@@ -78,7 +78,7 @@ exports.getAcceptedImageFormatsFromHeaders = (headers) => {
   return headers.Accept.toLowerCase()
     .split(',')
     .map((mime) => {
-      return specialFormats[mime.toLowerCase()] ?? null
+      return specialFormats[mime] ?? null
     })
     .filter((e) => e !== null)
 }
