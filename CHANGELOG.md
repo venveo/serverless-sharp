@@ -1,8 +1,16 @@
 # Changelog
 
 ## Unreleased
+### Added
+- Added support for AVIF output with `auto=format`
+
 ### Fixed
 - Fix quality parameter (`q`) not being respected with `auto=format`
+- Fix bug with `lossless` parameter not being respected
+
+### Changed
+- Optimized usage of Sharp by reusing previously created instances more often
+- If browsers support AVIF, it will become the preferred output format for "auto=format" instead of webp
 
 ## [2.1.1] - 2021-03-31
 ### Changed

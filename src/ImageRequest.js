@@ -52,7 +52,7 @@ class ImageRequest {
     }
 
     // TODO: Ensure image is at least 16x16px for avif compatibility - this needs to happen down the line after schema parsing and validation
-    if (this.specialOutputFormats.includes('avif')) {
+    if (specialOutputFormats.includes('avif')) {
       return 'avif'
     }
     // If avif isn't available, use webm
