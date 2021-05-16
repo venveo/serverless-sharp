@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- Fix quality parameter (`q`) not being respected with `auto=format`
+
 ## [2.1.1] - 2021-03-31
 ### Changed
 - Updated to Sharp 0.28.0

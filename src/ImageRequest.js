@@ -29,12 +29,42 @@ class ImageRequest {
     this.originalImageBody = this.originalImageObject.Body
     this.originalImageSize = this.originalImageObject.ContentLength
 
-    let qp = this._parseQueryParams()
-    qp = await this._inferOutputFormatQp(qp)
+    this.sharpObject = sharp(this.originalImageBody)
+    this.originalMetadata = await this.sharpObject.metadata()
 
+    const qp = this._parseQueryParams()
+
+    this.headers = this.event.headers
+
+    if (qp.auto !== undefined) {
+      qp.fm = this.inferAutoFormat()
+    }
     this.schema = schemaParser.getSchemaForQueryParams(qp)
     this.edits = schemaParser.normalizeAndValidateSchema(this.schema, qp)
-    this.headers = this.event.headers
+  }
+
+  inferAutoFormat() {
+    const specialOutputFormats = eventParser.getAcceptedImageFormatsFromHeaders(this.headers)
+    const coercibleFormats = ['jpg', 'png', 'webp', 'avif', 'jpeg', 'tiff']
+
+    if (!coercibleFormats.includes(this.originalMetadata.format)) {
+      return this.originalMetadata.format
+    }
+
+    // TODO: Ensure image is at least 16x16px for avif compatibility - this needs to happen down the line after schema parsing and validation
+    if (this.specialOutputFormats.includes('avif')) {
+      return 'avif'
+    }
+    // If avif isn't available, use webm
+    if (specialOutputFormats.includes('webm')) {
+      return 'webm'
+    }
+    // Coerce pngs and tiffs without alpha channels to jpg
+    if (!this.originalMetadata.hasAlpha && (['png', 'tiff'].contains(this.originalMetadata.format))) {
+      return 'jpeg'
+    }
+    // There's no other coercion worth doing, use original format
+    return this.originalMetadata.format
   }
 
   /**
@@ -88,29 +118,6 @@ class ImageRequest {
       qp = {}
     }
     return schemaParser.replaceAliases(qp)
-  }
-
-  /**
-   * We need to set an output format if one isn't provided. This is necessary to ensure our dependencies are correctly
-   * computed.
-   * @param qp
-   * @return {*}
-   * @private
-   */
-  async _inferOutputFormatQp (qp) {
-    // One is already defined, let's roll with it. Also, use jpg not jpeg (cuz imgix)
-    if (qp.fm !== undefined) {
-      if (qp.fm === 'jpeg') {
-        qp.fm = 'jpg'
-      } else {
-        qp.fm = qp.fm.toLowerCase()
-      }
-      return qp
-    }
-    const image = sharp(this.originalImageBody)
-    const metadata = await image.metadata()
-    qp.fm = metadata.format.toLowerCase() === 'jpeg' ? 'jpg' : metadata.format.toLowerCase()
-    return qp
   }
 }
 
