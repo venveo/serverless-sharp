@@ -55,9 +55,9 @@ class ImageRequest {
     if (specialOutputFormats.includes('avif')) {
       return 'avif'
     }
-    // If avif isn't available, use webm
-    if (specialOutputFormats.includes('webm')) {
-      return 'webm'
+    // If avif isn't available, try to use webp
+    if (specialOutputFormats.includes('webp')) {
+      return 'webp'
     }
     // Coerce pngs and tiffs without alpha channels to jpg
     if (!this.originalMetadata.hasAlpha && (['png', 'tiff'].contains(this.originalMetadata.format))) {
