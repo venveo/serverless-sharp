@@ -110,9 +110,8 @@ class ImageRequest {
   normalizeQueryParams (params = {}) {
     let normalizedParams = schemaParser.replaceAliases(params)
 
-    normalizedParams.fm = this.getAutoFormat() || normalizedParams.fm || this.originalMetadata.format;
+    normalizedParams.fm = this.getAutoFormat() || normalizedParams.fm || this.originalMetadata.format
 
-    console.log(normalizedParams.fm);
     return normalizedParams
   }
 }
