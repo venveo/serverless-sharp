@@ -164,7 +164,7 @@ class ImageHandler {
       }
       image.avif(options)
     } else {
-      image.toFormat(edits.fm.processedValue)
+      image.toFormat(fm)
     }
 
     return image
