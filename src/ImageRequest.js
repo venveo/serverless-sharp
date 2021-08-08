@@ -31,40 +31,40 @@ class ImageRequest {
 
     this.sharpObject = sharp(this.originalImageBody)
     this.originalMetadata = await this.sharpObject.metadata()
-
-    const qp = this._parseQueryParams()
-
     this.headers = this.event.headers
 
-    if (qp.auto !== undefined) {
-      qp.fm = this.inferAutoFormat()
-    }
-    this.schema = schemaParser.getSchemaForQueryParams(qp)
-    this.edits = schemaParser.normalizeAndValidateSchema(this.schema, qp)
+    const queryParams = this.normalizeQueryParams(this.event.queryStringParameters)
+
+    this.schema = schemaParser.getSchemaForQueryParams(queryParams)
+    this.edits = schemaParser.normalizeAndValidateSchema(this.schema, queryParams)
   }
 
-  inferAutoFormat() {
-    const specialOutputFormats = eventParser.getAcceptedImageFormatsFromHeaders(this.headers)
+  getAutoFormat() {
     const coercibleFormats = ['jpg', 'png', 'webp', 'avif', 'jpeg', 'tiff']
+    const autoParam = this.event.multiValueQueryStringParameters.auto
+    const specialOutputFormats = eventParser.getAcceptedImageFormatsFromHeaders(this.headers)
 
-    if (!coercibleFormats.includes(this.originalMetadata.format)) {
-      return this.originalMetadata.format
+    if (
+      !autoParam ||
+      !autoParam.includes('format') ||
+      !coercibleFormats.includes(this.originalMetadata.format)
+    ) {
+      return null
     }
 
-    // TODO: Ensure image is at least 16x16px for avif compatibility - this needs to happen down the line after schema parsing and validation
     if (specialOutputFormats.includes('avif')) {
       return 'avif'
     }
     // If avif isn't available, try to use webp
-    if (specialOutputFormats.includes('webp')) {
+    else if (specialOutputFormats.includes('webp')) {
       return 'webp'
     }
     // Coerce pngs and tiffs without alpha channels to jpg
-    if (!this.originalMetadata.hasAlpha && (['png', 'tiff'].contains(this.originalMetadata.format))) {
+    else if (!this.originalMetadata.hasAlpha && (['png', 'tiff'].includes(this.originalMetadata.format))) {
       return 'jpeg'
     }
-    // There's no other coercion worth doing, use original format
-    return this.originalMetadata.format
+
+    return null
   }
 
   /**
@@ -107,17 +107,12 @@ class ImageRequest {
     return true
   }
 
-  /**
-   * Decodes the image request path associated with default
-   * image requests. Provides error handling for invalid or undefined path values.
-   * @param {Object} event - The proxied request object.
-   */
-  _parseQueryParams () {
-    let qp = this.event.queryStringParameters
-    if (!qp) {
-      qp = {}
-    }
-    return schemaParser.replaceAliases(qp)
+  normalizeQueryParams (params = {}) {
+    let normalizedParams = schemaParser.replaceAliases(params)
+
+    normalizedParams.fm = this.getAutoFormat() || normalizedParams.fm || this.originalMetadata.format
+
+    return normalizedParams
   }
 }
 
