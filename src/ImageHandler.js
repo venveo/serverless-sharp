@@ -37,7 +37,7 @@ class ImageHandler {
     if (Object.keys(this.request.edits).length) {
       try {
         // We're calling rotate on this immediately in order to ensure metadata for rotation doesn't get lost
-        const pipeline = sharp(originalImageBody).rotate()
+        const pipeline = this.request.sharpObject.rotate()
         await this.applyEdits(pipeline, this.request.edits)
         await this.applyOptimizations(pipeline)
         bufferImage = await pipeline.toBuffer()
@@ -65,6 +65,9 @@ class ImageHandler {
         case 'gif':
           contentType = 'image/gif'
           break
+        case 'heif':
+          contentType = 'image/avif'
+          break
         case 'input':
           break
         default:
@@ -87,7 +90,7 @@ class ImageHandler {
    * @param {Object} edits - The edits to be made to the original image.
    */
   async applyEdits (image, edits) {
-    await imageOps.restrictSize(image, await image.metadata())
+    await imageOps.restrictSize(image, this.request.originalMetadata)
     await imageOps.apply(image, edits)
   }
 
@@ -120,58 +123,48 @@ class ImageHandler {
       }
     }
 
-    // Get the image metadata and the initial format
-    const metadata = await image.metadata()
     let fm = edits.fm.processedValue
-    if (fm === null) {
-      fm = metadata.format
-    }
 
     if (autoVals.includes('compress')) {
       quality = settings.getSetting('DEFAULT_COMPRESS_QUALITY')
-      if (!metadata.hasAlpha && (fm === 'png' || fm === 'tiff')) {
-        fm = 'jpeg'
-      } else if (metadata.hasAlpha && fm === 'png') {
-        fm = 'png'
-      }
     }
 
-    if (autoVals.includes('format')) {
-      if (headers && 'Accept' in headers && fm !== 'gif' && fm !== 'svg') {
-        // If the browser supports webp, use webp for everything but gifs and svgs
-        if (headers.Accept.indexOf('image/webp') !== -1) {
-          fm = 'webp'
-        }
-      }
-    }
 
     // adjust quality based on file type
     if (fm === 'jpg' || fm === 'jpeg') {
       if (autoVals.includes('compress') && quality < 100 && edits.q !== undefined) {
-        await image.jpeg({
+        image.jpeg({
           quality: quality,
           mozjpeg: true
         })
       } else {
-        await image.jpeg({
+        image.jpeg({
           quality: quality,
           trellisQuantisation: true
         })
       }
     } else if (fm === 'png') {
-        await image.png({
+        image.png({
           quality: quality
         })
     } else if (fm === 'webp') {
       const options = {
         quality: quality
       }
-      if ('lossless' in edits && edits.lossless === 'true') {
+      if ('lossless' in edits && edits.lossless.processedValue === true) {
         options.lossless = true
       }
-      await image.webp(options)
+      image.webp(options)
+    } else if (fm === 'avif') {
+      const options = {
+        quality: quality
+      }
+      if ('lossless' in edits && edits.lossless.processedValue === true) {
+        options.lossless = true
+      }
+      image.avif(options)
     } else {
-      await image.toFormat(edits.fm)
+      image.toFormat(fm)
     }
 
     return image

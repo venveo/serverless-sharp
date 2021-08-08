@@ -29,12 +29,42 @@ class ImageRequest {
     this.originalImageBody = this.originalImageObject.Body
     this.originalImageSize = this.originalImageObject.ContentLength
 
-    let qp = this._parseQueryParams()
-    qp = await this._inferOutputFormatQp(qp)
-
-    this.schema = schemaParser.getSchemaForQueryParams(qp)
-    this.edits = schemaParser.normalizeAndValidateSchema(this.schema, qp)
+    this.sharpObject = sharp(this.originalImageBody)
+    this.originalMetadata = await this.sharpObject.metadata()
     this.headers = this.event.headers
+
+    const queryParams = this.normalizeQueryParams(this.event.queryStringParameters)
+
+    this.schema = schemaParser.getSchemaForQueryParams(queryParams)
+    this.edits = schemaParser.normalizeAndValidateSchema(this.schema, queryParams)
+  }
+
+  getAutoFormat() {
+    const coercibleFormats = ['jpg', 'png', 'webp', 'avif', 'jpeg', 'tiff']
+    const autoParam = this.event.multiValueQueryStringParameters.auto
+    const specialOutputFormats = eventParser.getAcceptedImageFormatsFromHeaders(this.headers)
+
+    if (
+      !autoParam ||
+      !autoParam.includes('format') ||
+      !coercibleFormats.includes(this.originalMetadata.format)
+    ) {
+      return null
+    }
+
+    if (specialOutputFormats.includes('avif')) {
+      return 'avif'
+    }
+    // If avif isn't available, try to use webp
+    else if (specialOutputFormats.includes('webp')) {
+      return 'webp'
+    }
+    // Coerce pngs and tiffs without alpha channels to jpg
+    else if (!this.originalMetadata.hasAlpha && (['png', 'tiff'].includes(this.originalMetadata.format))) {
+      return 'jpeg'
+    }
+
+    return null
   }
 
   /**
@@ -77,40 +107,12 @@ class ImageRequest {
     return true
   }
 
-  /**
-   * Decodes the image request path associated with default
-   * image requests. Provides error handling for invalid or undefined path values.
-   * @param {Object} event - The proxied request object.
-   */
-  _parseQueryParams () {
-    let qp = this.event.queryStringParameters
-    if (!qp) {
-      qp = {}
-    }
-    return schemaParser.replaceAliases(qp)
-  }
+  normalizeQueryParams (params = {}) {
+    let normalizedParams = schemaParser.replaceAliases(params)
 
-  /**
-   * We need to set an output format if one isn't provided. This is necessary to ensure our dependencies are correctly
-   * computed.
-   * @param qp
-   * @return {*}
-   * @private
-   */
-  async _inferOutputFormatQp (qp) {
-    // One is already defined, let's roll with it. Also, use jpg not jpeg (cuz imgix)
-    if (qp.fm !== undefined) {
-      if (qp.fm === 'jpeg') {
-        qp.fm = 'jpg'
-      } else {
-        qp.fm = qp.fm.toLowerCase()
-      }
-      return qp
-    }
-    const image = sharp(this.originalImageBody)
-    const metadata = await image.metadata()
-    qp.fm = metadata.format.toLowerCase() === 'jpeg' ? 'jpg' : metadata.format.toLowerCase()
-    return qp
+    normalizedParams.fm = this.getAutoFormat() || normalizedParams.fm || this.originalMetadata.format
+
+    return normalizedParams
   }
 }
 

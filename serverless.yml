@@ -113,3 +113,8 @@ custom:
   empty: ''
   settingsFilePath: ${opt:settings,'./settings.yml'}
   settings: ${file(${self:custom.settingsFilePath}):stages.${self:provider.stage}}
+  serverless-offline:
+    httpPort: ${self:custom.settings.offlinePort}
+    noPrependStageInUrl: true
+plugins:
+  - serverless-offline

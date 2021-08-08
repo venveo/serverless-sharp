@@ -60,3 +60,25 @@ exports.processSourceBucket = (fullPath) => {
   }
   return result
 }
+
+/**
+ * Parses headers from an event and retrieves special compatibility cases for modern image types
+ * @param {string} headers
+ * @return {string[]}
+ */
+exports.getAcceptedImageFormatsFromHeaders = (headers) => {
+  if (headers.Accept === undefined || !headers.Accept) {
+    return [];
+  }
+  const specialFormats = {
+    'image/avif': 'avif',
+    'image/apng': 'apng',
+    'image/webp': 'webp'
+  }
+  return headers.Accept.toLowerCase()
+    .split(',')
+    .map((mime) => {
+      return specialFormats[mime] ?? null
+    })
+    .filter((e) => e !== null)
+}
