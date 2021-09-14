@@ -1,0 +1,23 @@
+{
+  "name": "serverless-sharp",
+  "version": "3.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "sharp": "^0.29.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/venveo/serverless-sharp.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/venveo/serverless-sharp/issues"
+  },
+  "homepage": "https://github.com/venveo/serverless-sharp#readme"
+}

@@ -1,0 +1,36 @@
+{
+  "name": "infra-aws",
+  "version": "1.0.0",
+  "description": "AWS Infrastructure for deploying Serverless Sharp",
+  "main": "index.js",
+  "dependencies": {
+    "aws-cdk-lib": "^2.0.0-rc.21",
+    "constructs": "^10.0.0",
+    "@aws-cdk/assert": "^2.0.0-rc.21"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.10",
+    "@types/node": "10.17.27",
+    "jest": "^26.4.2",
+    "ts-jest": "^26.2.0",
+    "aws-cdk": "2.0.0-rc.20",
+    "ts-node": "^9.0.0",
+    "typescript": "~3.9.7"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/venveo/serverless-sharp.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/venveo/serverless-sharp/issues"
+  },
+  "homepage": "https://github.com/venveo/serverless-sharp#readme"
+}

@@ -12,3 +12,14 @@ jspm_packages
 .serverless
 settings.yml
 settings.*.yml
+
+!jest.config.js
+*.d.ts
+node_modules
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out
+.aws-sam
+response.json
+locals.json

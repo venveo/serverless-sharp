@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "target": "es2017",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "importHelpers": true,
+    "declaration": true,
+    "module": "commonjs"
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "**/build",
+    "**/dist",
+    "**/node_modules",
+    "cdk.out",
+    "**/cdk.out",
+    "__mocks__",
+    "**/__mocks__/**",
+    "**/__tests__/**",
+    "**/*.test.ts"
+  ]
+}

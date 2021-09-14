@@ -1,3 +1,5 @@
+# HEY - THIS BRANCH ISN'T READY. DON'T USE IT.
+
 # Serverless Sharp Image Processor
 A solution to dynamically optimize and transform images on the fly, utilizing [Sharp](https://sharp.pixelplumbing.com/en/stable/) and AWS Lambda.
 
