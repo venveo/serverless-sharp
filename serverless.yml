@@ -1,4 +1,6 @@
-service: ${self:custom.settings.serviceName}
+frameworkVersion: '3'
+
+service: serverless-sharp
 
 provider:
   name: aws
@@ -114,6 +116,7 @@ custom:
   settingsFilePath: ${opt:settings,'./settings.yml'}
   settings: ${file(${self:custom.settingsFilePath}):stages.${self:provider.stage}}
   serverless-offline:
+    host: 0.0.0.0
     httpPort: ${self:custom.settings.offlinePort}
     noPrependStageInUrl: true
 plugins:

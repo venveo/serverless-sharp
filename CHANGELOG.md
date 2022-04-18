@@ -1,12 +1,14 @@
 # Changelog
 
-## Unreleased
+## [2.2.0] - Unreleased
 ### Added
 - Added support for AVIF output with `auto=format`
 
 ### Changed
 - Fix potential error with undefined multiValueQueryStringParameters
 - Updated Imgix schema
+- Updated to Serverless framework 3
+- Update Sharp to 30.4
 
 ### Fixed
 - Fix quality parameter (`q`) not being respected with `auto=format`
