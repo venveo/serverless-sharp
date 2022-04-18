@@ -21,8 +21,9 @@
     "aws-sdk-mock": "^5.1.0",
     "jest": "^27.0.0",
     "serverless": "^3.0.0",
+    "serverless-esbuild": "^1.26.2",
     "serverless-offline": "^8.0.0",
-    "sharp": "^0.30.0",
+    "sharp": "0.30.3",
     "standard": "^16.0.3"
   }
 }
