@@ -99,7 +99,7 @@ class ImageHandler {
    * @param image
    * @param edits
    * @param headers
-   * @returns {Promise<Sharp>}
+   * @returns {Promise<sharp>}
    */
   async applyOptimizations (image) {
     // const minColors = 128 // arbitrary number

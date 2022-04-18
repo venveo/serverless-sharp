@@ -80,7 +80,8 @@ const getResponseHeaders = (processedRequest, isErr) => {
 
 const beforeHandleRequest = (event) => {
   const result = {
-    allowed: true
+    allowed: true,
+    response: null
   }
   if (security.shouldSkipRequest(event.path)) {
     result.allowed = false

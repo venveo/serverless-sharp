@@ -18,8 +18,7 @@ exports.calculateHash = (path, queryStringParameters, securityKey) => {
   // properly handle "+" signs
   const encodedPath = fixedEncodeURIComponent(decodeURIComponent(path))
   const source = securityKey + encodedPath + query
-  const parsed = crypto.createHash('md5').update(source).digest('hex')
-  return parsed
+  return crypto.createHash('md5').update(source).digest('hex')
 }
 
 /**
@@ -70,5 +69,8 @@ exports.shouldSkipRequest = (path) => {
     return false
   }
   const validPathRegex = settings.getSetting('SLS_VALID_PATH_REGEX')
-  return !validPathRegex.test(path)
+  if (validPathRegex !== null) {
+    return !validPathRegex.test(path)
+  }
+  return false;
 }
