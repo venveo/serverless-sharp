@@ -4,6 +4,9 @@
 ### Added
 - Added support for AVIF output with `auto=format`
 
+### Changed
+- Updated Imgix schema
+
 ### Fixed
 - Fix quality parameter (`q`) not being respected with `auto=format`
 - Fix bug with `lossless` parameter not being respected
