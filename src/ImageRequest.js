@@ -41,7 +41,10 @@ class ImageRequest {
 
   getAutoFormat() {
     const coercibleFormats = ['jpg', 'png', 'webp', 'avif', 'jpeg', 'tiff']
-    const autoParam = this.event.multiValueQueryStringParameters.auto
+    let autoParam = null
+    if (this.event.multiValueQueryStringParameters && this.event.multiValueQueryStringParameters.auto) {
+      autoParam = this.event.multiValueQueryStringParameters.auto
+    }
     const specialOutputFormats = eventParser.getAcceptedImageFormatsFromHeaders(this.headers)
 
     if (
@@ -108,6 +111,9 @@ class ImageRequest {
   }
 
   normalizeQueryParams (params = {}) {
+    if (!params) {
+      params = {}
+    }
     let normalizedParams = schemaParser.replaceAliases(params)
 
     normalizedParams.fm = this.getAutoFormat() || normalizedParams.fm || this.originalMetadata.format

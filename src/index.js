@@ -34,8 +34,8 @@ exports.handler = async (event, context, callback) => {
     if (context && context.succeed) { context.succeed(response) }
     return response
   } catch (err) {
-    console.error('EVENT\n' + JSON.stringify(event, null, 2))
-    console.error(JSON.stringify(err))
+    console.error(err);
+    // console.error('EVENT\n' + JSON.stringify(event, null, 2))
     const response = {
       statusCode: err.status,
       headers: getResponseHeaders(null, true),

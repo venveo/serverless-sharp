@@ -5,6 +5,7 @@
 - Added support for AVIF output with `auto=format`
 
 ### Changed
+- Fix potential error with undefined multiValueQueryStringParameters
 - Updated Imgix schema
 
 ### Fixed
