@@ -82,10 +82,3 @@ export function getAcceptedImageFormatsFromHeaders(headers) {
     })
     .filter((e) => e !== null)
 }
-
-export default {
-  getAcceptedImageFormatsFromHeaders,
-  processSourceBucket,
-  buildQueryStringFromObject,
-  parseImageKey
-}

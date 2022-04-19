@@ -104,7 +104,3 @@ const processStringArray = function (value) {
 const processRegExValue = function (value) {
   return new RegExp(value)
 }
-
-export default {
-  getSetting
-}

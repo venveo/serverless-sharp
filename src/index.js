@@ -1,7 +1,8 @@
-import ImageRequest from "./ImageRequest.js";
-import ImageHandler from "./ImageHandler.js";
-import security from "./helpers/security";
-import settings from "./helpers/settings";
+import ImageRequest from "./ImageRequest";
+import ImageHandler from "./ImageHandler";
+
+import {shouldSkipRequest} from "./helpers/security";
+import {getSetting} from "./helpers/settings";
 
 export async function handler(event, context, callback) {
   const beforeHandle = beforeHandleRequest(event)
@@ -27,7 +28,7 @@ export async function handler(event, context, callback) {
     }
     const response = {
       statusCode: 200,
-      headers: getResponseHeaders(processedRequest, null),
+      headers: getResponseHeaders(processedRequest, false),
       body: processedRequest.Body,
       isBase64Encoded: true
     }
@@ -61,7 +62,7 @@ const getResponseHeaders = (processedRequest, isErr) => {
     'Access-Control-Allow-Credentials': true,
     'Last-Modified': timenow.toString()
   }
-  const cacheControlDefault = settings.getSetting('DEFAULT_CACHE_CONTROL')
+  const cacheControlDefault = getSetting('DEFAULT_CACHE_CONTROL')
   if (processedRequest) {
     if ('CacheControl' in processedRequest && processedRequest.CacheControl !== undefined) {
       headers['Cache-Control'] = processedRequest.CacheControl
@@ -85,7 +86,7 @@ const beforeHandleRequest = (event) => {
   }
   // Handle API Gateway events AND Lambda URL events
   const path = event['rawPath'] !== undefined ? event.rawPath : event.path
-  if (security.shouldSkipRequest(path)) {
+  if (shouldSkipRequest(path)) {
     result.allowed = false
     result.response = {
       statusCode: 404,

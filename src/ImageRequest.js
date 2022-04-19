@@ -1,26 +1,26 @@
 import sharp from 'sharp'
 
-import eventParser from "./helpers/eventParser";
-import schemaParser from "./helpers/schemaParser";
-import security from "./helpers/security";
+import {getAcceptedImageFormatsFromHeaders, parseImageKey, processSourceBucket} from "./helpers/eventParser";
+import {replaceAliases, getSchemaForQueryParams, normalizeAndValidateSchema} from "./helpers/schemaParser";
+import {verifyHash} from "./helpers/security";
+import {getSetting} from "./helpers/settings";
 import HashException from "./errors/HashException";
-import settings from "./helpers/settings";
 import S3Exception from "./errors/S3Exception";
 
 export default class ImageRequest {
   constructor (event) {
     this.event = event
     // If the hash isn't set when it should be, we'll throw an error.
-    if (settings.getSetting('SECURITY_KEY')) {
+    if (getSetting('SECURITY_KEY')) {
       this.checkHash()
     }
 
-    const { bucket, prefix } = eventParser.processSourceBucket(settings.getSetting('SOURCE_BUCKET'))
+    const { bucket, prefix } = processSourceBucket(getSetting('SOURCE_BUCKET'))
     this.bucket = bucket
     this.prefix = prefix
     // Handle API Gateway event and Lambda URL event
     const path = event.path !== undefined ? event.path : event.rawPath
-    this.key = eventParser.parseImageKey(path, prefix)
+    this.key = parseImageKey(path, prefix)
   }
 
   /**
@@ -38,8 +38,8 @@ export default class ImageRequest {
 
     const queryParams = this.normalizeQueryParams(this.event.queryStringParameters)
 
-    this.schema = schemaParser.getSchemaForQueryParams(queryParams)
-    this.edits = schemaParser.normalizeAndValidateSchema(this.schema, queryParams)
+    this.schema = getSchemaForQueryParams(queryParams)
+    this.edits = normalizeAndValidateSchema(this.schema, queryParams)
   }
 
   getAutoFormat() {
@@ -48,7 +48,7 @@ export default class ImageRequest {
     if (this.event.multiValueQueryStringParameters && this.event.multiValueQueryStringParameters.auto) {
       autoParam = this.event.multiValueQueryStringParameters.auto
     }
-    const specialOutputFormats = eventParser.getAcceptedImageFormatsFromHeaders(this.headers)
+    const specialOutputFormats = getAcceptedImageFormatsFromHeaders(this.headers)
 
     if (
       !autoParam ||
@@ -75,9 +75,6 @@ export default class ImageRequest {
 
   /**
    * Gets the original image from an Amazon S3 bucket.
-   * @param {String} bucket - The name of the bucket containing the image.
-   * @param {String} key - The key name corresponding to the image.
-   * @return {Promise} - The original image or an error.
    */
   async getOriginalImage () {
     const S3 = require('aws-sdk/clients/s3')
@@ -104,7 +101,7 @@ export default class ImageRequest {
     }
     if (queryStringParameters) {
       const hash = queryStringParameters.s
-      const isValid = security.verifyHash(path, queryStringParameters, hash)
+      const isValid = verifyHash(path, queryStringParameters, hash)
       if (!isValid) {
         throw new HashException()
       }
@@ -116,7 +113,7 @@ export default class ImageRequest {
     if (!params) {
       params = {}
     }
-    let normalizedParams = schemaParser.replaceAliases(params)
+    let normalizedParams = replaceAliases(params)
 
     normalizedParams.fm = this.getAutoFormat() || normalizedParams.fm || this.originalMetadata.format
 

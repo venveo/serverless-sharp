@@ -1,7 +1,7 @@
-import settings from "./helpers/settings";
+import {getSetting} from "./helpers/settings";
 
 import ImageRequest from "./ImageRequest";
-import imageOps from "./image-ops";
+import * as imageOps from "./image-ops";
 
 const fs = require('fs')
 const path = require('path')
@@ -112,7 +112,7 @@ export default class ImageHandler {
     }
 
     // Determine our quality - if it was implicitly determined, we'll use the environment setting rather than the schema
-    let quality = settings.getSetting('DEFAULT_QUALITY')
+    let quality = getSetting('DEFAULT_QUALITY')
     if (edits.q.implicit !== true) {
       quality = parseInt(edits.q.processedValue)
       if (quality < 1) {
@@ -125,7 +125,7 @@ export default class ImageHandler {
     let fm = edits.fm.processedValue
 
     if (autoVals.includes('compress')) {
-      quality = settings.getSetting('DEFAULT_COMPRESS_QUALITY')
+      quality = getSetting('DEFAULT_COMPRESS_QUALITY')
     }
 
 

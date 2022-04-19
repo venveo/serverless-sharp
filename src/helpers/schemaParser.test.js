@@ -1,5 +1,5 @@
 /* eslint-env jest */
-import schemaParser from './schemaParser'
+import * as schemaParser from './schemaParser'
 import ExpectationTypeException from "../errors/ExpectationTypeException";
 
 test('replaceAliases - compare objects', () => {

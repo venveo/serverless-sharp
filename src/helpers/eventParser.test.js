@@ -1,5 +1,5 @@
 /* eslint-env jest */
-import eventParser from "./eventParser";
+import * as eventParser from "./eventParser";
 
 test('parseImageKey gets basic path', () => {
   expect(eventParser.parseImageKey('images/image.png')).toEqual('images/image.png')

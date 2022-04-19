@@ -19,8 +19,3 @@ export function blur(image, val) {
   result *= 0.22
   image.blur(result)
 }
-
-export default {
-  blur,
-  apply
-}

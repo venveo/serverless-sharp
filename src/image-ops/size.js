@@ -302,13 +302,3 @@ export async function beforeApply(image, edits) {
     }
   }
 }
-
-export default {
-  beforeApply,
-  scaleCrop,
-  scale,
-  fill,
-  scaleClip,
-  scaleMax,
-  apply
-}

@@ -372,12 +372,3 @@ export function processExpectation(expects = {}, value) {
       break
   }
 }
-
-export default {
-  getSchemaForQueryParams,
-  replaceAliases,
-  normalizeAndValidateSchema,
-  processDefaults,
-  processDependencies,
-  processExpectation
-}

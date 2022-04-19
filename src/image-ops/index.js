@@ -1,6 +1,6 @@
-import settings from "../helpers/settings";
-import size from "./size";
-import stylize from "./stylize";
+import {getSetting} from "../helpers/settings";
+import * as size from "./size";
+import * as stylize from "./stylize";
 
 const operationsByCategory = {
   size: size.apply,
@@ -31,17 +31,12 @@ export async function apply(image, edits) {
 }
 
 export async function restrictSize(image, metadata) {
-  const maxImgWidth = settings.getSetting('MAX_IMAGE_WIDTH')
-  const maxImgHeight = settings.getSetting('MAX_IMAGE_HEIGHT')
+  const maxImgWidth = getSetting('MAX_IMAGE_WIDTH')
+  const maxImgHeight = getSetting('MAX_IMAGE_HEIGHT')
   if ((maxImgWidth && metadata.width > maxImgWidth) || (maxImgHeight && metadata.height > maxImgHeight)) {
     const aspectRatio = parseFloat(metadata.width) / metadata.height
     const width = aspectRatio >= 1 ? maxImgWidth : null
     const height = width === null ? maxImgHeight : null
     await size.scaleMax(image, width, height)
   }
-}
-
-export default {
-  restrictSize,
-  apply
 }
