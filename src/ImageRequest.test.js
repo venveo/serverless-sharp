@@ -1,7 +1,7 @@
 /* eslint-env jest */
-const ImageRequest = require('./ImageRequest')
-
-const HashException = require('./errors/HashException')
+import ImageRequest from "./ImageRequest";
+import HashException from "./errors/HashException";
+import security from "./helpers/security";
 
 describe('Testing ImageRequest', () => {
   const OLD_ENV = process.env
@@ -36,7 +36,6 @@ describe('Testing ImageRequest', () => {
       path: '/some/prefix/images/my-object.png'
     }
     event.queryStringParameters = {}
-    const security = require('./helpers/security')
     process.env.SECURITY_KEY = '12345asdf'
     process.env.SOURCE_BUCKET = 'assets.test.com/some/prefix'
 

@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const security = require('./security')
+import security from './security'
 
 describe('Testing hash security', () => {
   const OLD_ENV = process.env

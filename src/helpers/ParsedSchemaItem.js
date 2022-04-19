@@ -1,4 +1,4 @@
-class ParsedSchemaItem {
+export default class ParsedSchemaItem {
   constructor (processedValue, passed, implicit = false, schema, expectation) {
     this.processedValue = processedValue
     this.passed = passed
@@ -8,4 +8,3 @@ class ParsedSchemaItem {
   }
 }
 
-module.exports = ParsedSchemaItem

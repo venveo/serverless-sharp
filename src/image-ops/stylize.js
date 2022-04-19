@@ -1,15 +1,15 @@
-exports.apply = (image, edits) => {
+export function apply(image, edits) {
   if (edits.blur) {
-    this.blur(image, edits.blur.processedValue)
+    blur(image, edits.blur.processedValue)
   }
 }
 
 /**
  *
- * @param {Sharp} image
+ * @param {sharp} image
  * @param {number} val
  */
-exports.blur = (image, val) => {
+export function blur(image, val) {
   if (val === 0) {
     return
   }
@@ -18,4 +18,9 @@ exports.blur = (image, val) => {
   // Seems like Imgix blurs a little less than we do, so this is just a magic number to make them more similar
   result *= 0.22
   image.blur(result)
+}
+
+export default {
+  blur,
+  apply
 }

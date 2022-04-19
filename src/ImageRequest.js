@@ -1,13 +1,13 @@
 import sharp from 'sharp'
 
-const eventParser = require('./helpers/eventParser')
-const schemaParser = require('./helpers/schemaParser')
-const security = require('./helpers/security')
-const HashException = require('./errors/HashException')
-const settings = require('./helpers/settings')
-const S3Exception = require('./errors/S3Exception')
+import eventParser from "./helpers/eventParser";
+import schemaParser from "./helpers/schemaParser";
+import security from "./helpers/security";
+import HashException from "./errors/HashException";
+import settings from "./helpers/settings";
+import S3Exception from "./errors/S3Exception";
 
-class ImageRequest {
+export default class ImageRequest {
   constructor (event) {
     this.event = event
     // If the hash isn't set when it should be, we'll throw an error.
@@ -18,14 +18,9 @@ class ImageRequest {
     const { bucket, prefix } = eventParser.processSourceBucket(settings.getSetting('SOURCE_BUCKET'))
     this.bucket = bucket
     this.prefix = prefix
-    let path = null;
-    if (event['path'] !== undefined) {
-      path = event.path
-    } else if(event['rawPath'] !== undefined) {
-      path = event.rawPath
-    }
+    // Handle API Gateway event and Lambda URL event
+    const path = event.path !== undefined ? event.path : event.rawPath
     this.key = eventParser.parseImageKey(path, prefix)
-    console.log('This: ', this)
   }
 
   /**
@@ -101,7 +96,6 @@ class ImageRequest {
   /**
    * Parses the name of the appropriate Amazon S3 key corresponding to the
    * original image.
-   * @param {Object} event - Lambda request body.
    */
   checkHash () {
     const { queryStringParameters, path } = this.event
@@ -129,5 +123,3 @@ class ImageRequest {
     return normalizedParams
   }
 }
-
-module.exports = ImageRequest

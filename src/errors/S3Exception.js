@@ -1,4 +1,4 @@
-module.exports = class S3Exception extends Error {
+export default class S3Exception extends Error {
   constructor (status, code, message) {
     super()
     this.name = 'S3Exception'

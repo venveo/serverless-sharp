@@ -1,4 +1,4 @@
-const SettingsException = require('../errors/SettingsException')
+import SettingsException from "../errors/SettingsException";
 
 const TYPE_INTEGER = 'integer'
 const TYPE_ARRAY_STRING = 'arraystring'
@@ -57,7 +57,7 @@ const settings = {
  * @param key
  * @return {string|null}
  */
-exports.getSetting = function (key) {
+export function getSetting(key) {
   if (!(key in settings)) {
     throw new SettingsException()
   }
@@ -103,4 +103,8 @@ const processStringArray = function (value) {
 
 const processRegExValue = function (value) {
   return new RegExp(value)
+}
+
+export default {
+  getSetting
 }

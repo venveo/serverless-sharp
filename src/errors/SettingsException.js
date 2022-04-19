@@ -1,4 +1,4 @@
-module.exports = class SettingsException extends Error {
+export default class SettingsException extends Error {
   constructor (message = 'Invalid configuration') {
     super()
     this.name = 'SettingsException'

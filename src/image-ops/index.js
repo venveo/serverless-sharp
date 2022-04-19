@@ -1,6 +1,6 @@
-const size = require('./size')
-const stylize = require('./stylize')
-const settings = require('../helpers/settings')
+import settings from "../helpers/settings";
+import size from "./size";
+import stylize from "./stylize";
 
 const operationsByCategory = {
   size: size.apply,
@@ -14,7 +14,7 @@ const operationsByCategory = {
  * @param edits
  * @return {Promise<void>}
  */
-exports.apply = async (image, edits) => {
+export async function apply(image, edits) {
   const editsByCategory = {}
   for (const edit in edits) {
     if (editsByCategory[edits[edit].schema.category] === undefined) {
@@ -30,7 +30,7 @@ exports.apply = async (image, edits) => {
   }
 }
 
-exports.restrictSize = async (image, metadata) => {
+export async function restrictSize(image, metadata) {
   const maxImgWidth = settings.getSetting('MAX_IMAGE_WIDTH')
   const maxImgHeight = settings.getSetting('MAX_IMAGE_HEIGHT')
   if ((maxImgWidth && metadata.width > maxImgWidth) || (maxImgHeight && metadata.height > maxImgHeight)) {
@@ -39,4 +39,9 @@ exports.restrictSize = async (image, metadata) => {
     const height = width === null ? maxImgHeight : null
     await size.scaleMax(image, width, height)
   }
+}
+
+export default {
+  restrictSize,
+  apply
 }

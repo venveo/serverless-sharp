@@ -1,4 +1,4 @@
-module.exports = class InvalidDimensionsException extends Error {
+export default class InvalidDimensionsException extends Error {
   constructor (args) {
     super(args)
     this.name = 'InvalidDimensions'

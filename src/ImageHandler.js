@@ -1,12 +1,12 @@
+import settings from "./helpers/settings";
+
+import ImageRequest from "./ImageRequest";
+import imageOps from "./image-ops";
+
 const fs = require('fs')
 const path = require('path')
 const { spawnSync } = require('child_process')
-
-const settings = require('./helpers/settings')
-const ImageRequest = require('./ImageRequest')
-const imageOps = require('./image-ops')
-
-class ImageHandler {
+export default class ImageHandler {
   /**
    * @param {ImageRequest} request
    */
@@ -85,7 +85,7 @@ class ImageHandler {
   /**
    * Applies image modifications to the original image based on edits
    * specified in the ImageRequest.
-   * @param {sharp} originalImage - The original image.
+   * @param {sharp} image - The original image.
    * @param {Object} edits - The edits to be made to the original image.
    */
   async applyEdits (image, edits) {
@@ -170,5 +170,3 @@ class ImageHandler {
   }
 }
 
-// Exports
-module.exports = ImageHandler

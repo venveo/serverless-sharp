@@ -4,12 +4,12 @@
  * @param uri
  * @param requiredPrefix
  */
-exports.parseImageKey = (uri, requiredPrefix = null) => {
+export function parseImageKey(uri, requiredPrefix = null) {
   // Decode the image request and return the image key
   // Ensure the path starts with our prefix
   let key = decodeURI(uri)
   if (key.startsWith('/')) {
-    key = key.substr(1)
+    key = key.substring(1)
   }
 
   if (requiredPrefix) {
@@ -26,7 +26,7 @@ exports.parseImageKey = (uri, requiredPrefix = null) => {
  * @returns {string}
  * @private
  */
-exports.buildQueryStringFromObject = (queryStringParameters) => {
+export function buildQueryStringFromObject(queryStringParameters) {
   let string = ''
   for (const [k, v] of Object.entries(queryStringParameters)) {
     // Don't hash the security token
@@ -46,7 +46,7 @@ exports.buildQueryStringFromObject = (queryStringParameters) => {
  * @param fullPath
  * @returns {{bucket: null, prefix: string}}
  */
-exports.processSourceBucket = (fullPath) => {
+export function processSourceBucket(fullPath) {
   const result = {
     prefix: '',
     bucket: null
@@ -66,7 +66,7 @@ exports.processSourceBucket = (fullPath) => {
  * @param {string} headers
  * @return {string[]}
  */
-exports.getAcceptedImageFormatsFromHeaders = (headers) => {
+export function getAcceptedImageFormatsFromHeaders(headers) {
   if (headers.Accept === undefined || !headers.Accept) {
     return [];
   }
@@ -81,4 +81,11 @@ exports.getAcceptedImageFormatsFromHeaders = (headers) => {
       return specialFormats[mime] ?? null
     })
     .filter((e) => e !== null)
+}
+
+export default {
+  getAcceptedImageFormatsFromHeaders,
+  processSourceBucket,
+  buildQueryStringFromObject,
+  parseImageKey
 }

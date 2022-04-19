@@ -1,7 +1,7 @@
-const ImageRequest = require('./ImageRequest.js')
-const ImageHandler = require('./ImageHandler.js')
-const security = require('./helpers/security')
-const settings = require('./helpers/settings')
+import ImageRequest from "./ImageRequest.js";
+import ImageHandler from "./ImageHandler.js";
+import security from "./helpers/security";
+import settings from "./helpers/settings";
 
 export async function handler(event, context, callback) {
   const beforeHandle = beforeHandleRequest(event)
