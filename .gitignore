@@ -12,3 +12,5 @@ jspm_packages
 .serverless
 settings.yml
 settings.*.yml
+
+.esbuild

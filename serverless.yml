@@ -117,12 +117,13 @@ custom:
   esbuild:
     bundle: true
     minify: false
+    sourcemap: true
+    keepNames: true
     exclude:
       - sharp
       - aws-sdk
     external:
       - sharp
-
 plugins:
   - serverless-esbuild
   - serverless-offline
