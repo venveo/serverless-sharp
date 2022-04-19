@@ -1,8 +1,7 @@
 /**
  * This file should be restricted to dimensional size alterations to the image
  */
-
-const sharp = require('sharp')
+import sharp from 'sharp'
 const schema = require('../../data/schema')
 
 const NotImplementedException = require('../errors/NotImplementedException')

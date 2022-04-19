@@ -3,7 +3,7 @@ const ImageHandler = require('./ImageHandler.js')
 const security = require('./helpers/security')
 const settings = require('./helpers/settings')
 
-exports.handler = async (event, context, callback) => {
+export async function handler(event, context, callback) {
   const beforeHandle = beforeHandleRequest(event)
 
   if (!beforeHandle.allowed) {
@@ -83,7 +83,9 @@ const beforeHandleRequest = (event) => {
     allowed: true,
     response: null
   }
-  if (security.shouldSkipRequest(event.path)) {
+  // Handle API Gateway events AND Lambda URL events
+  const path = event['rawPath'] !== undefined ? event.rawPath : event.path
+  if (security.shouldSkipRequest(path)) {
     result.allowed = false
     result.response = {
       statusCode: 404,

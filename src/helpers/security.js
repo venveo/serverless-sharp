@@ -59,7 +59,7 @@ exports.shouldSkipRequest = (path) => {
   if (settings.getSetting('SLS_IGNORE')) {
     const filesToIgnore = settings.getSetting('SLS_IGNORE')
     // Remove the starting slash and check if the file should be ignored
-    if (filesToIgnore.includes(path.substr(1))) {
+    if (filesToIgnore.includes(path.substring(1))) {
       return true
     }
   }

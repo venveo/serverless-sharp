@@ -1,7 +1,8 @@
+import sharp from 'sharp'
+
 const eventParser = require('./helpers/eventParser')
 const schemaParser = require('./helpers/schemaParser')
 const security = require('./helpers/security')
-const sharp = require('sharp')
 const HashException = require('./errors/HashException')
 const settings = require('./helpers/settings')
 const S3Exception = require('./errors/S3Exception')
@@ -17,7 +18,14 @@ class ImageRequest {
     const { bucket, prefix } = eventParser.processSourceBucket(settings.getSetting('SOURCE_BUCKET'))
     this.bucket = bucket
     this.prefix = prefix
-    this.key = eventParser.parseImageKey(event.path, prefix)
+    let path = null;
+    if (event['path'] !== undefined) {
+      path = event.path
+    } else if(event['rawPath'] !== undefined) {
+      path = event.rawPath
+    }
+    this.key = eventParser.parseImageKey(path, prefix)
+    console.log('This: ', this)
   }
 
   /**

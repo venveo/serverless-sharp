@@ -14,7 +14,9 @@ provider:
         - Effect: "Allow"
           Action:
             - "s3:GetObject"
-          Resource: "arn:aws:s3:::${self:custom.settings.environment.SOURCE_BUCKET}/*"
+          Resource:
+            - "arn:aws:s3:::${self:custom.settings.environment.SOURCE_BUCKET}"
+            - "arn:aws:s3:::${self:custom.settings.environment.SOURCE_BUCKET}/*"
   apiGateway:
     binaryMediaTypes:
       - '*/*'
@@ -26,7 +28,7 @@ layers:
     package:
       include:
         - node_modules/**
-    description: sharp@0.30.3
+    description: sharp@0.27.2
     compatibleRuntimes:
       - nodejs14.x
     licenseInfo: Apache License 2.0
@@ -93,14 +95,6 @@ resources:
         'Fn::GetAtt': [ CloudFrontDistribution, DomainName ]
 functions:
   index:
-    package:
-      individually: true
-      exclude:
-        - node_modules/**
-        - docs/**
-        - .idea/**
-        - bin/darwin/**
-        - coverage/**
     handler: src/index.handler
     layers:
       - { Ref: SharpLambdaLayer }
@@ -111,6 +105,7 @@ functions:
           response:
             contentHandling: CONVERT_TO_BINARY
     environment: ${self:custom.settings.environment}
+#    url: true TODO: Switch to URLs
 custom:
   empty: ''
   settingsFilePath: ${opt:settings,'./settings.yml'}
@@ -119,5 +114,15 @@ custom:
     host: 0.0.0.0
     httpPort: ${self:custom.settings.offlinePort}
     noPrependStageInUrl: true
+  esbuild:
+    bundle: true
+    minify: false
+    exclude:
+      - sharp
+      - aws-sdk
+    external:
+      - sharp
+
 plugins:
+  - serverless-esbuild
   - serverless-offline
