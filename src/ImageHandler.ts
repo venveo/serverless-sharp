@@ -3,17 +3,10 @@ import {getSetting} from "./helpers/settings";
 import ImageRequest from "./ImageRequest";
 import * as imageOps from "./image-ops";
 
-const fs = require('fs')
-const path = require('path')
-const { spawnSync } = require('child_process')
 export default class ImageHandler {
-  /**
-   * @param {ImageRequest} request
-   */
-  constructor (request) {
-    if (!(request instanceof ImageRequest)) {
-      throw new Error('Expected request of type ImageRequest')
-    }
+  private readonly request: ImageRequest;
+
+  constructor (request: ImageRequest) {
     if (!request.originalImageObject) {
       throw new Error('Image not found or request not fully processed!')
     }

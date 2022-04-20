@@ -1,5 +1,10 @@
 import {Sharp} from "sharp";
 
+/**
+ *
+ * @param image
+ * @param edits
+ */
 export function apply(image: Sharp, edits) {
   if (edits.blur) {
     blur(image, edits.blur.processedValue)
@@ -8,8 +13,8 @@ export function apply(image: Sharp, edits) {
 
 /**
  *
- * @param {Sharp} image
- * @param {number} val
+ * @param image
+ * @param val
  */
 export function blur(image: Sharp, val: number) {
   if (val === 0) {

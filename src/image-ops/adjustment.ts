@@ -20,8 +20,8 @@ export function apply(image: Sharp, edits) {
 
 /**
  *
- * @param {sharp} image
- * @param {number} val
+ * @param image
+ * @param val
  */
 export function bri(image: Sharp, val: number) {
   // TODO: This is wrong! Brightness in imgix is -200-200 for SOME REASON??
