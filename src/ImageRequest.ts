@@ -8,7 +8,23 @@ import HashException from "./errors/HashException";
 import S3Exception from "./errors/S3Exception";
 
 export default class ImageRequest {
-  constructor (event) {
+  bucket: string|null
+  prefix: string|null
+
+  key: string
+  event: object
+
+  originalImageObject: any;
+  originalImageBody: any;
+  originalImageSize: any;
+
+  sharpObject: sharp.Sharp|null = null;
+  originalMetadata: sharp.Metadata|null = null;
+  schema: {}|null = null;
+  edits: {}|null = null;
+  headers: any = null;
+
+  constructor (event: any) {
     this.event = event
     // If the hash isn't set when it should be, we'll throw an error.
     if (getSetting('SECURITY_KEY')) {
@@ -19,7 +35,7 @@ export default class ImageRequest {
     this.bucket = bucket
     this.prefix = prefix
     // Handle API Gateway event and Lambda URL event
-    const path = event.path !== undefined ? event.path : event.rawPath
+    const path = event.path ?? event.rawPath ?? null
     this.key = parseImageKey(path, prefix)
   }
 

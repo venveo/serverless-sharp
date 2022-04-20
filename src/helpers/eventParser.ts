@@ -4,7 +4,7 @@
  * @param uri
  * @param requiredPrefix
  */
-export function parseImageKey(uri, requiredPrefix = null) {
+export function parseImageKey(uri: string, requiredPrefix: string|null = null) {
   // Decode the image request and return the image key
   // Ensure the path starts with our prefix
   let key = decodeURI(uri)
@@ -26,7 +26,7 @@ export function parseImageKey(uri, requiredPrefix = null) {
  * @returns {string}
  * @private
  */
-export function buildQueryStringFromObject(queryStringParameters) {
+export function buildQueryStringFromObject(queryStringParameters: object) {
   let string = ''
   for (const [k, v] of Object.entries(queryStringParameters)) {
     // Don't hash the security token
@@ -46,8 +46,8 @@ export function buildQueryStringFromObject(queryStringParameters) {
  * @param fullPath
  * @returns {{bucket: null, prefix: string}}
  */
-export function processSourceBucket(fullPath) {
-  const result = {
+export function processSourceBucket(fullPath: string) {
+  const result: { bucket: string|null; prefix: string|null } = {
     prefix: '',
     bucket: null
   }
@@ -55,30 +55,30 @@ export function processSourceBucket(fullPath) {
   const parts = fullPath.split(/\/(.+)/)
   result.bucket = parts[0]
   result.prefix = parts[1]
+  // TODO: Clean this up
   if (result.prefix === undefined) {
-    result.prefix = ''
+    result.prefix = null
   }
   return result
 }
 
 /**
  * Parses headers from an event and retrieves special compatibility cases for modern image types
- * @param {string} headers
  * @return {string[]}
  */
-export function getAcceptedImageFormatsFromHeaders(headers) {
+export function getAcceptedImageFormatsFromHeaders(headers: any) {
   if (headers.Accept === undefined || !headers.Accept) {
     return [];
   }
-  const specialFormats = {
+  const specialFormats: { [index: string]: string } = {
     'image/avif': 'avif',
     'image/apng': 'apng',
     'image/webp': 'webp'
   }
   return headers.Accept.toLowerCase()
     .split(',')
-    .map((mime) => {
+    .map((mime: string) => {
       return specialFormats[mime] ?? null
     })
-    .filter((e) => e !== null)
+    .filter((e: any) => e !== null)
 }

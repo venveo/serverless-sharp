@@ -1,4 +1,3 @@
-/* eslint-env jest */
 import * as eventParser from "./eventParser";
 
 test('parseImageKey gets basic path', () => {

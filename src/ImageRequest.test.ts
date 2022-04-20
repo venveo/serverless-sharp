@@ -33,15 +33,14 @@ describe('Testing ImageRequest', () => {
 
   test('Can CreateImageRequest - with hash (valid)', () => {
     const event = {
-      path: '/some/prefix/images/my-object.png'
+      path: '/some/prefix/images/my-object.png',
+      queryStringParameters: {
+        s: ''
+      }
     }
-    event.queryStringParameters = {}
     process.env.SECURITY_KEY = '12345asdf'
     process.env.SOURCE_BUCKET = 'assets.test.com/some/prefix'
-
-    const hash = calculateHash(event.path, event.queryStringParameters, process.env.SECURITY_KEY)
-
-    event.queryStringParameters.s = hash
+    event.queryStringParameters.s = calculateHash(event.path, event.queryStringParameters, process.env.SECURITY_KEY)
 
     const Request = new ImageRequest(event)
 
@@ -52,9 +51,11 @@ describe('Testing ImageRequest', () => {
 
   test('Can CreateImageRequest - with hash (invalid)', () => {
     const event = {
-      path: '/some/prefix/images/my-object.png'
+      path: '/some/prefix/images/my-object.png',
+      queryStringParameters: {
+        s: ''
+      }
     }
-    event.queryStringParameters = {}
     process.env.SECURITY_KEY = '12345asdf'
     process.env.SOURCE_BUCKET = 'assets.test.com/some/prefix'
 
@@ -63,7 +64,8 @@ describe('Testing ImageRequest', () => {
     event.queryStringParameters.s = hash
 
     expect(() => {
-      // eslint-disable-next-line no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const request = new ImageRequest(event)
     }).toThrow(HashException)
   })

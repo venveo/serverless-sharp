@@ -95,7 +95,7 @@ resources:
         'Fn::GetAtt': [ CloudFrontDistribution, DomainName ]
 functions:
   index:
-    handler: src/index.handler
+    handler: src/functions/optimize.handler
     layers:
       - { Ref: SharpLambdaLayer }
     events:

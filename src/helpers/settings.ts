@@ -5,7 +5,7 @@ const TYPE_ARRAY_STRING = 'arraystring'
 const TYPE_REGEX = 'regex'
 const TYPE_STRING = 'string'
 
-const settings = {
+const settings: { [index: string]: {default: string|number, type: string} } = {
   DEFAULT_QUALITY: {
     default: 75,
     type: TYPE_INTEGER
@@ -57,7 +57,7 @@ const settings = {
  * @param key
  * @return {string|null}
  */
-export function getSetting(key) {
+export function getSetting(key: string) {
   if (!(key in settings)) {
     throw new SettingsException()
   }
@@ -67,40 +67,52 @@ export function getSetting(key) {
   } else {
     value = settings[key].default
   }
+  if (value === undefined) {
+    throw new TypeError()
+  }
 
   return processValue(key, value)
 }
 
-const processValue = function (setting, value) {
+const processValue = function (setting: string, value: string|number) {
   switch (settings[setting].type) {
     case TYPE_STRING:
       return processString(value)
     case TYPE_INTEGER:
       return processInteger(value)
     case TYPE_ARRAY_STRING:
+      if (typeof value !== "string") {
+        throw new TypeError("Expected string for settings value")
+      }
       return processStringArray(value)
     case TYPE_REGEX:
+      if (typeof value !== "string") {
+        throw new TypeError("Expected string for settings value")
+      }
       return processRegExValue(value)
     default:
       throw new SettingsException()
   }
 }
 
-const processString = function (value) {
+const processString = function (value: any) {
   if (value === '' || value == null) {
     return null
   }
   return value.toString()
 }
 
-const processInteger = function (value) {
+const processInteger = function (value: string|number) {
+  if (typeof value === "number") {
+    return value
+  }
   return parseInt(value)
 }
 
-const processStringArray = function (value) {
+const processStringArray = function (value: string) {
   return value.split(',')
 }
 
-const processRegExValue = function (value) {
+const processRegExValue = function (value: string): RegExp {
   return new RegExp(value)
 }

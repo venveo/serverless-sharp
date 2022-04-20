@@ -1,4 +1,6 @@
-export default class HashException extends Error {
+import HttpError from "./HttpError";
+
+export default class ExpectationTypeException extends HttpError {
   constructor (message = 'Invalid security hash') {
     super()
     this.name = 'HashException'

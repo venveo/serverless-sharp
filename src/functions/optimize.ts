@@ -1,10 +1,11 @@
-import ImageRequest from "./ImageRequest";
-import ImageHandler from "./ImageHandler";
+import ImageRequest from "../ImageRequest";
+import ImageHandler from "../ImageHandler";
 
-import {shouldSkipRequest} from "./helpers/security";
-import {getSetting} from "./helpers/settings";
+import {shouldSkipRequest} from "../helpers/security";
+import {getSetting} from "../helpers/settings";
+import {APIGatewayEvent, Handler} from "aws-lambda";
 
-export async function handler(event, context, callback) {
+export const handler: Handler = async function (event: APIGatewayEvent, context) {
   const beforeHandle = beforeHandleRequest(event)
 
   if (!beforeHandle.allowed) {
@@ -36,8 +37,9 @@ export async function handler(event, context, callback) {
     return response
   } catch (err) {
     console.error(err);
-    // console.error('EVENT\n' + JSON.stringify(event, null, 2))
     const response = {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       statusCode: err.status,
       headers: getResponseHeaders(null, true),
       body: JSON.stringify(err),

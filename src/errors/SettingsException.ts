@@ -1,4 +1,6 @@
-export default class SettingsException extends Error {
+import HttpError from "./HttpError";
+
+export default class SettingsException extends HttpError {
   constructor (message = 'Invalid configuration') {
     super()
     this.name = 'SettingsException'
