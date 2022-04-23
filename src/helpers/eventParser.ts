@@ -4,7 +4,7 @@
  * @param uri
  * @param requiredPrefix
  */
-export function parseImageKey(uri: string, requiredPrefix: string|null = null) {
+export function parseImageKey(uri: string, requiredPrefix: string | null = null) {
   // Decode the image request and return the image key
   // Ensure the path starts with our prefix
   let key = decodeURI(uri)
@@ -47,7 +47,7 @@ export function buildQueryStringFromObject(queryStringParameters: object) {
  * @returns {{bucket: null, prefix: string}}
  */
 export function processSourceBucket(fullPath: string) {
-  const result: { bucket: string|null; prefix: string|null } = {
+  const result: { bucket: string | null; prefix: string | null } = {
     prefix: '',
     bucket: null
   }

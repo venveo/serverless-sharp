@@ -1,15 +1,15 @@
 import sharp from 'sharp'
 
 import {getAcceptedImageFormatsFromHeaders, parseImageKey, processSourceBucket} from "./helpers/eventParser";
-import {replaceAliases, getSchemaForQueryParams, normalizeAndValidateSchema} from "./helpers/schemaParser";
+import {getSchemaForQueryParams, normalizeAndValidateSchema, replaceAliases} from "./helpers/schemaParser";
 import {verifyHash} from "./helpers/security";
 import {getSetting} from "./helpers/settings";
 import HashException from "./errors/HashException";
 import S3Exception from "./errors/S3Exception";
 
 export default class ImageRequest {
-  bucket: string|null
-  prefix: string|null
+  bucket: string | null
+  prefix: string | null
 
   key: string
   event: object
@@ -18,20 +18,20 @@ export default class ImageRequest {
   originalImageBody: any;
   originalImageSize: any;
 
-  sharpObject: sharp.Sharp|null = null;
-  originalMetadata: sharp.Metadata|null = null;
-  schema: {}|null = null;
-  edits: {}|null = null;
+  sharpObject: sharp.Sharp | null = null;
+  originalMetadata: sharp.Metadata | null = null;
+  schema: {} | null = null;
+  edits: {} | null = null;
   headers: any = null;
 
-  constructor (event: any) {
+  constructor(event: any) {
     this.event = event
     // If the hash isn't set when it should be, we'll throw an error.
     if (getSetting('SECURITY_KEY')) {
       this.checkHash()
     }
 
-    const { bucket, prefix } = processSourceBucket(getSetting('SOURCE_BUCKET'))
+    const {bucket, prefix} = processSourceBucket(getSetting('SOURCE_BUCKET'))
     this.bucket = bucket
     this.prefix = prefix
     // Handle API Gateway event and Lambda URL event
@@ -43,7 +43,7 @@ export default class ImageRequest {
    * This method does a number of async things, such as getting the image object and building a schema
    * @return {Promise<void>}
    */
-  async process () {
+  async process() {
     this.originalImageObject = await this.getOriginalImage()
     this.originalImageBody = this.originalImageObject.Body
     this.originalImageSize = this.originalImageObject.ContentLength
@@ -92,10 +92,10 @@ export default class ImageRequest {
   /**
    * Gets the original image from an Amazon S3 bucket.
    */
-  async getOriginalImage () {
+  async getOriginalImage() {
     const S3 = require('aws-sdk/clients/s3')
     const s3 = new S3()
-    const imageLocation = { Bucket: this.bucket, Key: decodeURIComponent(this.key) }
+    const imageLocation = {Bucket: this.bucket, Key: decodeURIComponent(this.key)}
     const request = s3.getObject(imageLocation).promise()
     try {
       const originalImage = await request
@@ -110,8 +110,8 @@ export default class ImageRequest {
    * Parses the name of the appropriate Amazon S3 key corresponding to the
    * original image.
    */
-  checkHash () {
-    const { queryStringParameters, path } = this.event
+  checkHash() {
+    const {queryStringParameters, path} = this.event
     if (queryStringParameters && queryStringParameters.s === undefined) {
       throw new HashException()
     }
@@ -125,7 +125,7 @@ export default class ImageRequest {
     return true
   }
 
-  normalizeQueryParams (params = {}) {
+  normalizeQueryParams(params = {}) {
     if (!params) {
       params = {}
     }

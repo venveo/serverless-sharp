@@ -176,7 +176,7 @@ export function processDependencies(dependencies, expectationValues) {
           passedDependencies[paramDependency] = true
           break
 
-        // Expectation is equal! Winner!
+          // Expectation is equal! Winner!
         } else if (expectationValues[key].processedValue === val) {
           passedDependencies[paramDependency] = true
           break
@@ -221,154 +221,154 @@ export function processExpectation(expects = {}, value) {
 
   // TODO: Break this out
   switch (expects.type) {
-    case 'string':
-      if (value.length) {
-        result.passed = true
-        result.processedValue = value
-      } else {
-        result.message = 'String length expected'
-      }
-      return result
-    case 'list':
-      items = value.split(',')
-      if (!items.length) {
-        result.message = 'At least one item expected'
-        return result
-      }
-      if (expects.possible_values !== undefined) {
-        const difference = items.filter(x => !expects.possible_values.includes(x))
-        if (difference.length > 0) {
-          // Unexpected value encountered
-          result.message = 'Invalid value encountered. Expected one of: ' + expects.possible_values.join(',')
-          return result
-        }
-      }
-      result.processedValue = items
+  case 'string':
+    if (value.length) {
       result.passed = true
-      return result
-    case 'boolean':
-      if (value === 'true' || value === true) {
-        result.passed = true
-        result.processedValue = true
-      } else if (value === 'false' || value === false) {
-        result.passed = true
-        result.processedValue = false
-      } else {
-        result.message = 'Expected a boolean'
-      }
-      return result
-    case 'ratio':
-      match = value.match(/([0-9]*[.]?[0-9]+):+(([0-9]*[.])?[0-9]+)$/)
-      if (match.length < 3) {
-        result.message = 'Expected ratio format: 1.0:1.0'
-        return result
-      }
-      if (parseFloat(match[1]) === 0) {
-        result.message = 'Cannot divide by zero'
-        return result
-      }
-      // For example: 16:9 = 9/16 = .5625
-      result.processedValue = parseFloat(match[2]) / parseFloat(match[1])
-      result.passed = true
-      return result
-    case 'integer':
-      value = parseInt(value)
-      if (isNaN(value)) {
-        result.message = 'NaN'
-        return result
-      }
       result.processedValue = value
+    } else {
+      result.message = 'String length expected'
+    }
+    return result
+  case 'list':
+    items = value.split(',')
+    if (!items.length) {
+      result.message = 'At least one item expected'
+      return result
+    }
+    if (expects.possible_values !== undefined) {
+      const difference = items.filter(x => !expects.possible_values.includes(x))
+      if (difference.length > 0) {
+        // Unexpected value encountered
+        result.message = 'Invalid value encountered. Expected one of: ' + expects.possible_values.join(',')
+        return result
+      }
+    }
+    result.processedValue = items
+    result.passed = true
+    return result
+  case 'boolean':
+    if (value === 'true' || value === true) {
+      result.passed = true
+      result.processedValue = true
+    } else if (value === 'false' || value === false) {
+      result.passed = true
+      result.processedValue = false
+    } else {
+      result.message = 'Expected a boolean'
+    }
+    return result
+  case 'ratio':
+    match = value.match(/([0-9]*[.]?[0-9]+):+(([0-9]*[.])?[0-9]+)$/)
+    if (match.length < 3) {
+      result.message = 'Expected ratio format: 1.0:1.0'
+      return result
+    }
+    if (parseFloat(match[1]) === 0) {
+      result.message = 'Cannot divide by zero'
+      return result
+    }
+    // For example: 16:9 = 9/16 = .5625
+    result.processedValue = parseFloat(match[2]) / parseFloat(match[1])
+    result.passed = true
+    return result
+  case 'integer':
+    value = parseInt(value)
+    if (isNaN(value)) {
+      result.message = 'NaN'
+      return result
+    }
+    result.processedValue = value
 
-      if (expects.strict_range !== undefined) {
-        if (value > expects.strict_range.max || value < expects.strict_range.min) {
-          result.message = 'Value out of range'
-          return result
-        }
-      } else if (expects.possible_values !== undefined) {
-        if (!expects.possible_values.includes(value)) {
-          result.message = 'Invalid value encountered. Expected one of: ' + expects.possible_values.join(',')
-          return result
-        }
-      }
-      result.passed = true
-      return result
-    case 'number':
-      value = parseFloat(value)
-      if (isNaN(value)) {
-        result.message = 'NaN'
+    if (expects.strict_range !== undefined) {
+      if (value > expects.strict_range.max || value < expects.strict_range.min) {
+        result.message = 'Value out of range'
         return result
       }
-      if (expects.strict_range !== undefined) {
-        if (value < expects.strict_range.min) {
-          value = expects.strict_range.min
-        } else if (value > expects.strict_range.max) {
-          value = expects.strict_range.max
-        }
-      }
-      result.processedValue = value
-      result.passed = true
-      return result
-    case 'hex_color':
-      if (!value.match(/^(?:(?:[0-9a-fA-F]{4}){1,2})|(?:(?:[0-9a-fA-F]{3}){1,2})$/)) {
-        result.message = 'Expected hex code like fff'
+    } else if (expects.possible_values !== undefined) {
+      if (!expects.possible_values.includes(value)) {
+        result.message = 'Invalid value encountered. Expected one of: ' + expects.possible_values.join(',')
         return result
       }
-      result.passed = true
-      result.processedValue = '#' + value
+    }
+    result.passed = true
+    return result
+  case 'number':
+    value = parseFloat(value)
+    if (isNaN(value)) {
+      result.message = 'NaN'
       return result
-    case 'color_keyword':
-      if (!schema.colorKeywordValues.includes(value)) {
-        result.message = 'Expected valid color name'
-        return result
+    }
+    if (expects.strict_range !== undefined) {
+      if (value < expects.strict_range.min) {
+        value = expects.strict_range.min
+      } else if (value > expects.strict_range.max) {
+        value = expects.strict_range.max
       }
+    }
+    result.processedValue = value
+    result.passed = true
+    return result
+  case 'hex_color':
+    if (!value.match(/^(?:(?:[0-9a-fA-F]{4}){1,2})|(?:(?:[0-9a-fA-F]{3}){1,2})$/)) {
+      result.message = 'Expected hex code like fff'
+      return result
+    }
+    result.passed = true
+    result.processedValue = '#' + value
+    return result
+  case 'color_keyword':
+    if (!schema.colorKeywordValues.includes(value)) {
+      result.message = 'Expected valid color name'
+      return result
+    }
 
-      result.passed = true
-      result.processedValue = value
+    result.passed = true
+    result.processedValue = value
+    return result
+  case 'unit_scalar':
+    value = parseFloat(value)
+    if (isNaN(value)) {
+      result.message = 'NaN'
       return result
-    case 'unit_scalar':
-      value = parseFloat(value)
-      if (isNaN(value)) {
-        result.message = 'NaN'
+    }
+    result.processedValue = value
+    if (expects.strict_range !== undefined) {
+      if (value < expects.strict_range.min || value > expects.strict_range.max) {
+        result.message = 'Value out of range'
         return result
       }
-      result.processedValue = value
-      if (expects.strict_range !== undefined) {
-        if (value < expects.strict_range.min || value > expects.strict_range.max) {
-          result.message = 'Value out of range'
-          return result
-        }
-      }
-      result.passed = true
+    }
+    result.passed = true
+    return result
+  case 'timestamp':
+    if (!(new Date(value)).getTime() > 0) {
+      result.message = 'Expected valid unix timestamp'
       return result
-    case 'timestamp':
-      if (!(new Date(value)).getTime() > 0) {
-        result.message = 'Expected valid unix timestamp'
-        return result
-      }
-      result.processedValue = value
-      result.passed = true
+    }
+    result.processedValue = value
+    result.passed = true
+    return result
+  case 'url':
+    if (!value.match(/^(http|https):\/\/[^ "]+$/)) {
+      result.message = 'Expected valid URL'
       return result
-    case 'url':
-      if (!value.match(/^(http|https):\/\/[^ "]+$/)) {
-        result.message = 'Expected valid URL'
-        return result
-      }
-      result.processedValue = value
-      result.passed = true
-      return result
-    case 'path':
-      // TODO:
-      result.processedValue = value
-      result.passed = true
-      return result
-    case 'font':
-      // TODO:
-      result.processedValue = value
-      result.passed = true
-      return result
+    }
+    result.processedValue = value
+    result.passed = true
+    return result
+  case 'path':
+    // TODO:
+    result.processedValue = value
+    result.passed = true
+    return result
+  case 'font':
+    // TODO:
+    result.processedValue = value
+    result.passed = true
+    return result
     // throw new ExpectationTypeException;
-    default:
-      console.error('Encountered unknown expectation type: ' + expects.type)
-      break
+  default:
+    console.error('Encountered unknown expectation type: ' + expects.type)
+    break
   }
 }

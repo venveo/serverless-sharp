@@ -1,7 +1,7 @@
 import HttpError from "./HttpError";
 
 export default class InvalidDimensionsException extends HttpError {
-  constructor () {
+  constructor() {
     super()
     this.name = 'InvalidDimensions'
     this.status = 400

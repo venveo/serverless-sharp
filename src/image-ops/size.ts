@@ -15,39 +15,39 @@ const schema = require('../../data/schema')
 export async function apply(image, edits) {
   await beforeApply(image, edits)
 
-  const { w, h, fit, crop } = edits
+  const {w, h, fit, crop} = edits
   // The first thing we need to do is apply edits that affect the requested output size.
   if (w.processedValue || h.processedValue) {
     switch (fit.processedValue) {
-      case 'clamp':
-        // https://github.com/venveo/serverless-sharp/issues/26
-        // Should extends the edge pixels outwards to match the given dimensions.
-        // Not currently possible in Sharp.
-        throw new NotImplementedException()
-      case 'fillmax':
-        // https://github.com/venveo/serverless-sharp/issues/27
-        // Should resize the image while preserving aspect ratio within the dimensions given.
-        // If the width or height exceeds the available width and height, fill with solid color or blurred image
-        // Should be partially possible in Sharp. Just not a priority
-        throw new NotImplementedException()
-      case 'max':
-        scaleMax(image, w.processedValue, h.processedValue, false)
-        break
-      case 'min':
-        await scaleCrop(image, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue, false)
-        break
-      case 'fill':
-        await fill(image, edits.fill.processedValue, w.processedValue, h.processedValue, edits['fill-color'].processedValue)
-        break
-      case 'scale':
-        scale(image, w.processedValue, h.processedValue)
-        break
-      case 'crop':
-        await scaleCrop(image, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue, true)
-        break
-      case 'clip':
-        scaleClip(image, w.processedValue, h.processedValue, true)
-        break
+    case 'clamp':
+      // https://github.com/venveo/serverless-sharp/issues/26
+      // Should extends the edge pixels outwards to match the given dimensions.
+      // Not currently possible in Sharp.
+      throw new NotImplementedException()
+    case 'fillmax':
+      // https://github.com/venveo/serverless-sharp/issues/27
+      // Should resize the image while preserving aspect ratio within the dimensions given.
+      // If the width or height exceeds the available width and height, fill with solid color or blurred image
+      // Should be partially possible in Sharp. Just not a priority
+      throw new NotImplementedException()
+    case 'max':
+      scaleMax(image, w.processedValue, h.processedValue, false)
+      break
+    case 'min':
+      await scaleCrop(image, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue, false)
+      break
+    case 'fill':
+      await fill(image, edits.fill.processedValue, w.processedValue, h.processedValue, edits['fill-color'].processedValue)
+      break
+    case 'scale':
+      scale(image, w.processedValue, h.processedValue)
+      break
+    case 'crop':
+      await scaleCrop(image, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue, true)
+      break
+    case 'clip':
+      scaleClip(image, w.processedValue, h.processedValue, true)
+      break
     }
   }
 }
@@ -112,27 +112,27 @@ export async function fill(image, mode, width = null, height = null, color = nul
       const r = parseInt(color[1] + color[1], 16)
       const g = parseInt(color[2] + color[2], 16)
       const b = parseInt(color[3] + color[3], 16)
-      resizeParams.background = { r, g, b }
+      resizeParams.background = {r, g, b}
     } else if (/^#[0-9A-Fa-f]{4}$/.test(color)) {
       // 4-digit (ARGB)
       const alpha = parseInt(color[1] + color[1], 16) / 255.0
       const r = parseInt(color[2] + color[2], 16)
       const g = parseInt(color[3] + color[3], 16)
       const b = parseInt(color[4] + color[4], 16)
-      resizeParams.background = { alpha, r, g, b }
+      resizeParams.background = {alpha, r, g, b}
     } else if (/^#[0-9A-Fa-f]{6}$/.test(color)) {
       // 6-digit (RRGGBB)
       const r = parseInt(color[1] + color[2], 16)
       const g = parseInt(color[3] + color[4], 16)
       const b = parseInt(color[5] + color[6], 16)
-      resizeParams.background = { r, g, b }
+      resizeParams.background = {r, g, b}
     } else if (/^#[0-9A-Fa-f]{8}$/.test(color)) {
       // 8-digit (AARRGGBB)
       const alpha = parseInt(color[1] + color[2], 16) / 255.0
       const r = parseInt(color[3] + color[4], 16)
       const g = parseInt(color[5] + color[6], 16)
       const b = parseInt(color[7] + color[8], 16)
-      resizeParams.background = { alpha, r, g, b }
+      resizeParams.background = {alpha, r, g, b}
     }
   }
   image.resize(resizeParams)
@@ -267,7 +267,7 @@ export async function scaleCrop(image, width = null, height = null, crop = null,
  * @param edits
  */
 export async function beforeApply(image, edits) {
-  const { w, h, dpr, ar } = edits
+  const {w, h, dpr, ar} = edits
 
   // Apply aspect ratio edits
 

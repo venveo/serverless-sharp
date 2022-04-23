@@ -6,7 +6,7 @@ import * as imageOps from "./image-ops";
 export default class ImageHandler {
   private readonly request: ImageRequest;
 
-  constructor (request: ImageRequest) {
+  constructor(request: ImageRequest) {
     if (!request.originalImageObject) {
       throw new Error('Image not found or request not fully processed!')
     }
@@ -16,7 +16,7 @@ export default class ImageHandler {
   /**
    * Main method for processing image requests and outputting modified images.
    */
-  async process () {
+  async process() {
     // Get the original image
     const originalImageObject = this.request.originalImageObject
     const originalImageBody = this.request.originalImageBody
@@ -44,26 +44,26 @@ export default class ImageHandler {
     }
     if (format) {
       switch (format.toLowerCase()) {
-        case 'jpeg':
-        case 'jpg':
-          contentType = 'image/jpeg'
-          break
-        case 'png':
-          contentType = 'image/png'
-          break
-        case 'webp':
-          contentType = 'image/webp'
-          break
-        case 'gif':
-          contentType = 'image/gif'
-          break
-        case 'heif':
-          contentType = 'image/avif'
-          break
-        case 'input':
-          break
-        default:
-          console.warn('Unexpected output content type encountered: ' + contentType)
+      case 'jpeg':
+      case 'jpg':
+        contentType = 'image/jpeg'
+        break
+      case 'png':
+        contentType = 'image/png'
+        break
+      case 'webp':
+        contentType = 'image/webp'
+        break
+      case 'gif':
+        contentType = 'image/gif'
+        break
+      case 'heif':
+        contentType = 'image/avif'
+        break
+      case 'input':
+        break
+      default:
+        console.warn('Unexpected output content type encountered: ' + contentType)
       }
     }
 
@@ -81,7 +81,7 @@ export default class ImageHandler {
    * @param {sharp} image - The original image.
    * @param {Object} edits - The edits to be made to the original image.
    */
-  async applyEdits (image, edits) {
+  async applyEdits(image, edits) {
     await imageOps.restrictSize(image, this.request.originalMetadata)
     await imageOps.apply(image, edits)
   }
@@ -93,11 +93,11 @@ export default class ImageHandler {
    * @param headers
    * @returns {Promise<sharp>}
    */
-  async applyOptimizations (image) {
+  async applyOptimizations(image) {
     // const minColors = 128 // arbitrary number
     // const maxColors = 256 * 256 * 256 // max colors in RGB color space
-    const { edits, headers } = this.request
-    const { auto } = edits
+    const {edits, headers} = this.request
+    const {auto} = edits
 
     let autoVals = auto.processedValue
     if (!Array.isArray(autoVals)) {
@@ -136,9 +136,9 @@ export default class ImageHandler {
         })
       }
     } else if (fm === 'png') {
-        image.png({
-          quality: quality
-        })
+      image.png({
+        quality: quality
+      })
     } else if (fm === 'webp') {
       const options = {
         quality: quality

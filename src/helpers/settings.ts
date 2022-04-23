@@ -5,7 +5,7 @@ const TYPE_ARRAY_STRING = 'arraystring'
 const TYPE_REGEX = 'regex'
 const TYPE_STRING = 'string'
 
-const settings: { [index: string]: {default: string|number, type: string} } = {
+const settings: { [index: string]: { default: string | number, type: string } } = {
   DEFAULT_QUALITY: {
     default: 75,
     type: TYPE_INTEGER
@@ -74,24 +74,24 @@ export function getSetting(key: string) {
   return processValue(key, value)
 }
 
-const processValue = function (setting: string, value: string|number) {
+const processValue = function (setting: string, value: string | number) {
   switch (settings[setting].type) {
-    case TYPE_STRING:
-      return processString(value)
-    case TYPE_INTEGER:
-      return processInteger(value)
-    case TYPE_ARRAY_STRING:
-      if (typeof value !== "string") {
-        throw new TypeError("Expected string for settings value")
-      }
-      return processStringArray(value)
-    case TYPE_REGEX:
-      if (typeof value !== "string") {
-        throw new TypeError("Expected string for settings value")
-      }
-      return processRegExValue(value)
-    default:
-      throw new SettingsException()
+  case TYPE_STRING:
+    return processString(value)
+  case TYPE_INTEGER:
+    return processInteger(value)
+  case TYPE_ARRAY_STRING:
+    if (typeof value !== "string") {
+      throw new TypeError("Expected string for settings value")
+    }
+    return processStringArray(value)
+  case TYPE_REGEX:
+    if (typeof value !== "string") {
+      throw new TypeError("Expected string for settings value")
+    }
+    return processRegExValue(value)
+  default:
+    throw new SettingsException()
   }
 }
 
@@ -102,7 +102,7 @@ const processString = function (value: any) {
   return value.toString()
 }
 
-const processInteger = function (value: string|number) {
+const processInteger = function (value: string | number) {
   if (typeof value === "number") {
     return value
   }

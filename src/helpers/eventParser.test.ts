@@ -53,7 +53,7 @@ test('buildQueryStringFromObject', () => {
 
 test('processSourceBucket', () => {
   // No prefix, only bucket
-  expect(eventParser.processSourceBucket('my-bucket')).toMatchObject({ prefix: '', bucket: 'my-bucket' })
+  expect(eventParser.processSourceBucket('my-bucket')).toMatchObject({prefix: '', bucket: 'my-bucket'})
   expect(eventParser.processSourceBucket('my-bucket/some-prefix')).toMatchObject({
     prefix: 'some-prefix',
     bucket: 'my-bucket'

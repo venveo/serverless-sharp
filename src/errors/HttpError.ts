@@ -1,3 +1,3 @@
 export default class HttpError extends Error {
-    public status: number = 500;
+  public status: number = 500;
 }

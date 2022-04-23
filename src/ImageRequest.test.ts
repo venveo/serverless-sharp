@@ -8,7 +8,7 @@ describe('Testing ImageRequest', () => {
 
   beforeEach(() => {
     jest.resetModules()
-    process.env = { ...OLD_ENV }
+    process.env = {...OLD_ENV}
     delete process.env.NODE_ENV
   })
 

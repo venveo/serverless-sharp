@@ -1,7 +1,7 @@
 import HttpError from "./HttpError";
 
 export default class NotImplementedException extends HttpError {
-  constructor () {
+  constructor() {
     super()
     this.name = 'NotImplemented'
     this.status = 501

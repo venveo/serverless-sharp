@@ -1,7 +1,7 @@
 import HttpError from "./HttpError";
 
 export default class SettingsException extends HttpError {
-  constructor (message = 'Invalid configuration') {
+  constructor(message = 'Invalid configuration') {
     super()
     this.name = 'SettingsException'
     this.status = 500

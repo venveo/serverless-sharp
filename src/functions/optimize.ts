@@ -9,7 +9,9 @@ export const handler: Handler = async function (event: APIGatewayEvent, context)
   const beforeHandle = beforeHandleRequest(event)
 
   if (!beforeHandle.allowed) {
-    if (context && context.succeed) { context.succeed(beforeHandle.response) }
+    if (context && context.succeed) {
+      context.succeed(beforeHandle.response)
+    }
     return beforeHandle.response
   }
 
@@ -25,7 +27,7 @@ export const handler: Handler = async function (event: APIGatewayEvent, context)
     const sizeDifference = newImageSize - originalImageSize
 
     if (sizeDifference > 0) {
-      console.warn('Output size was larger than input size', { newImageSize, originalImageSize, sizeDifference })
+      console.warn('Output size was larger than input size', {newImageSize, originalImageSize, sizeDifference})
     }
     const response = {
       statusCode: 200,
@@ -33,7 +35,9 @@ export const handler: Handler = async function (event: APIGatewayEvent, context)
       body: processedRequest.Body,
       isBase64Encoded: true
     }
-    if (context && context.succeed) { context.succeed(response) }
+    if (context && context.succeed) {
+      context.succeed(response)
+    }
     return response
   } catch (err) {
     console.error(err);
@@ -45,7 +49,9 @@ export const handler: Handler = async function (event: APIGatewayEvent, context)
       body: JSON.stringify(err),
       isBase64Encoded: false
     }
-    if (context && context.succeed) { context.succeed(response) }
+    if (context && context.succeed) {
+      context.succeed(response)
+    }
     return response
   }
 }
