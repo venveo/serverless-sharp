@@ -64,9 +64,7 @@ describe('Testing ImageRequest', () => {
     event.queryStringParameters.s = hash
 
     expect(() => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      const request = new ImageRequest(event)
+      new ImageRequest(event)
     }).toThrow(HashException)
   })
 })

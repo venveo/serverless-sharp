@@ -24,18 +24,16 @@
     "@typescript-eslint/parser": "^5.20.0",
     "aws-sdk": "^2.668.0",
     "aws-sdk-mock": "^5.1.0",
-    "eslint": "^7.18.0",
+    "eslint": "^8.14.0",
     "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-jest": "^26.1.5",
     "jest": "^27.0.0",
     "prettier": "^2.6.2",
     "serverless": "^3.0.0",
     "serverless-esbuild": "^1.26.2",
     "serverless-offline": "^8.0.0",
-    "sharp": "0.30.3",
+    "sharp": "0.30.4",
     "ts-jest": "^27.1.4",
-    "ts-node": "^10.7.0",
-    "tslint": "^5.20.1",
-    "tslint-config-standard": "^9.0.0",
     "typescript": "^4.6.3"
   }
 }

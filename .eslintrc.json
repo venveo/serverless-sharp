@@ -7,11 +7,20 @@
   },
   "parser": "@typescript-eslint/parser",
   "extends": [
-    "prettier",
-    "plugin:@typescript-eslint/recommended"
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
   ],
   "plugins": [
     "@typescript-eslint"
+  ],
+  "overrides": [
+    {
+      "files": ["{**/*,*}.test.{js,ts}"],
+      "plugins": ["jest"],
+      "extends": ["plugin:jest/recommended"],
+      "rules": { "jest/prefer-expect-assertions": "off" }
+    }
   ],
   "globals": {
     "Atomics": "readonly",
@@ -22,6 +31,7 @@
     "sourceType": "module"
   },
   "rules": {
-    "no-console": "warn"
+    "no-console": "warn",
+    "indent": ["error", 2]
   }
 }
