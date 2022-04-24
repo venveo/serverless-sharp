@@ -1,6 +1,7 @@
 import ExpectationTypeException from "../errors/ExpectationTypeException";
-import ParsedSchemaItem from "../helpers/ParsedSchemaItem";
+import ParsedSchemaItem from "./ParsedSchemaItem";
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const schema = require('../../data/schema')
 
 /**

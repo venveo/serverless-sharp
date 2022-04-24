@@ -1,4 +1,4 @@
-import {getSetting} from "./helpers/settings";
+import {getSetting} from "./utils/settings";
 
 import ImageRequest from "./ImageRequest";
 import * as imageOps from "./image-ops";

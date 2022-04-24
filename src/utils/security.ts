@@ -1,13 +1,13 @@
-import {buildQueryStringFromObject} from './eventParser';
+import {buildQueryStringFromObject} from './httpRequestProcessor';
 import {getSetting} from "./settings";
+
+import crypto from "crypto";
 
 /**
  * Computes a hash based on the path, query string params
  */
 export function calculateHash(path: string, queryStringParameters: object, securityKey: string): string {
-  const crypto = require('crypto')
-
-  // Get the full query (minus the hash parameter)
+// Get the full query (minus the hash parameter)
   const query = buildQueryStringFromObject(queryStringParameters)
 
   // Encode each part of the URI. (Note, we're not using URLEncode on the entire thing, as it doesn't

@@ -34,10 +34,10 @@ export function buildQueryStringFromObject(queryStringParameters: object) {
       string += '&' + k + '=' + encodeURIComponent(v)
     }
   }
-  if (string.substr(1) === '') {
+  if (string.substring(1) === '') {
     return ''
   }
-  return '?' + string.substr(1)
+  return '?' + string.substring(1)
 }
 
 /**

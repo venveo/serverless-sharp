@@ -1,7 +1,7 @@
 /* eslint-env jest */
 import ImageRequest from "./ImageRequest";
 import HashException from "./errors/HashException";
-import {calculateHash} from "./helpers/security";
+import {calculateHash} from "./utils/security";
 
 describe('Testing ImageRequest', () => {
   const OLD_ENV = process.env

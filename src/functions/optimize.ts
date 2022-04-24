@@ -1,11 +1,16 @@
 import ImageRequest from "../ImageRequest";
 import ImageHandler from "../ImageHandler";
 
-import {shouldSkipRequest} from "../helpers/security";
-import {getSetting} from "../helpers/settings";
-import {APIGatewayEvent, Handler} from "aws-lambda";
+import {shouldSkipRequest} from "../utils/security";
+import {getSetting} from "../utils/settings";
+import {Handler} from "aws-lambda";
 
-export const handler: Handler = async function (event: APIGatewayEvent, context) {
+import {
+  APIGatewayProxyEvent,
+  APIGatewayProxyResult
+} from "aws-lambda";
+
+export const handler: Handler = async function (event: APIGatewayProxyEvent, context): Promise<APIGatewayProxyResult> {
   const beforeHandle = beforeHandleRequest(event)
 
   if (!beforeHandle.allowed) {

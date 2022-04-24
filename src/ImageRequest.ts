@@ -1,9 +1,9 @@
 import sharp from 'sharp'
 
-import {getAcceptedImageFormatsFromHeaders, parseImageKey, processSourceBucket} from "./helpers/eventParser";
-import {getSchemaForQueryParams, normalizeAndValidateSchema, replaceAliases} from "./helpers/schemaParser";
-import {verifyHash} from "./helpers/security";
-import {getSetting} from "./helpers/settings";
+import {getAcceptedImageFormatsFromHeaders, parseImageKey, processSourceBucket} from "./utils/httpRequestProcessor";
+import {getSchemaForQueryParams, normalizeAndValidateSchema, replaceAliases} from "./utils/schemaParser";
+import {verifyHash} from "./utils/security";
+import {getSetting} from "./utils/settings";
 import HashException from "./errors/HashException";
 import S3Exception from "./errors/S3Exception";
 
@@ -129,7 +129,7 @@ export default class ImageRequest {
     if (!params) {
       params = {}
     }
-    let normalizedParams = replaceAliases(params)
+    const normalizedParams = replaceAliases(params)
 
     normalizedParams.fm = this.getAutoFormat() || normalizedParams.fm || this.originalMetadata.format
 

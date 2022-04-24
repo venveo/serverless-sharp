@@ -1,4 +1,4 @@
-import {getSetting} from "../helpers/settings";
+import {getSetting} from "../utils/settings";
 import * as size from "./size";
 import * as stylize from "./stylize";
 
