@@ -26,9 +26,8 @@ layers:
     path: lambdaLayers/SharpLayer # required, path to layer contents on disk
     name: ${self:provider.stage}-sharp # optional, Deployed Lambda layer name
     package:
-      include:
-        - node_modules/**
-    description: sharp@0.27.2
+      artifact: lambdaLayers/SharpLayer/out/sharp-0.30.4-aws-lambda-linux-x64-node-14.zip
+    description: sharp@0.30.4
     compatibleRuntimes:
       - nodejs14.x
     licenseInfo: Apache License 2.0

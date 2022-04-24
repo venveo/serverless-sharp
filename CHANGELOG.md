@@ -9,6 +9,8 @@
 - Fix potential error with undefined multiValueQueryStringParameters
 - Updated Imgix schema
 - Updated to Serverless framework 3
+- Updated Sharp to 0.30.4
+- Added Makefile for building Sharp Lambda layer
 
 ### Fixed
 - Fix quality parameter (`q`) not being respected with `auto=format`
