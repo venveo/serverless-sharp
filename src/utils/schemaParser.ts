@@ -1,20 +1,25 @@
 import ExpectationTypeException from "../errors/ExpectationTypeException";
 import ParsedSchemaItem from "./ParsedSchemaItem";
+import {QueryStringParameters} from "../types/common";
+import {Imgix} from "../types/imgix";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const schema = require('../../data/schema')
+const schema: Imgix = require('../../data/schema')
 
 /**
  * Replaces any aliased keys with its base key
  * @param queryParameters
  */
-export function replaceAliases(queryParameters = {}) {
+export function replaceAliases(queryParameters: QueryStringParameters = {}): QueryStringParameters {
   const aliases = schema.aliases
-  Object.keys(aliases).forEach((val) => {
-    if (queryParameters[val] !== undefined) {
-      Object.defineProperty(queryParameters, aliases[val],
-        Object.getOwnPropertyDescriptor(queryParameters, val))
-      delete queryParameters[val]
+  const noAliasQueryParams = Object.assign({}, queryParameters)
+  Object.keys(aliases).forEach((alias) => {
+    if (noAliasQueryParams[alias] !== undefined) {
+      Object.defineProperty(noAliasQueryParams, aliases[alias],
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        Object.getOwnPropertyDescriptor(noAliasQueryParams, alias))
+      delete queryParameters[alias]
     }
   })
   return queryParameters
@@ -24,11 +29,11 @@ export function replaceAliases(queryParameters = {}) {
  * Gets all of the valid schema parameters in an object
  * @param queryParameters
  */
-export function getSchemaForQueryParams(queryParameters = {}) {
+export function getSchemaForQueryParams(queryParameters: QueryStringParameters = {}) {
   const params = schema.parameters
   const result = {}
 
-  Object.keys(queryParameters).forEach((val) => {
+  Object.keys(queryParameters).forEach((val: string) => {
     if (params[val] !== undefined) {
       result[val] = params[val]
     }

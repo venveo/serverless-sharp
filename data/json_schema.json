@@ -1,0 +1,2005 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$ref": "#/definitions/JSONSchema",
+    "definitions": {
+        "0": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "strict_range": {
+                    "$ref": "#/definitions/PurpleRange"
+                },
+                "possible_values": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "type"
+            ],
+            "title": "0"
+        },
+        "JSONSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "version": {
+                    "type": "string"
+                },
+                "parameters": {
+                    "$ref": "#/definitions/Parameters"
+                },
+                "aliases": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "categoryValues": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "colorKeywordValues": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "fontValues": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "aliases",
+                "categoryValues",
+                "colorKeywordValues",
+                "fontValues",
+                "parameters",
+                "version"
+            ],
+            "title": "JSONSchema"
+        },
+        "Parameters": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "ar": {
+                    "$ref": "#/definitions/Ar"
+                },
+                "auto": {
+                    "$ref": "#/definitions/Auto"
+                },
+                "bg": {
+                    "$ref": "#/definitions/Bg"
+                },
+                "blend-align": {
+                    "$ref": "#/definitions/Auto"
+                },
+                "blend-alpha": {
+                    "$ref": "#/definitions/BlendAlpha"
+                },
+                "blend-color": {
+                    "$ref": "#/definitions/Bg"
+                },
+                "blend-crop": {
+                    "$ref": "#/definitions/Auto"
+                },
+                "blend-fit": {
+                    "$ref": "#/definitions/Auto"
+                },
+                "blend-h": {
+                    "$ref": "#/definitions/BlendAlpha"
+                },
+                "blend-mode": {
+                    "$ref": "#/definitions/Auto"
+                },
+                "blend-pad": {
+                    "$ref": "#/definitions/BlendPad"
+                },
+                "blend-size": {
+                    "$ref": "#/definitions/Auto"
+                },
+                "blend-w": {
+                    "$ref": "#/definitions/BlendAlpha"
+                },
+                "blend-x": {
+                    "$ref": "#/definitions/BlendPad"
+                },
+                "blend-y": {
+                    "$ref": "#/definitions/BlendPad"
+                },
+                "blend": {
+                    "$ref": "#/definitions/Bg"
+                },
+                "blur": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "border-bottom": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "border-left": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "border-radius-inner": {
+                    "$ref": "#/definitions/BorderRadius"
+                },
+                "border-radius": {
+                    "$ref": "#/definitions/BorderRadius"
+                },
+                "border-right": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "border-top": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "border": {
+                    "$ref": "#/definitions/Border"
+                },
+                "bri": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "ch": {
+                    "$ref": "#/definitions/Auto"
+                },
+                "chromasub": {
+                    "$ref": "#/definitions/Chromasub"
+                },
+                "colorquant": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "colors": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "con": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "corner-radius": {
+                    "$ref": "#/definitions/BorderRadius"
+                },
+                "crop": {
+                    "$ref": "#/definitions/Auto"
+                },
+                "cs": {
+                    "$ref": "#/definitions/Auto"
+                },
+                "dl": {
+                    "$ref": "#/definitions/Bg"
+                },
+                "dpi": {
+                    "$ref": "#/definitions/DPI"
+                },
+                "dpr": {
+                    "$ref": "#/definitions/Dpr"
+                },
+                "duotone-alpha": {
+                    "$ref": "#/definitions/BlendAlpha"
+                },
+                "duotone": {
+                    "$ref": "#/definitions/Duotone"
+                },
+                "exp": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "expires": {
+                    "$ref": "#/definitions/Bg"
+                },
+                "faceindex": {
+                    "$ref": "#/definitions/BlendPad"
+                },
+                "facepad": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "faces": {
+                    "$ref": "#/definitions/Chromasub"
+                },
+                "fill-color": {
+                    "$ref": "#/definitions/Bg"
+                },
+                "fill": {
+                    "$ref": "#/definitions/Auto"
+                },
+                "fit": {
+                    "$ref": "#/definitions/Auto"
+                },
+                "flip": {
+                    "$ref": "#/definitions/Auto"
+                },
+                "fm": {
+                    "$ref": "#/definitions/Auto"
+                },
+                "fp-debug": {
+                    "$ref": "#/definitions/Bg"
+                },
+                "fp-x": {
+                    "$ref": "#/definitions/FP"
+                },
+                "fp-y": {
+                    "$ref": "#/definitions/FP"
+                },
+                "fp-z": {
+                    "$ref": "#/definitions/FPZ"
+                },
+                "gam": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "grid-colors": {
+                    "$ref": "#/definitions/GridColors"
+                },
+                "grid-size": {
+                    "$ref": "#/definitions/GridSize"
+                },
+                "h": {
+                    "$ref": "#/definitions/BlendAlpha"
+                },
+                "high": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "htn": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "hue": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "invert": {
+                    "$ref": "#/definitions/Bg"
+                },
+                "iptc": {
+                    "$ref": "#/definitions/Auto"
+                },
+                "lossless": {
+                    "$ref": "#/definitions/Bg"
+                },
+                "mark-align": {
+                    "$ref": "#/definitions/Auto"
+                },
+                "mark-alpha": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "mark-base": {
+                    "$ref": "#/definitions/Bg"
+                },
+                "mark-fit": {
+                    "$ref": "#/definitions/Auto"
+                },
+                "mark-h": {
+                    "$ref": "#/definitions/BlendAlpha"
+                },
+                "mark-pad": {
+                    "$ref": "#/definitions/BlendPad"
+                },
+                "mark-rot": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "mark-scale": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "mark-tile": {
+                    "$ref": "#/definitions/Auto"
+                },
+                "mark-w": {
+                    "$ref": "#/definitions/BlendAlpha"
+                },
+                "mark-x": {
+                    "$ref": "#/definitions/BlendPad"
+                },
+                "mark-y": {
+                    "$ref": "#/definitions/Ar"
+                },
+                "mark": {
+                    "$ref": "#/definitions/Bg"
+                },
+                "mask-bg": {
+                    "$ref": "#/definitions/Bg"
+                },
+                "mask": {
+                    "$ref": "#/definitions/Mask"
+                },
+                "max-h": {
+                    "$ref": "#/definitions/BlendAlpha"
+                },
+                "max-w": {
+                    "$ref": "#/definitions/BlendAlpha"
+                },
+                "min-h": {
+                    "$ref": "#/definitions/BlendAlpha"
+                },
+                "min-w": {
+                    "$ref": "#/definitions/BlendAlpha"
+                },
+                "monochrome": {
+                    "$ref": "#/definitions/Bg"
+                },
+                "nr": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "nrs": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "orient": {
+                    "$ref": "#/definitions/Chromasub"
+                },
+                "pad-bottom": {
+                    "$ref": "#/definitions/PadBottom"
+                },
+                "pad-left": {
+                    "$ref": "#/definitions/PadBottom"
+                },
+                "pad-right": {
+                    "$ref": "#/definitions/PadBottom"
+                },
+                "pad-top": {
+                    "$ref": "#/definitions/PadBottom"
+                },
+                "pad": {
+                    "$ref": "#/definitions/BlendPad"
+                },
+                "page": {
+                    "$ref": "#/definitions/BlendPad"
+                },
+                "palette": {
+                    "$ref": "#/definitions/Auto"
+                },
+                "pdf-annotation": {
+                    "$ref": "#/definitions/Bg"
+                },
+                "prefix": {
+                    "$ref": "#/definitions/Bg"
+                },
+                "px": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "q": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "rect": {
+                    "$ref": "#/definitions/Rect"
+                },
+                "rot": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "sat": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "sepia": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "shad": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "sharp": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "transparency": {
+                    "$ref": "#/definitions/Auto"
+                },
+                "trim-color": {
+                    "$ref": "#/definitions/Bg"
+                },
+                "trim-md": {
+                    "$ref": "#/definitions/BlendPad"
+                },
+                "trim-pad": {
+                    "$ref": "#/definitions/BlendPad"
+                },
+                "trim-sd": {
+                    "$ref": "#/definitions/BlendPad"
+                },
+                "trim-tol": {
+                    "$ref": "#/definitions/BlendPad"
+                },
+                "trim": {
+                    "$ref": "#/definitions/Auto"
+                },
+                "txt-align": {
+                    "$ref": "#/definitions/Auto"
+                },
+                "txt-clip": {
+                    "$ref": "#/definitions/Auto"
+                },
+                "txt-color": {
+                    "$ref": "#/definitions/Bg"
+                },
+                "txt-fit": {
+                    "$ref": "#/definitions/Auto"
+                },
+                "txt-font": {
+                    "$ref": "#/definitions/Bg"
+                },
+                "txt-lead": {
+                    "$ref": "#/definitions/BlendPad"
+                },
+                "txt-lig": {
+                    "$ref": "#/definitions/Chromasub"
+                },
+                "txt-line-color": {
+                    "$ref": "#/definitions/Bg"
+                },
+                "txt-line": {
+                    "$ref": "#/definitions/BlendPad"
+                },
+                "txt-pad": {
+                    "$ref": "#/definitions/PadBottom"
+                },
+                "txt-shad": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "txt-size": {
+                    "$ref": "#/definitions/BlendPad"
+                },
+                "txt-track": {
+                    "$ref": "#/definitions/BlendPad"
+                },
+                "txt-width": {
+                    "$ref": "#/definitions/BlendPad"
+                },
+                "txt-x": {
+                    "$ref": "#/definitions/Bg"
+                },
+                "txt-y": {
+                    "$ref": "#/definitions/Bg"
+                },
+                "txt": {
+                    "$ref": "#/definitions/Bg"
+                },
+                "usm": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "usmrad": {
+                    "$ref": "#/definitions/BlendPad"
+                },
+                "vib": {
+                    "$ref": "#/definitions/Blur"
+                },
+                "w": {
+                    "$ref": "#/definitions/BlendAlpha"
+                }
+            },
+            "required": [
+                "ar",
+                "auto",
+                "bg",
+                "blend",
+                "blend-align",
+                "blend-alpha",
+                "blend-color",
+                "blend-crop",
+                "blend-fit",
+                "blend-h",
+                "blend-mode",
+                "blend-pad",
+                "blend-size",
+                "blend-w",
+                "blend-x",
+                "blend-y",
+                "blur",
+                "border",
+                "border-bottom",
+                "border-left",
+                "border-radius",
+                "border-radius-inner",
+                "border-right",
+                "border-top",
+                "bri",
+                "ch",
+                "chromasub",
+                "colorquant",
+                "colors",
+                "con",
+                "corner-radius",
+                "crop",
+                "cs",
+                "dl",
+                "dpi",
+                "dpr",
+                "duotone",
+                "duotone-alpha",
+                "exp",
+                "expires",
+                "faceindex",
+                "facepad",
+                "faces",
+                "fill",
+                "fill-color",
+                "fit",
+                "flip",
+                "fm",
+                "fp-debug",
+                "fp-x",
+                "fp-y",
+                "fp-z",
+                "gam",
+                "grid-colors",
+                "grid-size",
+                "h",
+                "high",
+                "htn",
+                "hue",
+                "invert",
+                "iptc",
+                "lossless",
+                "mark",
+                "mark-align",
+                "mark-alpha",
+                "mark-base",
+                "mark-fit",
+                "mark-h",
+                "mark-pad",
+                "mark-rot",
+                "mark-scale",
+                "mark-tile",
+                "mark-w",
+                "mark-x",
+                "mark-y",
+                "mask",
+                "mask-bg",
+                "max-h",
+                "max-w",
+                "min-h",
+                "min-w",
+                "monochrome",
+                "nr",
+                "nrs",
+                "orient",
+                "pad",
+                "pad-bottom",
+                "pad-left",
+                "pad-right",
+                "pad-top",
+                "page",
+                "palette",
+                "pdf-annotation",
+                "prefix",
+                "px",
+                "q",
+                "rect",
+                "rot",
+                "sat",
+                "sepia",
+                "shad",
+                "sharp",
+                "transparency",
+                "trim",
+                "trim-color",
+                "trim-md",
+                "trim-pad",
+                "trim-sd",
+                "trim-tol",
+                "txt",
+                "txt-align",
+                "txt-clip",
+                "txt-color",
+                "txt-fit",
+                "txt-font",
+                "txt-lead",
+                "txt-lig",
+                "txt-line",
+                "txt-line-color",
+                "txt-pad",
+                "txt-shad",
+                "txt-size",
+                "txt-track",
+                "txt-width",
+                "txt-x",
+                "txt-y",
+                "usm",
+                "usmrad",
+                "vib",
+                "w"
+            ],
+            "title": "Parameters"
+        },
+        "Ar": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "available_in": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AvailableIn"
+                    }
+                },
+                "expects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/2_Element"
+                    }
+                },
+                "depends": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "qt-uri-protocols": [
+                        "https"
+                    ]
+                },
+                "short_description": {
+                    "type": "string"
+                },
+                "aliases": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "available_in",
+                "category",
+                "depends",
+                "display_name",
+                "expects",
+                "short_description",
+                "url"
+            ],
+            "title": "Ar"
+        },
+        "2_Element": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "$ref": "#/definitions/1_Type"
+                },
+                "strict_range": {
+                    "$ref": "#/definitions/2_StrictRange"
+                }
+            },
+            "required": [
+                "strict_range",
+                "type"
+            ],
+            "title": "2_Element"
+        },
+        "2_StrictRange": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "min": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "min"
+            ],
+            "title": "2_StrictRange"
+        },
+        "Auto": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "available_in": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AvailableIn"
+                    }
+                },
+                "expects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AutoExpect"
+                    }
+                },
+                "disallow_base64": {
+                    "type": "boolean"
+                },
+                "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "qt-uri-protocols": [
+                        "https"
+                    ]
+                },
+                "short_description": {
+                    "type": "string"
+                },
+                "aliases": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "depends": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "default": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "available_in",
+                "category",
+                "display_name",
+                "expects",
+                "short_description"
+            ],
+            "title": "Auto"
+        },
+        "AutoExpect": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "$ref": "#/definitions/PurpleType"
+                },
+                "possible_values": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "type"
+            ],
+            "title": "AutoExpect"
+        },
+        "Bg": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "available_in": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AvailableIn"
+                    }
+                },
+                "expects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/BgExpect"
+                    }
+                },
+                "default": {
+                    "$ref": "#/definitions/Default"
+                },
+                "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "qt-uri-protocols": [
+                        "https"
+                    ]
+                },
+                "short_description": {
+                    "type": "string"
+                },
+                "aliases": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "depends": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "available_in",
+                "category",
+                "display_name",
+                "expects",
+                "short_description",
+                "url"
+            ],
+            "title": "Bg"
+        },
+        "BgExpect": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "type"
+            ],
+            "title": "BgExpect"
+        },
+        "BlendAlpha": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "available_in": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AvailableIn"
+                    }
+                },
+                "expects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/BlendAlphaExpect"
+                    }
+                },
+                "aliases": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "default": {
+                    "type": "integer"
+                },
+                "depends": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "qt-uri-protocols": [
+                        "https"
+                    ]
+                },
+                "short_description": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "available_in",
+                "category",
+                "display_name",
+                "expects",
+                "short_description",
+                "url"
+            ],
+            "title": "BlendAlpha"
+        },
+        "BlendAlphaExpect": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "$ref": "#/definitions/FluffyType"
+                },
+                "strict_range": {
+                    "$ref": "#/definitions/PurpleRange"
+                }
+            },
+            "required": [
+                "strict_range",
+                "type"
+            ],
+            "title": "BlendAlphaExpect"
+        },
+        "PurpleRange": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "min": {
+                    "type": "number"
+                },
+                "max": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "min"
+            ],
+            "title": "PurpleRange"
+        },
+        "BlendPad": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "available_in": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AvailableIn"
+                    }
+                },
+                "expects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/BlendPadExpect"
+                    }
+                },
+                "aliases": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "default": {
+                    "type": "number"
+                },
+                "depends": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "qt-uri-protocols": [
+                        "https"
+                    ]
+                },
+                "short_description": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "available_in",
+                "category",
+                "display_name",
+                "expects",
+                "short_description",
+                "url"
+            ],
+            "title": "BlendPad"
+        },
+        "BlendPadExpect": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "$ref": "#/definitions/TentacledType"
+                },
+                "suggested_range": {
+                    "$ref": "#/definitions/2_StrictRange"
+                }
+            },
+            "required": [
+                "suggested_range",
+                "type"
+            ],
+            "title": "BlendPadExpect"
+        },
+        "Blur": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "available_in": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AvailableIn"
+                    }
+                },
+                "expects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/BlurExpect"
+                    }
+                },
+                "default": {
+                    "type": "integer"
+                },
+                "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "qt-uri-protocols": [
+                        "https"
+                    ]
+                },
+                "short_description": {
+                    "type": "string"
+                },
+                "depends": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "aliases": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "available_in",
+                "category",
+                "display_name",
+                "expects",
+                "short_description",
+                "url"
+            ],
+            "title": "Blur"
+        },
+        "BlurExpect": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "$ref": "#/definitions/TentacledType"
+                },
+                "suggested_range": {
+                    "$ref": "#/definitions/PurpleRange"
+                }
+            },
+            "required": [
+                "suggested_range",
+                "type"
+            ],
+            "title": "BlurExpect"
+        },
+        "Border": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "available_in": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AvailableIn"
+                    }
+                },
+                "expects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/BorderExpect"
+                    }
+                },
+                "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "qt-uri-protocols": [
+                        "https"
+                    ]
+                },
+                "short_description": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "available_in",
+                "category",
+                "display_name",
+                "expects",
+                "short_description",
+                "url"
+            ],
+            "title": "Border"
+        },
+        "BorderExpect": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "0": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/BlurExpect"
+                    }
+                },
+                "1": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/BgExpect"
+                    }
+                },
+                "type": {
+                    "$ref": "#/definitions/PurpleType"
+                },
+                "length": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "0",
+                "1",
+                "length",
+                "type"
+            ],
+            "title": "BorderExpect"
+        },
+        "BorderRadius": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "available_in": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AvailableIn"
+                    }
+                },
+                "expects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/BorderRadiusExpect"
+                    }
+                },
+                "depends": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "qt-uri-protocols": [
+                        "https"
+                    ]
+                },
+                "short_description": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "available_in",
+                "category",
+                "depends",
+                "display_name",
+                "expects",
+                "short_description",
+                "url"
+            ],
+            "title": "BorderRadius"
+        },
+        "BorderRadiusExpect": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "0": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/2_Element"
+                    }
+                },
+                "1": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/2_Element"
+                    }
+                },
+                "2": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/2_Element"
+                    }
+                },
+                "3": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/2_Element"
+                    }
+                },
+                "type": {
+                    "type": "string"
+                },
+                "strict_range": {
+                    "$ref": "#/definitions/2_StrictRange"
+                },
+                "length": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "type"
+            ],
+            "title": "BorderRadiusExpect"
+        },
+        "Chromasub": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "available_in": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AvailableIn"
+                    }
+                },
+                "expects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ChromasubExpect"
+                    }
+                },
+                "default": {
+                    "type": "integer"
+                },
+                "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "qt-uri-protocols": [
+                        "https"
+                    ]
+                },
+                "short_description": {
+                    "type": "string"
+                },
+                "depends": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "aliases": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "available_in",
+                "category",
+                "display_name",
+                "expects",
+                "short_description",
+                "url"
+            ],
+            "title": "Chromasub"
+        },
+        "ChromasubExpect": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "$ref": "#/definitions/1_Type"
+                },
+                "possible_values": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "required": [
+                "possible_values",
+                "type"
+            ],
+            "title": "ChromasubExpect"
+        },
+        "DPI": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "available_in": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AvailableIn"
+                    }
+                },
+                "expects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/BlendPadExpect"
+                    }
+                },
+                "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "qt-uri-protocols": [
+                        "https"
+                    ]
+                },
+                "short_description": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "available_in",
+                "category",
+                "display_name",
+                "expects",
+                "short_description",
+                "url"
+            ],
+            "title": "DPI"
+        },
+        "Dpr": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "available_in": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AvailableIn"
+                    }
+                },
+                "expects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/DprExpect"
+                    }
+                },
+                "default": {
+                    "type": "integer"
+                },
+                "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "qt-uri-protocols": [
+                        "https"
+                    ]
+                },
+                "short_description": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "available_in",
+                "category",
+                "default",
+                "display_name",
+                "expects",
+                "short_description",
+                "url"
+            ],
+            "title": "Dpr"
+        },
+        "DprExpect": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "$ref": "#/definitions/TentacledType"
+                },
+                "suggested_range": {
+                    "$ref": "#/definitions/PurpleRange"
+                },
+                "strict_range": {
+                    "$ref": "#/definitions/PurpleRange"
+                },
+                "default": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "strict_range",
+                "suggested_range",
+                "type"
+            ],
+            "title": "DprExpect"
+        },
+        "Duotone": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "available_in": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AvailableIn"
+                    }
+                },
+                "expects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/DuotoneExpect"
+                    }
+                },
+                "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "qt-uri-protocols": [
+                        "https"
+                    ]
+                },
+                "short_description": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "available_in",
+                "category",
+                "display_name",
+                "expects",
+                "short_description",
+                "url"
+            ],
+            "title": "Duotone"
+        },
+        "DuotoneExpect": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "0": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/BgExpect"
+                    }
+                },
+                "1": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/BgExpect"
+                    }
+                },
+                "type": {
+                    "$ref": "#/definitions/PurpleType"
+                },
+                "length": {
+                    "type": "integer"
+                },
+                "default": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "0",
+                "1",
+                "length",
+                "type"
+            ],
+            "title": "DuotoneExpect"
+        },
+        "FP": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "available_in": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AvailableIn"
+                    }
+                },
+                "expects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FPXExpect"
+                    }
+                },
+                "depends": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "qt-uri-protocols": [
+                        "https"
+                    ]
+                },
+                "short_description": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "available_in",
+                "category",
+                "depends",
+                "display_name",
+                "expects",
+                "short_description",
+                "url"
+            ],
+            "title": "FP"
+        },
+        "FPXExpect": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "$ref": "#/definitions/FluffyType"
+                },
+                "default": {
+                    "type": "number"
+                },
+                "strict_range": {
+                    "$ref": "#/definitions/PurpleRange"
+                }
+            },
+            "required": [
+                "default",
+                "strict_range",
+                "type"
+            ],
+            "title": "FPXExpect"
+        },
+        "FPZ": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "available_in": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AvailableIn"
+                    }
+                },
+                "expects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/DprExpect"
+                    }
+                },
+                "depends": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "qt-uri-protocols": [
+                        "https"
+                    ]
+                },
+                "short_description": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "available_in",
+                "category",
+                "depends",
+                "display_name",
+                "expects",
+                "short_description",
+                "url"
+            ],
+            "title": "FPZ"
+        },
+        "GridColors": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "available_in": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AvailableIn"
+                    }
+                },
+                "expects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/DuotoneExpect"
+                    }
+                },
+                "depends": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "short_description": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "available_in",
+                "category",
+                "depends",
+                "display_name",
+                "expects",
+                "short_description"
+            ],
+            "title": "GridColors"
+        },
+        "GridSize": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "available_in": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AvailableIn"
+                    }
+                },
+                "expects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/GridSizeExpect"
+                    }
+                },
+                "depends": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "short_description": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "available_in",
+                "category",
+                "depends",
+                "display_name",
+                "expects",
+                "short_description"
+            ],
+            "title": "GridSize"
+        },
+        "GridSizeExpect": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "$ref": "#/definitions/1_Type"
+                },
+                "default": {
+                    "type": "integer"
+                },
+                "strict_range": {
+                    "$ref": "#/definitions/2_StrictRange"
+                }
+            },
+            "required": [
+                "default",
+                "strict_range",
+                "type"
+            ],
+            "title": "GridSizeExpect"
+        },
+        "Mask": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "available_in": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AvailableIn"
+                    }
+                },
+                "expects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AutoExpect"
+                    }
+                },
+                "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "qt-uri-protocols": [
+                        "https"
+                    ]
+                },
+                "short_description": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "available_in",
+                "category",
+                "display_name",
+                "expects",
+                "short_description",
+                "url"
+            ],
+            "title": "Mask"
+        },
+        "PadBottom": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "available_in": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AvailableIn"
+                    }
+                },
+                "expects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/PadBottomExpect"
+                    }
+                },
+                "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "qt-uri-protocols": [
+                        "https"
+                    ]
+                },
+                "short_description": {
+                    "type": "string"
+                },
+                "aliases": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "depends": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "available_in",
+                "category",
+                "display_name",
+                "expects",
+                "short_description",
+                "url"
+            ],
+            "title": "PadBottom"
+        },
+        "PadBottomExpect": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "$ref": "#/definitions/1_Type"
+                },
+                "suggested_range": {
+                    "$ref": "#/definitions/2_StrictRange"
+                },
+                "default": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "default",
+                "suggested_range",
+                "type"
+            ],
+            "title": "PadBottomExpect"
+        },
+        "Rect": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "available_in": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AvailableIn"
+                    }
+                },
+                "expects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/RectExpect"
+                    }
+                },
+                "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "qt-uri-protocols": [
+                        "https"
+                    ]
+                },
+                "short_description": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "available_in",
+                "category",
+                "display_name",
+                "expects",
+                "short_description",
+                "url"
+            ],
+            "title": "Rect"
+        },
+        "RectExpect": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "0": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/0"
+                    }
+                },
+                "1": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/0"
+                    }
+                },
+                "2": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/2_Element"
+                    }
+                },
+                "3": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/2_Element"
+                    }
+                },
+                "type": {
+                    "$ref": "#/definitions/PurpleType"
+                },
+                "length": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "0",
+                "1",
+                "2",
+                "3",
+                "length",
+                "type"
+            ],
+            "title": "RectExpect"
+        },
+        "Default": {
+            "anyOf": [
+                {
+                    "type": "boolean"
+                },
+                {
+                    "type": "integer"
+                },
+                {
+                    "type": "string"
+                }
+            ],
+            "title": "Default"
+        },
+        "AvailableIn": {
+            "type": "string",
+            "enum": [
+                "url",
+                "graph",
+                "output"
+            ],
+            "title": "AvailableIn"
+        },
+        "1_Type": {
+            "type": "string",
+            "enum": [
+                "ratio",
+                "integer"
+            ],
+            "title": "1_Type"
+        },
+        "PurpleType": {
+            "type": "string",
+            "enum": [
+                "list",
+                "string",
+                "url",
+                "path"
+            ],
+            "title": "PurpleType"
+        },
+        "FluffyType": {
+            "type": "string",
+            "enum": [
+                "integer",
+                "unit_scalar"
+            ],
+            "title": "FluffyType"
+        },
+        "TentacledType": {
+            "type": "string",
+            "enum": [
+                "integer",
+                "number"
+            ],
+            "title": "TentacledType"
+        }
+    }
+}

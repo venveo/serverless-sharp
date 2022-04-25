@@ -1,18 +1,20 @@
 import sharp from 'sharp'
 
-import {getAcceptedImageFormatsFromHeaders, parseImageKey, processSourceBucket} from "./utils/httpRequestProcessor";
+import {getAcceptedImageFormatsFromHeaders, extractObjectKeyFromUri, extractBucketNameAndPrefix} from "./utils/httpRequestProcessor";
 import {getSchemaForQueryParams, normalizeAndValidateSchema, replaceAliases} from "./utils/schemaParser";
 import {verifyHash} from "./utils/security";
 import {getSetting} from "./utils/settings";
 import HashException from "./errors/HashException";
-import S3Exception from "./errors/S3Exception";
+// import S3Exception from "./errors/S3Exception";
+import {BucketDetails, RequestHeaders} from "./types/common";
+
+import S3 from "aws-sdk/clients/s3";
 
 export default class ImageRequest {
-  bucket: string | null
-  prefix: string | null
+  bucketDetails: BucketDetails
 
   key: string
-  event: object
+  event: any
 
   originalImageObject: any;
   originalImageBody: any;
@@ -20,9 +22,9 @@ export default class ImageRequest {
 
   sharpObject: sharp.Sharp | null = null;
   originalMetadata: sharp.Metadata | null = null;
-  schema: {} | null = null;
-  edits: {} | null = null;
-  headers: any = null;
+  schema: Record<string, unknown> | null = null;
+  edits: Record<string, unknown> | null = null;
+  headers: RequestHeaders | null = null;
 
   constructor(event: any) {
     this.event = event
@@ -31,12 +33,11 @@ export default class ImageRequest {
       this.checkHash()
     }
 
-    const {bucket, prefix} = processSourceBucket(getSetting('SOURCE_BUCKET'))
-    this.bucket = bucket
-    this.prefix = prefix
+    this.bucketDetails = extractBucketNameAndPrefix(getSetting('SOURCE_BUCKET'))
+
     // Handle API Gateway event and Lambda URL event
     const path = event.path ?? event.rawPath ?? null
-    this.key = parseImageKey(path, prefix)
+    this.key = extractObjectKeyFromUri(path, this.bucketDetails.prefix)
   }
 
   /**
@@ -59,6 +60,9 @@ export default class ImageRequest {
   }
 
   getAutoFormat() {
+    if (!this.headers || !this.originalMetadata || this.originalMetadata.format === undefined) {
+      return null;
+    }
     const coercibleFormats = ['jpg', 'png', 'webp', 'avif', 'jpeg', 'tiff']
     let autoParam = null
     if (this.event.multiValueQueryStringParameters && this.event.multiValueQueryStringParameters.auto) {
@@ -93,16 +97,17 @@ export default class ImageRequest {
    * Gets the original image from an Amazon S3 bucket.
    */
   async getOriginalImage() {
-    const S3 = require('aws-sdk/clients/s3')
     const s3 = new S3()
-    const imageLocation = {Bucket: this.bucket, Key: decodeURIComponent(this.key)}
+    const imageLocation = {Bucket: this.bucketDetails.name, Key: decodeURIComponent(this.key)}
     const request = s3.getObject(imageLocation).promise()
     try {
       const originalImage = await request
       return Promise.resolve(originalImage)
     } catch (err) {
-      const error = new S3Exception(err.statusCode, err.code, err.message)
-      return Promise.reject(error)
+      // const error = new S3Exception(err.statusCode, err.code, err.message)
+      // return Promise.reject(error)
+      // TODO: Add S3 error back here once you figure out the type
+      return Promise.reject()
     }
   }
 
@@ -130,8 +135,7 @@ export default class ImageRequest {
       params = {}
     }
     const normalizedParams = replaceAliases(params)
-
-    normalizedParams.fm = this.getAutoFormat() || normalizedParams.fm || this.originalMetadata.format
+    normalizedParams.fm = this.getAutoFormat() ?? normalizedParams.fm ?? this.originalMetadata?.format ?? null
 
     return normalizedParams
   }

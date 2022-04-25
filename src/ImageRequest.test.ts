@@ -24,11 +24,12 @@ describe('Testing ImageRequest', () => {
     process.env.SECURITY_KEY = ''
     process.env.SOURCE_BUCKET = 'assets.test.com/some/prefix'
 
-    const Request = new ImageRequest(event)
+    const request = new ImageRequest(event)
+    const bucketDetails = request.bucketDetails
 
-    expect(Request.bucket).toEqual('assets.test.com')
-    expect(Request.prefix).toEqual('some/prefix')
-    expect(Request.key).toEqual('some/prefix/images/my-object.png')
+    expect(bucketDetails.name).toEqual('assets.test.com')
+    expect(bucketDetails.prefix).toEqual('some/prefix')
+    expect(request.key).toEqual('some/prefix/images/my-object.png')
   })
 
   test('Can CreateImageRequest - with hash (valid)', () => {
@@ -42,11 +43,12 @@ describe('Testing ImageRequest', () => {
     process.env.SOURCE_BUCKET = 'assets.test.com/some/prefix'
     event.queryStringParameters.s = calculateHash(event.path, event.queryStringParameters, process.env.SECURITY_KEY)
 
-    const Request = new ImageRequest(event)
+    const request = new ImageRequest(event)
+    const bucketDetails = request.bucketDetails
 
-    expect(Request.bucket).toEqual('assets.test.com')
-    expect(Request.prefix).toEqual('some/prefix')
-    expect(Request.key).toEqual('some/prefix/images/my-object.png')
+    expect(bucketDetails.name).toEqual('assets.test.com')
+    expect(bucketDetails.prefix).toEqual('some/prefix')
+    expect(request.key).toEqual('some/prefix/images/my-object.png')
   })
 
   test('Can CreateImageRequest - with hash (invalid)', () => {

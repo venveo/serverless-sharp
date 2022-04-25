@@ -2,11 +2,12 @@ import {buildQueryStringFromObject} from './httpRequestProcessor';
 import {getSetting} from "./settings";
 
 import crypto from "crypto";
+import {QueryStringParameters} from "../types/common";
 
 /**
  * Computes a hash based on the path, query string params
  */
-export function calculateHash(path: string, queryStringParameters: object, securityKey: string): string {
+export function calculateHash(path: string, queryStringParameters: QueryStringParameters, securityKey: string): string {
 // Get the full query (minus the hash parameter)
   const query = buildQueryStringFromObject(queryStringParameters)
 
@@ -37,7 +38,7 @@ function fixedEncodeURIComponent(str: string): string {
  * @param queryStringParameters
  * @param hash
  */
-export function verifyHash(path: string, queryStringParameters: object, hash: string): boolean {
+export function verifyHash(path: string, queryStringParameters: QueryStringParameters, hash: string): boolean {
   const parsed = calculateHash(path, queryStringParameters, getSetting('SECURITY_KEY'))
   return parsed.toLowerCase() === hash.toLowerCase()
 }
@@ -45,25 +46,30 @@ export function verifyHash(path: string, queryStringParameters: object, hash: st
 /**
  * Returns true if the request should be 404'd immediately
  * @param path
- * @return {boolean}
  */
 export function shouldSkipRequest(path: string): boolean {
   // Check if the file is explicitly ignored
-  if (getSetting('SLS_IGNORE')) {
-    const filesToIgnore = getSetting('SLS_IGNORE')
-    // Remove the starting slash and check if the file should be ignored
-    if (filesToIgnore.includes(path.substring(1))) {
-      return true
-    }
+  const filesToIgnore = getSetting('SLS_IGNORE')
+  if (filesToIgnore && pathIsIgnored(path, filesToIgnore)) {
+    return true;
   }
 
+  // Check if there is a Regular Expression we need to validate against the path
+  const validPathRegex: RegExp|null = getSetting('SLS_VALID_PATH_REGEX');
   // Check if the path matches our regex pattern
-  if (!getSetting('SLS_VALID_PATH_REGEX')) {
-    return false
+  if (validPathRegex && !pathMatchesRegex(path, validPathRegex)) {
+    return true
   }
-  const validPathRegex = getSetting('SLS_VALID_PATH_REGEX')
-  if (validPathRegex !== null) {
-    return !validPathRegex.test(path)
-  }
-  return false;
+
+  return false
 }
+
+export function pathIsIgnored(path: string, filesToIgnore: string[]): boolean {
+  // Remove the starting slash and check if the file should be ignored
+  return !!filesToIgnore.includes(path.substring(1));
+}
+
+export function pathMatchesRegex(path: string, regex: RegExp): boolean {
+  return regex.test(path);
+}
+

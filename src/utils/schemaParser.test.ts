@@ -23,7 +23,7 @@ describe('Tests for schema validation', () => {
       fm: 'png',
       'fp-x': '0.5',
       fit: 'crop',
-      q: 75 // q can't be used with png - this should be dropped
+      q: '75' // q can't be used with png - this should be dropped
     }
     const schema = schemaParser.getSchemaForQueryParams(request)
 
@@ -34,7 +34,7 @@ describe('Tests for schema validation', () => {
 
   test('Test valid with jpg', () => {
     const request = {
-      q: 75,
+      q: '75',
       fm: 'jpg'
     }
     const schema = schemaParser.getSchemaForQueryParams(request)
@@ -61,7 +61,7 @@ describe('Tests for schema validation', () => {
   // Two mode test
   test('Test - double mode', () => {
     const request = {
-      w: 0.4
+      w: '0.4'
     }
     const schema = schemaParser.getSchemaForQueryParams(request)
 
@@ -70,7 +70,7 @@ describe('Tests for schema validation', () => {
 
   test('Test - double mode - part 2', () => {
     const request = {
-      w: 100
+      w: '100'
     }
     const schema = schemaParser.getSchemaForQueryParams(request)
 
@@ -79,7 +79,7 @@ describe('Tests for schema validation', () => {
 
   test('Test - max range normalization', () => {
     const request = {
-      dpr: 100
+      dpr: '100'
     }
     const schema = schemaParser.getSchemaForQueryParams(request)
     const validatedSchema = schemaParser.normalizeAndValidateSchema(schema, request)
@@ -89,7 +89,7 @@ describe('Tests for schema validation', () => {
 
   test('Test - min range normalization', () => {
     const request = {
-      dpr: -1
+      dpr: '-1'
     }
     const schema = schemaParser.getSchemaForQueryParams(request)
     const validatedSchema = schemaParser.normalizeAndValidateSchema(schema, request)

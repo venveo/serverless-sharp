@@ -1,18 +1,18 @@
 import * as httpRequestProcessor from "./httpRequestProcessor";
 
-test('parseImageKey gets basic path', () => {
-  expect(httpRequestProcessor.parseImageKey('images/image.png')).toEqual('images/image.png')
-  expect(httpRequestProcessor.parseImageKey('/images/image.png')).toEqual('images/image.png')
+test('extractObjectKeyFromUri gets basic path', () => {
+  expect(httpRequestProcessor.extractObjectKeyFromUri('images/image.png')).toEqual('images/image.png')
+  expect(httpRequestProcessor.extractObjectKeyFromUri('/images/image.png')).toEqual('images/image.png')
 })
 
-test('parseImageKey gets basic path + required prefix', () => {
-  expect(httpRequestProcessor.parseImageKey('public/images/image.png', 'public')).toEqual('public/images/image.png')
-  expect(httpRequestProcessor.parseImageKey('/images/image.png', 'public')).toEqual('public/images/image.png')
-  expect(httpRequestProcessor.parseImageKey('/products/1-Image%20With%20Space/2%20Product%20Image.png', 'public')).toEqual('public/products/1-Image With Space/2 Product Image.png')
+test('extractObjectKeyFromUri gets basic path + required prefix', () => {
+  expect(httpRequestProcessor.extractObjectKeyFromUri('public/images/image.png', 'public')).toEqual('public/images/image.png')
+  expect(httpRequestProcessor.extractObjectKeyFromUri('/images/image.png', 'public')).toEqual('public/images/image.png')
+  expect(httpRequestProcessor.extractObjectKeyFromUri('/products/1-Image%20With%20Space/2%20Product%20Image.png', 'public')).toEqual('public/products/1-Image With Space/2 Product Image.png')
 })
 
-test('parseImageKey with encoded URI', () => {
-  expect(httpRequestProcessor.parseImageKey('/products/1-Image%20With%20Space/2%20Product%20Image.png', 'public')).toEqual('public/products/1-Image With Space/2 Product Image.png')
+test('extractObjectKeyFromUri with encoded URI', () => {
+  expect(httpRequestProcessor.extractObjectKeyFromUri('/products/1-Image%20With%20Space/2%20Product%20Image.png', 'public')).toEqual('public/products/1-Image With Space/2 Product Image.png')
 })
 
 test('buildQueryStringFromObject', () => {
@@ -53,17 +53,17 @@ test('buildQueryStringFromObject', () => {
 
 test('processSourceBucket', () => {
   // No prefix, only bucket
-  expect(httpRequestProcessor.processSourceBucket('my-bucket')).toMatchObject({prefix: '', bucket: 'my-bucket'})
-  expect(httpRequestProcessor.processSourceBucket('my-bucket/some-prefix')).toMatchObject({
+  expect(httpRequestProcessor.extractBucketNameAndPrefix('my-bucket')).toMatchObject({prefix: null, name: 'my-bucket'})
+  expect(httpRequestProcessor.extractBucketNameAndPrefix('my-bucket/some-prefix')).toMatchObject({
     prefix: 'some-prefix',
-    bucket: 'my-bucket'
+    name: 'my-bucket'
   })
-  expect(httpRequestProcessor.processSourceBucket('my-bucket/some-prefix/another')).toMatchObject({
+  expect(httpRequestProcessor.extractBucketNameAndPrefix('my-bucket/some-prefix/another')).toMatchObject({
     prefix: 'some-prefix/another',
-    bucket: 'my-bucket'
+    name: 'my-bucket'
   })
-  expect(httpRequestProcessor.processSourceBucket('my-bucket/some-prefix//another')).toMatchObject({
+  expect(httpRequestProcessor.extractBucketNameAndPrefix('my-bucket/some-prefix//another')).toMatchObject({
     prefix: 'some-prefix//another',
-    bucket: 'my-bucket'
+    name: 'my-bucket'
   })
 })

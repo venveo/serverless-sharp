@@ -1,10 +1,12 @@
+import {QueryStringParameters, BucketDetails, RequestHeaders} from "../types/common";
+
 /**
- * Parses the name of the appropriate Amazon S3 key corresponding to the
- * original image.
- * @param uri
- * @param requiredPrefix
+ * Extracts the name of the appropriate Amazon S3 object
+ *
+ * @param uri The URI from the request. Starting slashes will be removed automatically
+ * @param requiredPrefix A prefix to prepend to the key. A trailing slash will be added automatically
  */
-export function parseImageKey(uri: string, requiredPrefix: string | null = null) {
+export function extractObjectKeyFromUri(uri: string, requiredPrefix: string | null = null): string {
   // Decode the image request and return the image key
   // Ensure the path starts with our prefix
   let key = decodeURI(uri)
@@ -22,11 +24,10 @@ export function parseImageKey(uri: string, requiredPrefix: string | null = null)
 
 /**
  * Assembles an object of query params into a string for hashing. Removes `s` query param automatically
- * @param queryStringParameters
- * @returns {string}
- * @private
+ *
+ * @param queryStringParameters An object containing each of the query parameters and its value
  */
-export function buildQueryStringFromObject(queryStringParameters: object) {
+export function buildQueryStringFromObject(queryStringParameters: QueryStringParameters): string {
   let string = ''
   for (const [k, v] of Object.entries(queryStringParameters)) {
     // Don't hash the security token
@@ -41,33 +42,29 @@ export function buildQueryStringFromObject(queryStringParameters: object) {
 }
 
 /**
- * Extracts the bucket and prefix from a string like,
- * mybucket/some-path/to-objects
- * @param fullPath
- * @returns {{bucket: null, prefix: string}}
+ * Extracts the name of a bucket and a path prefix, if defined
+ *
+ * Example:,
+ *  bucket/some-path/to-objects
+ * {name: 'bucket', prefix: 'some-path/to-objects'}
  */
-export function processSourceBucket(fullPath: string) {
-  const result: { bucket: string | null; prefix: string | null } = {
-    prefix: '',
-    bucket: null
-  }
+export function extractBucketNameAndPrefix(fullPath: string): BucketDetails {
 
   const parts = fullPath.split(/\/(.+)/)
-  result.bucket = parts[0]
-  result.prefix = parts[1]
-  // TODO: Clean this up
-  if (result.prefix === undefined) {
-    result.prefix = null
+  const name = parts[0]
+  const prefix = parts[1] ?? null
+  return {
+    name,
+    prefix
   }
-  return result
 }
 
 /**
  * Parses headers from an event and retrieves special compatibility cases for modern image types
  * @return {string[]}
  */
-export function getAcceptedImageFormatsFromHeaders(headers: any) {
-  if (headers.Accept === undefined || !headers.Accept) {
+export function getAcceptedImageFormatsFromHeaders(headers: RequestHeaders) {
+  if (headers === undefined || !headers.Accept) {
     return [];
   }
   const specialFormats: { [index: string]: string } = {
