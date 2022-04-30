@@ -6,10 +6,11 @@ export interface ImageOptimizeRequestParameters {
 
 export type ParsedSchemaItem = {
   passed: boolean,
-  processedValue: any,
+  processedValue?: any,
   implicit: boolean,
-  schema: object,
-  expectation: object
+  schema?: object,
+  expectation?: object,
+  message?: string
 }
 
 export type BucketDetails = {
@@ -25,5 +26,3 @@ export interface QueryStringParameters {
 export interface RequestHeaders {
   [index: string]: string;
 }
-
-

@@ -18,7 +18,7 @@ test('replaceAliases - compare objects', () => {
 })
 
 describe('Tests for schema validation', () => {
-  test('Test invalid', () => {
+  test('Invalid combination: png & q', () => {
     const request = {
       fm: 'png',
       'fp-x': '0.5',
@@ -32,7 +32,7 @@ describe('Tests for schema validation', () => {
     }).not.toThrow(ExpectationTypeException)
   })
 
-  test('Test valid with jpg', () => {
+  test('Valid with jpg', () => {
     const request = {
       q: '75',
       fm: 'jpg'
@@ -45,7 +45,7 @@ describe('Tests for schema validation', () => {
     expect(validatedSchema.q.passed).toEqual(true)
   })
 
-  test('Test valid', () => {
+  test('Valid', () => {
     const request = {
       f: 'png',
       'fp-x': '0.5',
@@ -59,7 +59,7 @@ describe('Tests for schema validation', () => {
   })
 
   // Two mode test
-  test('Test - double mode', () => {
+  test('Double mode - ratio', () => {
     const request = {
       w: '0.4'
     }
@@ -68,7 +68,7 @@ describe('Tests for schema validation', () => {
     expect(() => schemaParser.normalizeAndValidateSchema(schema, request)).not.toThrow(ExpectationTypeException)
   })
 
-  test('Test - double mode - part 2', () => {
+  test('Double mode -  int', () => {
     const request = {
       w: '100'
     }
@@ -77,7 +77,7 @@ describe('Tests for schema validation', () => {
     expect(() => schemaParser.normalizeAndValidateSchema(schema, request)).not.toThrow(ExpectationTypeException)
   })
 
-  test('Test - max range normalization', () => {
+  test('Max range normalization', () => {
     const request = {
       dpr: '100'
     }
@@ -87,7 +87,7 @@ describe('Tests for schema validation', () => {
     expect(validatedSchema.dpr.processedValue).toEqual(5)
   })
 
-  test('Test - min range normalization', () => {
+  test('Min range normalization', () => {
     const request = {
       dpr: '-1'
     }

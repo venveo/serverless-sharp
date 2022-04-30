@@ -4,16 +4,14 @@
   "author": {
     "name": "Venveo",
     "url": "https://www.venveo.com",
-    "email": "info@venveo.com"
+    "email": "development@venveo.com"
   },
   "scripts": {
     "test": "jest",
     "docs": "serve ./docs",
     "build": "sls package",
     "deploy": "sls deploy",
-    "offline": "sls offline",
-    "make-json-schema": "quicktype ./data/schema.json -l schema -o ./data/json_schema.json",
-    "make-schema-types": "quicktype -s schema ./data/json_schema.json -o src/types/imgix.d.ts --just-types --converters all-objects --all-properties-optional"
+    "offline": "sls offline"
   },
   "version": "2.2.0",
   "private": false,
@@ -32,7 +30,6 @@
     "eslint-plugin-jest": "^26.1.5",
     "jest": "^27.0.0",
     "prettier": "^2.6.2",
-    "quicktype": "^15.0.261",
     "serverless": "^3.0.0",
     "serverless-esbuild": "^1.26.2",
     "serverless-offline": "^8.0.0",
