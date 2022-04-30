@@ -11,6 +11,7 @@
     "docs": "serve ./docs",
     "build": "sls package",
     "deploy": "sls deploy",
+    "offline": "sls offline",
     "make-json-schema": "quicktype ./data/schema.json -l schema -o ./data/json_schema.json",
     "make-schema-types": "quicktype -s schema ./data/json_schema.json -o src/types/imgix.d.ts --just-types --converters all-objects --all-properties-optional"
   },

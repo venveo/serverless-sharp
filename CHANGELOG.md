@@ -4,6 +4,7 @@
 ### Added
 - Added support for AVIF output with `auto=format`
 - Added esbuild for bundling build
+- Added "offline" npm command for local testing
 
 ### Changed
 - Fix potential error with undefined multiValueQueryStringParameters
