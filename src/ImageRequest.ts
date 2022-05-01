@@ -6,9 +6,15 @@ import {verifyHash} from "./utils/security";
 import {getSetting} from "./utils/settings";
 import HashException from "./errors/HashException";
 // import S3Exception from "./errors/S3Exception";
-import {BucketDetails, RequestHeaders} from "./types/common";
+import {
+  BucketDetails,
+  RequestHeaders,
+  ParameterTypesSchema,
+  QueryStringParameters,
+  ParsedSchemaItem
+} from "./types/common";
 
-import S3 from "aws-sdk/clients/s3";
+import S3, {Body, ContentLength, GetObjectOutput} from "aws-sdk/clients/s3";
 
 export default class ImageRequest {
   bucketDetails: BucketDetails
@@ -16,21 +22,21 @@ export default class ImageRequest {
   key: string
   event: any
 
-  originalImageObject: any;
-  originalImageBody: any;
-  originalImageSize: any;
+  originalImageObject: GetObjectOutput | null = null;
+  originalImageBody: Body | null = null;
+  originalImageSize: ContentLength | null = null;
 
   sharpObject: sharp.Sharp | null = null;
   originalMetadata: sharp.Metadata | null = null;
-  schema: Record<string, unknown> | null = null;
-  edits: Record<string, unknown> | null = null;
+  schema: ParameterTypesSchema | null = null;
+  edits: { [operation: string]: ParsedSchemaItem } | null = null;
   headers: RequestHeaders | null = null;
 
   constructor(event: any) {
     this.event = event
     // If the hash isn't set when it should be, we'll throw an error.
     if (getSetting('SECURITY_KEY')) {
-      this.checkHash()
+      this.ensureHash()
     }
 
     this.bucketDetails = extractBucketNameAndPrefix(getSetting('SOURCE_BUCKET'))
@@ -42,14 +48,13 @@ export default class ImageRequest {
 
   /**
    * This method does a number of async things, such as getting the image object and building a schema
-   * @return {Promise<void>}
    */
-  async process() {
+  async process(): Promise<void> {
     this.originalImageObject = await this.getOriginalImage()
-    this.originalImageBody = this.originalImageObject.Body
-    this.originalImageSize = this.originalImageObject.ContentLength
+    this.originalImageBody = this.originalImageObject.Body ?? null
+    this.originalImageSize = this.originalImageObject.ContentLength ?? null
 
-    this.sharpObject = sharp(this.originalImageBody)
+    this.sharpObject = sharp(this.originalImageBody as Buffer)
     this.originalMetadata = await this.sharpObject.metadata()
     this.headers = this.event.headers
 
@@ -96,7 +101,7 @@ export default class ImageRequest {
   /**
    * Gets the original image from an Amazon S3 bucket.
    */
-  async getOriginalImage() {
+  async getOriginalImage(): Promise<GetObjectOutput> {
     const s3 = new S3()
     const imageLocation = {Bucket: this.bucketDetails.name, Key: decodeURIComponent(this.key)}
     const request = s3.getObject(imageLocation).promise()
@@ -114,8 +119,10 @@ export default class ImageRequest {
   /**
    * Parses the name of the appropriate Amazon S3 key corresponding to the
    * original image.
+   *
+   * Throws a HashException if the hash is invalid or not present when it needs to be.
    */
-  checkHash() {
+  ensureHash(): void {
     const {queryStringParameters, path} = this.event
     if (queryStringParameters && queryStringParameters.s === undefined) {
       throw new HashException()
@@ -127,10 +134,13 @@ export default class ImageRequest {
         throw new HashException()
       }
     }
-    return true
   }
 
-  normalizeQueryParams(params = {}) {
+  /**
+   *
+   * @param params
+   */
+  normalizeQueryParams(params: QueryStringParameters = {}): QueryStringParameters {
     if (!params) {
       params = {}
     }

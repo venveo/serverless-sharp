@@ -1,3 +1,5 @@
+import {ParameterType} from "./imgix";
+
 export interface ImageOptimizeRequestParameters {
   queryParametersString: string | null,
   path: string,
@@ -25,4 +27,17 @@ export interface QueryStringParameters {
 
 export interface RequestHeaders {
   [index: string]: string;
+}
+
+export type ParameterTypesSchema = { [key: string]: ParameterType }
+
+export enum ImageExtensions {
+  JPG = 'jpg',
+  JPEG = 'jpeg',
+  PNG = 'png',
+  WEBP = 'webp',
+  AVIF = 'avif',
+  TIFF = 'tiff',
+  HEIF = 'heif',
+  GIF = 'gif'
 }

@@ -12,6 +12,7 @@
 - Updated to Serverless framework 3
 - Updated Sharp to 0.30.4
 - Added Makefile for building Sharp Lambda layer
+- checkHash has become ensureHash
 
 ### Fixed
 - Fix quality parameter (`q`) not being respected with `auto=format`

@@ -1,5 +1,5 @@
 import ExpectationTypeException from "../errors/ExpectationTypeException";
-import {ParsedSchemaItem, QueryStringParameters} from "../types/common";
+import {ParsedSchemaItem, QueryStringParameters, ParameterTypesSchema} from "../types/common";
 import {ExpectedValue, ExpectedValueType, Imgix, ParameterType} from "../types/imgix";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -30,7 +30,7 @@ export function replaceAliases(queryParameters: QueryStringParameters = {}): Que
  * Gets all of the valid schema parameters from an object, indexed by the parameter type
  * @param queryParameters
  */
-export function getSchemaForQueryParams(queryParameters: QueryStringParameters = {}): { [key: string]: ParameterType } {
+export function getSchemaForQueryParams(queryParameters: QueryStringParameters = {}): ParameterTypesSchema {
   const params = schema.parameters
   const result: { [key: string]: ParameterType } = {}
 
@@ -48,7 +48,7 @@ export function getSchemaForQueryParams(queryParameters: QueryStringParameters =
  * @param {Object} values
  * @return {Object}
  */
-export function normalizeAndValidateSchema(schema: { [key: string]: ParameterType } = {}, values: QueryStringParameters = {}) {
+export function normalizeAndValidateSchema(schema: ParameterTypesSchema, values: QueryStringParameters = {}) {
   // Keeps a list of dependencies for each schema item
   const dependenciesByParameterIndex: {[key: string]: string[]} = {}
   let expectationValues: {[key: string]: ParsedSchemaItem} = {}
