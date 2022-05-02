@@ -1,6 +1,7 @@
 import ExpectationTypeException from "../errors/ExpectationTypeException";
 import {ParsedSchemaItem, QueryStringParameters, ParameterTypesSchema} from "../types/common";
-import {ExpectedValue, ExpectedValueType, Imgix, ParameterType} from "../types/imgix";
+import {ExpectedValueDefinition, Imgix, ParameterType} from "../types/imgix";
+import {processInputValue} from "./inputValueProcessor";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const schema: Imgix = require('../../data/schema')
@@ -50,8 +51,8 @@ export function getSchemaForQueryParams(queryParameters: QueryStringParameters =
  */
 export function normalizeAndValidateSchema(schema: ParameterTypesSchema, values: QueryStringParameters = {}) {
   // Keeps a list of dependencies for each schema item
-  const dependenciesByParameterIndex: {[key: string]: string[]} = {}
-  let expectationValues: {[key: string]: ParsedSchemaItem} = {}
+  const dependenciesByParameterIndex: { [key: string]: string[] } = {}
+  let expectationValues: { [key: string]: ParsedSchemaItem } = {}
 
   Object.keys(schema).forEach((parameterIndex) => {
     // Keep track of dependencies we need to verify later
@@ -67,13 +68,13 @@ export function normalizeAndValidateSchema(schema: ParameterTypesSchema, values:
     // Check the expectations for each item. Note, each item can have multiple valid expectations.
     if (schema[parameterIndex].expects !== undefined) {
       let passedExpectation = null
-      let result: ParsedSchemaItem|null = null
+      let result: ParsedSchemaItem | null = null
       for (let i = 0, len = schema[parameterIndex].expects.length; i < len; i++) {
         if (passedExpectation) {
           continue
         }
 
-        result = processExpectation(schema[parameterIndex].expects[i], values[parameterIndex])
+        result = processInputValueExpectation(schema[parameterIndex].expects[i], values[parameterIndex])
         if (result.passed) {
           passedExpectation = schema[parameterIndex].expects[i]
         }
@@ -106,7 +107,7 @@ export function normalizeAndValidateSchema(schema: ParameterTypesSchema, values:
  * @param {Object} expectationValues.schema
  * @return {Object}
  */
-export function processDefaults(expectationValues: {[key: string]: ParsedSchemaItem}) {
+export function processDefaults(expectationValues: { [key: string]: ParsedSchemaItem }) {
   const fullSchemaParameters = schema.parameters
   Object.keys(fullSchemaParameters).forEach((val) => {
     if (expectationValues[val] === undefined) {
@@ -134,7 +135,7 @@ export function processDefaults(expectationValues: {[key: string]: ParsedSchemaI
         // There was no expectation, so go ahead and pass it as null
         if (expectationValues[val] === undefined) {
           expectationValues[val] = {
-            processedValue: null,
+            processedValue: undefined,
             passed: true,
             implicit: true,
             schema: fullSchemaParameters[val],
@@ -143,7 +144,7 @@ export function processDefaults(expectationValues: {[key: string]: ParsedSchemaI
       } else {
         // Otherwise, there's no value!
         expectationValues[val] = {
-          processedValue: null,
+          processedValue: undefined,
           passed: true,
           implicit: true,
           schema: fullSchemaParameters[val],
@@ -157,8 +158,8 @@ export function processDefaults(expectationValues: {[key: string]: ParsedSchemaI
 /**
  * Processes an array of dependencies. A dependency can be like "sharp" or "crop=fit"
  */
-export function processDependencies(dependencies: {[key: string]: string[]}, expectationValues: {[key: string]: ParsedSchemaItem}) {
-  const passedDependencies:  {[key: string]: string[]|boolean} = {}
+export function processDependencies(dependencies: { [key: string]: string[] }, expectationValues: { [key: string]: ParsedSchemaItem }) {
+  const passedDependencies: { [key: string]: string[] | boolean } = {}
   Object.keys(dependencies).forEach((paramDependency) => {
     passedDependencies[paramDependency] = dependencies[paramDependency]
     for (const dependency of dependencies[paramDependency]) {
@@ -173,7 +174,7 @@ export function processDependencies(dependencies: {[key: string]: string[]}, exp
           throw new ExpectationTypeException('Important dependency not met: ' + dependency)
 
           // Our processed value is an array and it includes the value we're looking for! Winner!
-        } else if (Array.isArray(expectationValues[key].processedValue) && expectationValues[key].processedValue.includes(val)) {
+        } else if (Array.isArray(expectationValues[key].processedValue) && (expectationValues[key].processedValue as Array<string | number>).includes(val)) {
           passedDependencies[paramDependency] = true
           break
 
@@ -211,177 +212,12 @@ export function processDependencies(dependencies: {[key: string]: string[]}, exp
  * @param expects
  * @param value
  */
-export function processExpectation(expects: ExpectedValue, value: string): ParsedSchemaItem {
-  const result: ParsedSchemaItem = {
-    passed: false,
-    implicit: false
+export function processInputValueExpectation(expects: ExpectedValueDefinition, value: string): ParsedSchemaItem {
+  const processedValue = processInputValue(expects.type, value, expects)
+  return {
+    passed: processedValue.passed,
+    implicit: false,
+    processedValue: processedValue.processedValue,
+    message: processedValue.message
   }
-  let items: string[];
-  let match;
-
-  let valueAsFloat: number;
-  let valueAsInt: number;
-
-  // TODO: Break this out
-  switch (expects.type) {
-  case ExpectedValueType.String:
-    if (value.length) {
-      result.passed = true
-      result.processedValue = value
-    } else {
-      result.message = 'String length expected'
-    }
-    return result
-  case ExpectedValueType.List:
-    items = value.split(',')
-    if (!items.length) {
-      result.message = 'At least one item expected'
-      return result
-    }
-    if (expects.possible_values !== undefined) {
-      const difference = items.filter(x => !(expects.possible_values as Array<string|number>).includes(x))
-      if (difference.length > 0) {
-        // Unexpected value encountered
-        result.message = 'Invalid value encountered. Expected one of: ' + expects.possible_values.join(',')
-        return result
-      }
-    }
-    result.processedValue = items
-    result.passed = true
-    return result
-  case ExpectedValueType.Boolean:
-    if (value === 'true' || value === '1') {
-      result.passed = true
-      result.processedValue = true
-    } else if (value === 'false' || value === '0') {
-      result.passed = true
-      result.processedValue = false
-    } else {
-      result.message = 'Expected a boolean value'
-    }
-    return result
-  case ExpectedValueType.Ratio:
-    match = value.match(/([0-9]*[.]?[0-9]+):+(([0-9]*[.])?[0-9]+)$/)
-    if (!match || match.length < 3) {
-      result.message = 'Expected ratio format: 1.0:1.0'
-      return result
-    }
-    if (parseFloat(match[1]) === 0) {
-      result.message = 'Cannot divide by zero'
-      return result
-    }
-    // For example: 16:9 = 9/16 = .5625
-    result.processedValue = parseFloat(match[2]) / parseFloat(match[1])
-    result.passed = true
-    return result
-  case ExpectedValueType.Integer:
-    valueAsInt = parseInt(value)
-    if (isNaN(valueAsInt)) {
-      result.message = 'NaN'
-      return result
-    }
-    result.processedValue = valueAsInt
-
-    if (expects.strict_range !== undefined) {
-      if (expects.strict_range.max !== undefined && valueAsInt > expects.strict_range.max) {
-        result.message = 'Value out of range (too large)'
-        return result
-      }
-      if (expects.strict_range.min !== undefined && valueAsInt < expects.strict_range.min) {
-        result.message = 'Value out of range (too small)'
-        return result
-      }
-    } else if (expects.possible_values !== undefined) {
-      if (!expects.possible_values.includes(value)) {
-        result.message = 'Invalid value encountered. Expected one of: ' + expects.possible_values.join(',')
-        return result
-      }
-    }
-    result.passed = true
-    return result
-  case ExpectedValueType.Number:
-    valueAsFloat = parseFloat(value);
-    if (isNaN(valueAsFloat)) {
-      result.message = 'NaN'
-      return result
-    }
-    // Clamp the value between any defined min and max
-    if (expects.strict_range !== undefined) {
-      if (expects.strict_range.min !== undefined && valueAsFloat < expects.strict_range.min) {
-        valueAsFloat = expects.strict_range.min
-      } else if (expects.strict_range.max && valueAsFloat > expects.strict_range.max) {
-        valueAsFloat = expects.strict_range.max
-      }
-    }
-    result.processedValue = valueAsFloat
-    result.passed = true
-    return result
-  case ExpectedValueType.HexColor:
-    if (!value.match(/^(?:(?:[0-9a-fA-F]{4}){1,2})|(?:(?:[0-9a-fA-F]{3}){1,2})$/)) {
-      result.message = 'Expected hex code like fff'
-      return result
-    }
-    result.passed = true
-    result.processedValue = '#' + value
-    return result
-  case ExpectedValueType.ColorKeyword:
-    if (!schema.colorKeywordValues.includes(value)) {
-      result.message = 'Expected valid color name'
-      return result
-    }
-
-    result.passed = true
-    result.processedValue = value
-    return result
-  case ExpectedValueType.UnitScalar:
-    valueAsFloat = parseFloat(value)
-    if (isNaN(valueAsFloat)) {
-      result.message = 'NaN'
-      return result
-    }
-    result.processedValue = valueAsFloat
-    if (expects.strict_range !== undefined) {
-      if (expects.strict_range.min !== undefined && valueAsFloat < expects.strict_range.min) {
-        result.message = 'Value out of range'
-        return result
-      }
-      if (expects.strict_range.max !== undefined && valueAsFloat > expects.strict_range.max) {
-        result.message = 'Value out of range'
-        return result
-
-      }
-    }
-    result.passed = true
-    return result
-  case ExpectedValueType.Timestamp:
-    if (!((new Date(value)).getTime() > 0)) {
-      result.message = 'Expected valid unix timestamp'
-      return result
-    }
-    result.processedValue = value
-    result.passed = true
-    return result
-  case ExpectedValueType.URL:
-    if (!value.match(/^(http|https):\/\/[^ "]+$/)) {
-      result.message = 'Expected valid URL'
-      return result
-    }
-    result.processedValue = value
-    result.passed = true
-    return result
-  case ExpectedValueType.Path:
-    // TODO:
-    result.processedValue = value
-    result.passed = true
-    return result
-  case ExpectedValueType.Font:
-    // TODO:
-    result.processedValue = value
-    result.passed = true
-    return result
-    // throw new ExpectationTypeException;
-  default:
-    break
-  }
-  throw new ExpectationTypeException('Encountered unknown expectation type: '+ expects.type)
 }

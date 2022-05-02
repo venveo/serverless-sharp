@@ -4,7 +4,7 @@ import ImageRequest from "./ImageRequest";
 import * as imageOps from "./image-ops";
 import RequestNotProcessedException from "./errors/RequestNotProcessedException";
 import {ImageExtensions, ParsedSchemaItem} from "./types/common";
-import {Sharp} from "sharp";
+import {FormatEnum, Sharp} from "sharp";
 
 export default class ImageHandler {
   private readonly request: ImageRequest;
@@ -122,7 +122,7 @@ export default class ImageHandler {
     let quality = getSetting('DEFAULT_QUALITY')
     if (edits) {
       if (!edits.q.implicit) {
-        quality = parseInt(edits.q.processedValue)
+        quality = parseInt(edits.q.processedValue as string)
         if (quality < 1) {
           quality = 1
         } else if (quality > 100) {
@@ -173,8 +173,8 @@ export default class ImageHandler {
         options.lossless = true
       }
       image.avif(options)
-    } else {
-      image.toFormat(fm)
+    } else if (fm !== undefined) {
+      image.toFormat(fm as keyof FormatEnum)
     }
 
     return image

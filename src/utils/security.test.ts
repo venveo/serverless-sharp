@@ -31,7 +31,7 @@ describe('Testing hash security', () => {
       'my-image.png',
       {
         s: 'I should not be noticed',
-        w: 1000
+        w: '1000'
       },
       expected
     )).toBeFalsy()
@@ -40,7 +40,7 @@ describe('Testing hash security', () => {
       'my-image.png',
       {
         s: 'I should not be noticed',
-        w: 1000
+        w: '1000'
       },
       'c3d2851275ba7ddb0aa603b52f87e71b'
     )).toBeTruthy()
@@ -63,7 +63,7 @@ describe('Testing hash security', () => {
       'sub/path/my-image.png',
       {
         s: 'I should not be noticed',
-        w: 1000
+        w: '1000'
       },
       expected
     )).toBeFalsy()
@@ -72,7 +72,7 @@ describe('Testing hash security', () => {
       'sub/path/my-image.png',
       {
         s: 'I should not be noticed',
-        w: 1000
+        w: '1000'
       },
       '69e5b437c344d538a1d723ae4b5154a8'
     )).toBeTruthy()
@@ -82,9 +82,9 @@ describe('Testing hash security', () => {
     expect(security.verifyHash(
       'test/my-image.jpg.jpg',
       {
-        q: 100,
-        h: 100,
-        w: 700
+        q: '100',
+        h: '100',
+        w: '700'
       },
       '1B43B1D02BE0090698118229933CA2B0'
     )).toBeTruthy()

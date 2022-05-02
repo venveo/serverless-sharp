@@ -8,16 +8,16 @@ export interface ImageOptimizeRequestParameters {
 
 export type ParsedSchemaItem = {
   passed: boolean,
-  processedValue?: any,
+  processedValue?: ProcessedInputValueType,
   implicit: boolean,
   schema?: object,
   expectation?: object,
-  message?: string
+  message?: string | null
 }
 
 export type BucketDetails = {
   name: string,
-  prefix: string|null
+  prefix: string | null
 }
 
 
@@ -41,3 +41,5 @@ export enum ImageExtensions {
   HEIF = 'heif',
   GIF = 'gif'
 }
+
+export type ProcessedInputValueType = string | number | Array<string|number> | boolean

@@ -14,12 +14,12 @@ export interface ParameterType {
     category:          string;
     depends?:          string[];
     display_name:      string;
-    expects:           ExpectedValue[];
+    expects:           ExpectedValueDefinition[];
     short_description: string;
     url?:               string;
 }
 
-export interface ExpectedValue {
+export interface ExpectedValueDefinition {
     default?: string|number;
     possible_values?: Array<string|number>;
     strict_range?: Range;
@@ -171,7 +171,7 @@ export enum AvailableIn {
     URL = "url",
 }
 
-export interface The2_Element extends ExpectedValue {
+export interface The2_Element extends ExpectedValueDefinition {
     strict_range: MinimumNumberRange;
     type:         ExpectedValueType.Ratio | ExpectedValueType.Integer;
 }
@@ -211,8 +211,9 @@ export interface Auto extends ParameterType {
     expects:           AutoExpect[];
 }
 
-export interface AutoExpect extends ExpectedValue {
+export interface AutoExpect extends ExpectedValueDefinition {
     possible_values?: string[];
+    // TODO: This seems odd. Double-check this.
     type:             ExpectedValueType.List | ExpectedValueType.Path | ExpectedValueType.String | ExpectedValueType.URL;
 }
 
@@ -221,7 +222,7 @@ export interface Bg extends ParameterType {
     expects:           StringExpectation[];
 }
 
-export interface StringExpectation extends ExpectedValue{
+export interface StringExpectation extends ExpectedValueDefinition{
     type: ExpectedValueType.String;
 }
 
@@ -230,7 +231,7 @@ export interface BlendAlpha extends ParameterType {
     expects:           BlendAlphaExpect[];
 }
 
-export interface BlendAlphaExpect extends ExpectedValue {
+export interface BlendAlphaExpect extends ExpectedValueDefinition {
     strict_range: MinMaxRange;
     type:         ExpectedValueType.Integer | ExpectedValueType.UnitScalar;
 }
@@ -245,7 +246,7 @@ export interface BlendPad extends ParameterType {
     expects:           BlendPadExpect[];
 }
 
-export interface BlendPadExpect extends ExpectedValue {
+export interface BlendPadExpect extends ExpectedValueDefinition {
     suggested_range: MinimumNumberRange;
     type:            ExpectedValueType.Integer | ExpectedValueType.Number;
 }
@@ -255,7 +256,7 @@ export interface Blur extends ParameterType {
     expects:           BlurExpect[];
 }
 
-export interface BlurExpect extends ExpectedValue {
+export interface BlurExpect extends ExpectedValueDefinition {
     suggested_range: MinMaxRange;
     type:            ExpectedValueType.Integer | ExpectedValueType.Number;
 }
@@ -264,7 +265,7 @@ export interface Border extends ParameterType {
     expects:           BorderExpect[];
 }
 
-export interface BorderExpect extends ExpectedValue {
+export interface BorderExpect extends ExpectedValueDefinition {
     "0":    BlurExpect[];
     "1":    StringExpectation[];
     length: number;
@@ -275,7 +276,7 @@ export interface BorderRadius extends ParameterType {
     expects:           BorderRadiusExpect[];
 }
 
-export interface BorderRadiusExpect extends ExpectedValue {
+export interface BorderRadiusExpect extends ExpectedValueDefinition {
     "0"?:          The2_Element[];
     "1"?:          The2_Element[];
     "2"?:          The2_Element[];
@@ -290,7 +291,7 @@ export interface Chromasub extends ParameterType {
     expects:           ChromasubExpect[];
 }
 
-export interface ChromasubExpect extends ExpectedValue {
+export interface ChromasubExpect extends ExpectedValueDefinition {
     possible_values: number[];
     type:            ExpectedValueType.Ratio | ExpectedValueType.Integer;
 }
@@ -304,7 +305,7 @@ export interface Dpr extends ParameterType {
     expects:           DprExpect[];
 }
 
-export interface DprExpect extends ExpectedValue {
+export interface DprExpect extends ExpectedValueDefinition {
     default?:        number;
     strict_range:    MinMaxRange;
     suggested_range: MinMaxRange;
@@ -315,7 +316,7 @@ export interface Duotone extends ParameterType {
     expects:           DuotoneExpect[];
 }
 
-export interface DuotoneExpect extends ExpectedValue {
+export interface DuotoneExpect extends ExpectedValueDefinition {
     "0":      StringExpectation[];
     "1":      StringExpectation[];
     default?: string;
@@ -327,7 +328,7 @@ export interface FP extends ParameterType {
     expects:           FPXExpect[];
 }
 
-export interface FPXExpect extends ExpectedValue {
+export interface FPXExpect extends ExpectedValueDefinition {
     default:      number;
     strict_range: MinMaxRange;
     type:         ExpectedValueType.Integer | ExpectedValueType.UnitScalar;
@@ -345,7 +346,7 @@ export interface GridSize extends ParameterType {
     expects:           GridSizeExpect[];
 }
 
-export interface GridSizeExpect extends ExpectedValue {
+export interface GridSizeExpect extends ExpectedValueDefinition {
     default:      number;
     strict_range: MinimumNumberRange;
     type:         ExpectedValueType.Ratio | ExpectedValueType.Integer;
@@ -359,7 +360,7 @@ export interface PadBottom extends ParameterType {
     expects:           PadBottomExpect[];
 }
 
-export interface PadBottomExpect extends ExpectedValue {
+export interface PadBottomExpect extends ExpectedValueDefinition {
     default:         number;
     suggested_range: MinimumNumberRange;
     type:            ExpectedValueType.Ratio | ExpectedValueType.Integer;
@@ -369,16 +370,17 @@ export interface Rect extends ParameterType {
     expects:           RectExpect[];
 }
 
-export interface RectExpect extends ExpectedValue {
+export interface RectExpect extends ExpectedValueDefinition {
     "0":    The0[];
     "1":    The0[];
     "2":    The2_Element[];
     "3":    The2_Element[];
     length: number;
+    // TODO: This seems odd. Double-check this.
     type:   ExpectedValueType.List | ExpectedValueType.Path | ExpectedValueType.String | ExpectedValueType.URL;
 }
 
-export interface The0 extends ExpectedValue{
+export interface The0 extends ExpectedValueDefinition{
     possible_values?: string[];
     strict_range?:    MinMaxRange;
     type:             ExpectedValueType.String;
