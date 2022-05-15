@@ -11,7 +11,8 @@ import {
   RequestHeaders,
   ParameterTypesSchema,
   QueryStringParameters,
-  ParsedSchemaItem
+  ParsedSchemaItem,
+  GenericInvocationEvent
 } from "./types/common";
 
 import S3, {Body, ContentLength, GetObjectOutput} from "aws-sdk/clients/s3";
@@ -20,7 +21,7 @@ export default class ImageRequest {
   bucketDetails: BucketDetails
 
   key: string
-  event: any
+  event: GenericInvocationEvent
 
   originalImageObject: GetObjectOutput | null = null;
   originalImageBody: Body | null = null;
@@ -32,7 +33,7 @@ export default class ImageRequest {
   edits: { [operation: string]: ParsedSchemaItem } | null = null;
   headers: RequestHeaders | null = null;
 
-  constructor(event: any) {
+  constructor(event: GenericInvocationEvent) {
     this.event = event
     // If the hash isn't set when it should be, we'll throw an error.
     if (getSetting('SECURITY_KEY')) {
@@ -41,8 +42,7 @@ export default class ImageRequest {
 
     this.bucketDetails = extractBucketNameAndPrefix(getSetting('SOURCE_BUCKET'))
 
-    // Handle API Gateway event and Lambda URL event
-    const path = event.path ?? event.rawPath ?? null
+    const path = event.path
     this.key = extractObjectKeyFromUri(path, this.bucketDetails.prefix)
   }
 
@@ -56,12 +56,13 @@ export default class ImageRequest {
 
     this.sharpObject = sharp(this.originalImageBody as Buffer)
     this.originalMetadata = await this.sharpObject.metadata()
-    this.headers = this.event.headers
+    // TODO: This is redundant. Remove it.
+    this.headers = this.event.headers ?? null
 
-    const queryParams = this.normalizeQueryParams(this.event.queryStringParameters)
+    const queryParams = this.event.queryParams ? this.normalizeQueryParams(this.event.queryParams) : null
 
-    this.schema = getSchemaForQueryParams(queryParams)
-    this.edits = normalizeAndValidateSchema(this.schema, queryParams)
+    this.schema = queryParams ? getSchemaForQueryParams(queryParams) : null
+    this.edits = (this.schema && queryParams) ? normalizeAndValidateSchema(this.schema, queryParams) : null
   }
 
   getAutoFormat() {
@@ -70,8 +71,8 @@ export default class ImageRequest {
     }
     const coercibleFormats = ['jpg', 'png', 'webp', 'avif', 'jpeg', 'tiff']
     let autoParam = null
-    if (this.event.multiValueQueryStringParameters && this.event.multiValueQueryStringParameters.auto) {
-      autoParam = this.event.multiValueQueryStringParameters.auto
+    if (this.event.queryParams && this.event.queryParams.auto) {
+      autoParam = this.event.queryParams.auto
     }
     const specialOutputFormats = getAcceptedImageFormatsFromHeaders(this.headers)
 
@@ -123,13 +124,13 @@ export default class ImageRequest {
    * Throws a HashException if the hash is invalid or not present when it needs to be.
    */
   ensureHash(): void {
-    const {queryStringParameters, path} = this.event
-    if (queryStringParameters && queryStringParameters.s === undefined) {
+    const {queryParams, path} = this.event
+    if (queryParams && queryParams.s === undefined) {
       throw new HashException()
     }
-    if (queryStringParameters) {
-      const hash = queryStringParameters.s
-      const isValid = verifyHash(path, queryStringParameters, hash)
+    if (queryParams) {
+      const hash = queryParams.s
+      const isValid = verifyHash(path, queryParams, hash)
       if (!isValid) {
         throw new HashException()
       }

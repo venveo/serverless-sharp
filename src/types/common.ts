@@ -43,3 +43,9 @@ export enum ImageExtensions {
 }
 
 export type ProcessedInputValueType = string | number | Array<string|number> | boolean
+
+export type GenericInvocationEvent = {
+  path: string,
+  headers?: RequestHeaders | null,
+  queryParams?: QueryStringParameters | null
+}

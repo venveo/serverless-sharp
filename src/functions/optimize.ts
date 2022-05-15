@@ -9,6 +9,11 @@ import {
   APIGatewayProxyEvent,
   APIGatewayProxyResult
 } from "aws-lambda";
+import {
+  GenericInvocationEvent,
+  QueryStringParameters,
+  RequestHeaders
+} from "../types/common";
 
 export const handler: Handler = async function (event: APIGatewayProxyEvent, context): Promise<APIGatewayProxyResult> {
   const beforeHandle = beforeHandleRequest(event)
@@ -20,8 +25,14 @@ export const handler: Handler = async function (event: APIGatewayProxyEvent, con
     return beforeHandle.response
   }
 
+  const normalizedEvent: GenericInvocationEvent = {
+    queryParams: event.queryStringParameters as QueryStringParameters,
+    path: event.path,
+    headers: event.headers as RequestHeaders
+  }
+
   try {
-    const imageRequest = new ImageRequest(event)
+    const imageRequest = new ImageRequest(normalizedEvent)
     await imageRequest.process() // This is important! We need to load the metadata off the image and check the format
     const imageHandler = new ImageHandler(imageRequest)
 
@@ -40,7 +51,7 @@ export const handler: Handler = async function (event: APIGatewayProxyEvent, con
       body: processedRequest.Body,
       isBase64Encoded: true
     }
-    if (context && context.succeed) {
+    if (context && context.succeed !== undefined) {
       context.succeed(response)
     }
     return response

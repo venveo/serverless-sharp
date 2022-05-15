@@ -2,6 +2,7 @@
 import ImageRequest from "./ImageRequest";
 import HashException from "./errors/HashException";
 import {calculateHash} from "./utils/security";
+import {GenericInvocationEvent} from "./types/common";
 
 describe('Testing ImageRequest', () => {
   const OLD_ENV = process.env
@@ -17,7 +18,7 @@ describe('Testing ImageRequest', () => {
   })
 
   test('Can CreateImageRequest', () => {
-    const event = {
+    const event: GenericInvocationEvent = {
       path: '/some/prefix/images/my-object.png'
     }
 
@@ -35,13 +36,13 @@ describe('Testing ImageRequest', () => {
   test('Can CreateImageRequest - with hash (valid)', () => {
     const event = {
       path: '/some/prefix/images/my-object.png',
-      queryStringParameters: {
+      queryParams: {
         s: ''
       }
     }
     process.env.SECURITY_KEY = '12345asdf'
     process.env.SOURCE_BUCKET = 'assets.test.com/some/prefix'
-    event.queryStringParameters.s = calculateHash(event.path, event.queryStringParameters, process.env.SECURITY_KEY)
+    event.queryParams.s = calculateHash(event.path, event.queryParams, process.env.SECURITY_KEY)
 
     const request = new ImageRequest(event)
     const bucketDetails = request.bucketDetails
@@ -54,7 +55,7 @@ describe('Testing ImageRequest', () => {
   test('Can CreateImageRequest - with hash (invalid)', () => {
     const event = {
       path: '/some/prefix/images/my-object.png',
-      queryStringParameters: {
+      queryParams: {
         s: ''
       }
     }
@@ -63,7 +64,7 @@ describe('Testing ImageRequest', () => {
 
     const hash = 'password'
 
-    event.queryStringParameters.s = hash
+    event.queryParams.s = hash
 
     expect(() => {
       new ImageRequest(event)
