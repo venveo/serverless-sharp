@@ -8,7 +8,7 @@ import HashException from "./errors/HashException";
 // import S3Exception from "./errors/S3Exception";
 import {
   BucketDetails,
-  RequestHeaders,
+  GenericHeaders,
   ParameterTypesSchema,
   QueryStringParameters,
   ParsedSchemaItem,
@@ -31,7 +31,7 @@ export default class ImageRequest {
   originalMetadata: sharp.Metadata | null = null;
   schema: ParameterTypesSchema | null = null;
   edits: { [operation: string]: ParsedSchemaItem } | null = null;
-  headers: RequestHeaders | null = null;
+  headers: GenericHeaders | null = null;
 
   constructor(event: GenericInvocationEvent) {
     this.event = event
@@ -69,6 +69,7 @@ export default class ImageRequest {
     if (!this.headers || !this.originalMetadata || this.originalMetadata.format === undefined) {
       return null;
     }
+    // TODO: Use enums here
     const coercibleFormats = ['jpg', 'png', 'webp', 'avif', 'jpeg', 'tiff']
     let autoParam = null
     if (this.event.queryParams && this.event.queryParams.auto) {
@@ -84,14 +85,17 @@ export default class ImageRequest {
       return null
     }
 
+    // TODO: Use enum here
     if (specialOutputFormats.includes('avif')) {
       return 'avif'
     }
     // If avif isn't available, try to use webp
+    // TODO: Use enum here
     else if (specialOutputFormats.includes('webp')) {
       return 'webp'
     }
     // Coerce pngs and tiffs without alpha channels to jpg
+    // TODO: Use enum here
     else if (!this.originalMetadata.hasAlpha && (['png', 'tiff'].includes(this.originalMetadata.format))) {
       return 'jpeg'
     }

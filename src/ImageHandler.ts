@@ -3,7 +3,7 @@ import {getSetting} from "./utils/settings";
 import ImageRequest from "./ImageRequest";
 import * as imageOps from "./image-ops";
 import RequestNotProcessedException from "./errors/RequestNotProcessedException";
-import {ImageExtensions, ParsedSchemaItem} from "./types/common";
+import {ImageExtensions, ParsedSchemaItem, ProcessedImageRequest} from "./types/common";
 import {FormatEnum, Sharp} from "sharp";
 
 export default class ImageHandler {
@@ -19,7 +19,7 @@ export default class ImageHandler {
   /**
    * Main method for processing image requests and outputting modified images.
    */
-  async process() {
+  async process(): Promise<ProcessedImageRequest> {
     // Get the original image
     const originalImageObject = this.request.originalImageObject
     const originalImageBody = this.request.originalImageBody
@@ -27,28 +27,29 @@ export default class ImageHandler {
       throw new RequestNotProcessedException('Original image body or image object not available prior to processing.')
     }
 
-    let contentType = originalImageObject.ContentType
-    let format
+    let contentType = originalImageObject.ContentType ?? null
+    if (!contentType) {
+      throw new RequestNotProcessedException('Original image content type unknown.')
+    }
+    // TODO: Add typechecking here
+    let format = 'input'
     let bufferImage
 
     // We have some edits to process
-    if (this.request.edits && Object.keys(this.request.edits).length) {
-      try {
-        // We're calling rotate on this immediately in order to ensure metadata for rotation doesn't get lost
-        const pipeline = this.request.sharpObject.rotate()
+    try {
+      // We're calling rotate on this immediately in order to ensure metadata for rotation doesn't get lost
+      const pipeline = this.request.sharpObject.rotate()
+      if (this.request.edits && Object.keys(this.request.edits).length) {
         await this.applyEdits(pipeline, this.request.edits)
-        await this.applyOptimizations(pipeline)
-        bufferImage = await pipeline.toBuffer()
-        // pipeline.options is not in the Sharp ts definitions. Should probably create a PR
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        format = pipeline.options.formatOut
-      } catch (err) {
-        console.error('Unhandlable image encountered', err)
-        bufferImage = Buffer.from(originalImageBody.toString(), 'binary')
       }
-    } else {
-      // No edits, just return the original
+      await this.applyOptimizations(pipeline)
+      bufferImage = await pipeline.toBuffer()
+      // pipeline.options is not in the Sharp ts definitions. Should probably create a PR
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      format = pipeline.options.formatOut
+    } catch (err) {
+      console.error('Unhandlable image encountered', err)
       bufferImage = Buffer.from(originalImageBody.toString(), 'binary')
     }
     if (format) {
@@ -77,7 +78,7 @@ export default class ImageHandler {
     }
 
     return {
-      CacheControl: originalImageObject.CacheControl,
+      CacheControl: originalImageObject.CacheControl ?? null,
       Body: bufferImage.toString('base64'),
       ContentType: contentType,
       ContentLength: Buffer.byteLength(bufferImage, 'base64')
