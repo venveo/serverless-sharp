@@ -16,9 +16,6 @@ import {
 } from "../types/common";
 
 export const handler: Handler = async function (event: APIGatewayProxyEvent, context): Promise<APIGatewayProxyResult> {
-  console.log('Context', context)
-
-
   const normalizedEvent: GenericInvocationEvent = {
     queryParams: event.queryStringParameters as QueryStringParameters,
     path: event.path,
@@ -36,12 +33,14 @@ export const handler: Handler = async function (event: APIGatewayProxyEvent, con
 
   try {
     const imageRequest = new ImageRequest(normalizedEvent)
-    await imageRequest.process() // This is important! We need to load the metadata off the image and check the format
+
+    // This is important! We need to load the metadata off the image and check the format
+    await imageRequest.process()
     const imageHandler = new ImageHandler(imageRequest)
 
     const processedRequest = await imageHandler.process()
 
-    const originalImageSize = imageRequest.originalImageSize as number
+    const originalImageSize = imageRequest.inputObjectSize as number
     const newImageSize = processedRequest.ContentLength
     const sizeDifference = newImageSize - originalImageSize
 

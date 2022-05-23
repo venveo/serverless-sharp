@@ -9,6 +9,8 @@ export type ParsedSchemaItem = {
   message?: string | null
 }
 
+export type ParsedEdits = { [operation: string]: ParsedSchemaItem }
+
 export type BucketDetails = {
   name: string,
   prefix: string | null
@@ -36,7 +38,7 @@ export enum ImageExtensions {
   GIF = 'gif'
 }
 
-export type ProcessedInputValueType = string | number | Array<string | number> | boolean
+export type ProcessedInputValueType = string | number | Array<string | number> | boolean | null
 
 export type GenericInvocationEvent = {
   path: string,

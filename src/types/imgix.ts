@@ -385,3 +385,8 @@ export interface The0 extends ExpectedValueDefinition{
     strict_range?:    MinMaxRange;
     type:             ExpectedValueType.String;
 }
+
+export enum FillMode {
+    blur = "blur",
+    solid = "solid"
+}

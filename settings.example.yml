@@ -10,6 +10,7 @@ defaults: &defaults
     MAX_IMAGE_HEIGHT: 2000
     PNGQUANT_SPEED: 10
     DEFAULT_CACHE_CONTROL: 'max-age=2592000'
+    LOG_LEVEL: info
 
 stages:
   dev:
@@ -20,6 +21,7 @@ stages:
       SECURITY_KEY: ''
       CUSTOM_DOMAIN: ''
       ACM_CERTIFICATE_ARN: ''
+      LOG_LEVEL: debug
   prod:
     <<: *defaults
     environment:

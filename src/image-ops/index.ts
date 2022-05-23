@@ -1,6 +1,8 @@
 import {getSetting} from "../utils/settings";
 import * as size from "./size";
 import * as stylize from "./stylize";
+import sharp from "sharp";
+import {ParsedEdits} from "../types/common";
 
 const operationsByCategory = {
   size: size.apply,
@@ -10,11 +12,11 @@ const operationsByCategory = {
 
 /**
  * Applies all supported image operations to the supplied image
- * @param image
+ * @param editsPipeline
  * @param edits
  * @return {Promise<void>}
  */
-export async function apply(image, edits) {
+export async function apply(editsPipeline: sharp.Sharp, edits: ParsedEdits) {
   const editsByCategory = {}
   for (const edit in edits) {
     if (editsByCategory[edits[edit].schema.category] === undefined) {
@@ -25,18 +27,28 @@ export async function apply(image, edits) {
 
   for (const category in editsByCategory) {
     if (editsByCategory[category] !== undefined && operationsByCategory[category] !== undefined) {
-      await operationsByCategory[category](image, edits)
+      await operationsByCategory[category](editsPipeline, edits)
     }
   }
 }
 
-export async function restrictSize(image, metadata) {
-  const maxImgWidth = getSetting('MAX_IMAGE_WIDTH')
-  const maxImgHeight = getSetting('MAX_IMAGE_HEIGHT')
-  if ((maxImgWidth && metadata.width > maxImgWidth) || (maxImgHeight && metadata.height > maxImgHeight)) {
-    const aspectRatio = parseFloat(metadata.width) / metadata.height
-    const width = aspectRatio >= 1 ? maxImgWidth : null
-    const height = width === null ? maxImgHeight : null
-    await size.scaleMax(image, width, height)
+/**
+ * Scales down an image to a maximum dimensional size
+ * @param editsPipeline
+ * @param metadata
+ */
+export function restrictSize(editsPipeline: sharp.Sharp, metadata: sharp.Metadata): void {
+  const maxImgWidth: number = getSetting('MAX_IMAGE_WIDTH')
+  const maxImgHeight: number = getSetting('MAX_IMAGE_HEIGHT')
+  let width: number | null = metadata.width as number
+  let height: number | null = metadata.height as number
+
+  if ((maxImgWidth && width > maxImgWidth) || (maxImgHeight && height > maxImgHeight)) {
+    // NOTE: This originally had a "parseFloat" - but I'm not sure why. I removed it. If I created a bug, I'm sorry.
+    const aspectRatio: number = width / height
+
+    width = aspectRatio >= 1 ? maxImgWidth : null
+    height = width === null ? maxImgHeight : null
+    size.scaleMax(editsPipeline, width, height)
   }
 }
