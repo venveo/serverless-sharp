@@ -14,7 +14,6 @@ import {
   GenericHeaders,
   ParameterTypesSchema,
   QueryStringParameters,
-  ParsedSchemaItem,
   GenericInvocationEvent, ParsedEdits
 } from "./types/common";
 
@@ -122,15 +121,6 @@ export default class ImageRequest {
     const imageLocation: GetObjectCommandInput = {Bucket: this.bucketDetails.name, Key: decodeURIComponent(this.key)}
     const request = s3.send(new GetObjectCommand(imageLocation))
     return await request
-    // try {
-    //   const originalImage = await request
-    //   return Promise.resolve(originalImage)
-    // } catch (err) {
-    // const error = new S3Exception(err.statusCode, err.code, err.message)
-    // return Promise.reject(error)
-    // TODO: Add S3 error back here once you figure out the type
-    // return Promise.reject()
-    // }
   }
 
   /**

@@ -24,6 +24,7 @@
     "@types/sharp": "^0.30.2",
     "@typescript-eslint/eslint-plugin": "^5.20.0",
     "@typescript-eslint/parser": "^5.20.0",
+    "aws-sdk-client-mock": "^0.6.2",
     "eslint": "^8.14.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-jest": "^26.1.5",
