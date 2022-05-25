@@ -44,9 +44,7 @@ export default class ImageRequest {
     }
 
     this.bucketDetails = extractBucketNameAndPrefix(getSetting('SOURCE_BUCKET'))
-
-    const path = event.path
-    this.key = extractObjectKeyFromUri(path, this.bucketDetails.prefix)
+    this.key = extractObjectKeyFromUri(event.path, this.bucketDetails.prefix)
     this.sharpPipeline = sharp().rotate()
   }
 
