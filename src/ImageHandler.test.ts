@@ -10,7 +10,7 @@ import ImageHandler from "./ImageHandler";
 import sharp from "sharp";
 import {PathLike} from "fs";
 
-describe('Testing ImageHandler', () => {
+describe('Testing ImageHandler Processing with JPEG Input', () => {
   const OLD_ENV = process.env
   const s3Mock = mockClient(S3Client);
 
@@ -55,7 +55,7 @@ describe('Testing ImageHandler', () => {
     return await (sharp(buffer)).metadata()
   }
 
-  test('Process Image - Input JPG - Original', async () => {
+  test('Original', async () => {
     const event: GenericInvocationEvent = {
       path: 'irrelevant.jpg'
     }
@@ -71,7 +71,7 @@ describe('Testing ImageHandler', () => {
   /**
    * Inputting only a single dimension should maintain aspect ratio
    */
-  test('Process Image - Input JPG - Width Only', async () => {
+  test('Width Only', async () => {
     const event: GenericInvocationEvent = {
       path: 'irrelevant.jpg',
       queryParams: {
@@ -90,7 +90,7 @@ describe('Testing ImageHandler', () => {
   /**
    * Inputting width and height should maintain the same aspect ratio, scaling to fit the smallest dimension
    */
-  test('Process Image - Input JPG - Width & Height Only', async () => {
+  test('Width & Height Only', async () => {
     const event: GenericInvocationEvent = {
       path: 'irrelevant.jpg',
       queryParams: {
@@ -111,7 +111,7 @@ describe('Testing ImageHandler', () => {
   /**
    * The image should be cropped to fit the input dimensions
    */
-  test('Process Image - Input JPG - Width & Height - Crop', async () => {
+  test('Width & Height - Crop', async () => {
     const event: GenericInvocationEvent = {
       path: 'irrelevant.jpg',
       queryParams: {
@@ -133,7 +133,7 @@ describe('Testing ImageHandler', () => {
   /**
    * Input jpg output png
    */
-  test('Process Image - Input JPG - Output PNG', async () => {
+  test('Output PNG', async () => {
     const event: GenericInvocationEvent = {
       path: 'irrelevant.jpg',
       queryParams: {
@@ -150,9 +150,9 @@ describe('Testing ImageHandler', () => {
   })
 
   /**
-   * Input jpg output png
+   * Input jpg output webp
    */
-  test('Process Image - Input JPG - Output WEBP', async () => {
+  test('Output WEBP', async () => {
     const event: GenericInvocationEvent = {
       path: 'irrelevant.jpg',
       queryParams: {
@@ -167,4 +167,24 @@ describe('Testing ImageHandler', () => {
     expect(metadata.width).toEqual(testJpegWidth);
     expect(metadata.height).toEqual(testJpegHeight);
   })
+
+  /**
+   * Input jpg output gif
+   */
+  test('Output GIF', async () => {
+    const event: GenericInvocationEvent = {
+      path: 'irrelevant.jpg',
+      queryParams: {
+        fm: 'gif'
+      }
+    }
+    const metadata = await processRequestAndGetMetadata(event)
+    expect(metadata).toBeDefined()
+    // Ensure input image matches known values
+    expect(metadata.format).toEqual('gif');
+    // The input image is square, so the output should be the smallest input dimension for both width & height
+    expect(metadata.width).toEqual(testJpegWidth);
+    expect(metadata.height).toEqual(testJpegHeight);
+  })
+
 })
