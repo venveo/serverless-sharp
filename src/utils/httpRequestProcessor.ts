@@ -1,4 +1,4 @@
-import {QueryStringParameters, BucketDetails, RequestHeaders} from "../types/common";
+import {QueryStringParameters, BucketDetails, GenericHeaders} from "../types/common";
 
 /**
  * Extracts the name of the appropriate Amazon S3 object
@@ -63,7 +63,7 @@ export function extractBucketNameAndPrefix(fullPath: string): BucketDetails {
  * Parses headers from an event and retrieves special compatibility cases for modern image types
  * @return {string[]}
  */
-export function getAcceptedImageFormatsFromHeaders(headers: RequestHeaders) {
+export function getAcceptedImageFormatsFromHeaders(headers: GenericHeaders) {
   if (headers === undefined || !headers.Accept) {
     return [];
   }

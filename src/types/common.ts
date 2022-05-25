@@ -1,11 +1,5 @@
 import {ParameterType} from "./imgix";
 
-export interface ImageOptimizeRequestParameters {
-  queryParametersString: string | null,
-  path: string,
-  bucket: string,
-}
-
 export type ParsedSchemaItem = {
   passed: boolean,
   processedValue?: ProcessedInputValueType,
@@ -14,6 +8,8 @@ export type ParsedSchemaItem = {
   expectation?: object,
   message?: string | null
 }
+
+export type ParsedEdits = { [operation: string]: ParsedSchemaItem }
 
 export type BucketDetails = {
   name: string,
@@ -25,8 +21,8 @@ export interface QueryStringParameters {
   [index: string]: string;
 }
 
-export interface RequestHeaders {
-  [index: string]: string;
+export interface GenericHeaders {
+  [index: string]: boolean | number | string;
 }
 
 export type ParameterTypesSchema = { [key: string]: ParameterType }
@@ -42,10 +38,25 @@ export enum ImageExtensions {
   GIF = 'gif'
 }
 
-export type ProcessedInputValueType = string | number | Array<string|number> | boolean
+export type ProcessedInputValueType = string | number | Array<string | number> | boolean | null
 
 export type GenericInvocationEvent = {
   path: string,
-  headers?: RequestHeaders | null,
+  headers?: GenericHeaders | null,
   queryParams?: QueryStringParameters | null
+}
+
+export interface GenericInvocationResponse {
+  statusCode: number,
+  headers: GenericHeaders | null,
+  body: string,
+  isBase64Encoded: boolean
+}
+
+
+export type ProcessedImageRequest = {
+  CacheControl: string|null,
+  Body: string,
+  ContentType: string,
+  ContentLength: number
 }

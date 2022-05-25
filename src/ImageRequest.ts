@@ -1,21 +1,24 @@
-import sharp from 'sharp'
+import sharp from "sharp";
 
-import {getAcceptedImageFormatsFromHeaders, extractObjectKeyFromUri, extractBucketNameAndPrefix} from "./utils/httpRequestProcessor";
+import {
+  getAcceptedImageFormatsFromHeaders,
+  extractObjectKeyFromUri,
+  extractBucketNameAndPrefix
+} from "./utils/httpRequestProcessor";
 import {getSchemaForQueryParams, normalizeAndValidateSchema, replaceAliases} from "./utils/schemaParser";
 import {verifyHash} from "./utils/security";
 import {getSetting} from "./utils/settings";
 import HashException from "./errors/HashException";
-// import S3Exception from "./errors/S3Exception";
 import {
   BucketDetails,
-  RequestHeaders,
+  GenericHeaders,
   ParameterTypesSchema,
   QueryStringParameters,
-  ParsedSchemaItem,
-  GenericInvocationEvent
+  GenericInvocationEvent, ParsedEdits
 } from "./types/common";
 
-import S3, {Body, ContentLength, GetObjectOutput} from "aws-sdk/clients/s3";
+import {GetObjectCommandInput, GetObjectCommandOutput, GetObjectCommand, S3Client} from "@aws-sdk/client-s3"
+import {Stream} from "stream";
 
 export default class ImageRequest {
   bucketDetails: BucketDetails
@@ -23,15 +26,15 @@ export default class ImageRequest {
   key: string
   event: GenericInvocationEvent
 
-  originalImageObject: GetObjectOutput | null = null;
-  originalImageBody: Body | null = null;
-  originalImageSize: ContentLength | null = null;
+  originalImageObject: GetObjectCommandOutput | null = null;
+  inputObjectStream: Stream | null = null;
+  inputObjectSize: number | null = null;
 
-  sharpObject: sharp.Sharp | null = null;
+  readonly sharpPipeline: sharp.Sharp;
   originalMetadata: sharp.Metadata | null = null;
   schema: ParameterTypesSchema | null = null;
-  edits: { [operation: string]: ParsedSchemaItem } | null = null;
-  headers: RequestHeaders | null = null;
+  edits: ParsedEdits | null = null;
+  headers: GenericHeaders | null = null;
 
   constructor(event: GenericInvocationEvent) {
     this.event = event
@@ -44,18 +47,22 @@ export default class ImageRequest {
 
     const path = event.path
     this.key = extractObjectKeyFromUri(path, this.bucketDetails.prefix)
+    this.sharpPipeline = sharp().rotate()
   }
 
   /**
    * This method does a number of async things, such as getting the image object and building a schema
    */
   async process(): Promise<void> {
-    this.originalImageObject = await this.getOriginalImage()
-    this.originalImageBody = this.originalImageObject.Body ?? null
-    this.originalImageSize = this.originalImageObject.ContentLength ?? null
+    this.originalImageObject = await this.getInputObject()
 
-    this.sharpObject = sharp(this.originalImageBody as Buffer)
-    this.originalMetadata = await this.sharpObject.metadata()
+    this.inputObjectStream = this.originalImageObject?.Body as Stream
+    this.inputObjectSize = this.originalImageObject.ContentLength ?? null
+
+    // Pipe the body Stream from S3 to our sharp pipeline
+    this.inputObjectStream.pipe(this.sharpPipeline)
+
+    this.originalMetadata = await this.sharpPipeline.metadata()
     // TODO: This is redundant. Remove it.
     this.headers = this.event.headers ?? null
 
@@ -69,6 +76,7 @@ export default class ImageRequest {
     if (!this.headers || !this.originalMetadata || this.originalMetadata.format === undefined) {
       return null;
     }
+    // TODO: Use enums here
     const coercibleFormats = ['jpg', 'png', 'webp', 'avif', 'jpeg', 'tiff']
     let autoParam = null
     if (this.event.queryParams && this.event.queryParams.auto) {
@@ -84,14 +92,17 @@ export default class ImageRequest {
       return null
     }
 
+    // TODO: Use enum here
     if (specialOutputFormats.includes('avif')) {
       return 'avif'
     }
     // If avif isn't available, try to use webp
+    // TODO: Use enum here
     else if (specialOutputFormats.includes('webp')) {
       return 'webp'
     }
     // Coerce pngs and tiffs without alpha channels to jpg
+    // TODO: Use enum here
     else if (!this.originalMetadata.hasAlpha && (['png', 'tiff'].includes(this.originalMetadata.format))) {
       return 'jpeg'
     }
@@ -102,19 +113,12 @@ export default class ImageRequest {
   /**
    * Gets the original image from an Amazon S3 bucket.
    */
-  async getOriginalImage(): Promise<GetObjectOutput> {
-    const s3 = new S3()
-    const imageLocation = {Bucket: this.bucketDetails.name, Key: decodeURIComponent(this.key)}
-    const request = s3.getObject(imageLocation).promise()
-    try {
-      const originalImage = await request
-      return Promise.resolve(originalImage)
-    } catch (err) {
-      // const error = new S3Exception(err.statusCode, err.code, err.message)
-      // return Promise.reject(error)
-      // TODO: Add S3 error back here once you figure out the type
-      return Promise.reject()
-    }
+  async getInputObject(): Promise<GetObjectCommandOutput> {
+    const s3 = new S3Client({});
+
+    const imageLocation: GetObjectCommandInput = {Bucket: this.bucketDetails.name, Key: decodeURIComponent(this.key)}
+    const request = s3.send(new GetObjectCommand(imageLocation))
+    return await request
   }
 
   /**

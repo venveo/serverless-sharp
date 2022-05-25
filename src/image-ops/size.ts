@@ -1,19 +1,22 @@
 /**
  * This file should be restricted to dimensional size alterations to the image
  */
-import sharp from 'sharp'
+import sharp, {ResizeOptions, Sharp} from 'sharp'
 import NotImplementedException from "../errors/NotImplementedException";
+import {FillMode} from "../types/imgix";
+import {ParsedEdits, ProcessedInputValueType} from "../types/common";
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const schema = require('../../data/schema')
 
 /**
  * Apply all supported size operations
- * @param {sharp} image
+ * @param editsPipeline
  * @param edits
  * @return {Promise<void>}
  */
-export async function apply(image, edits) {
-  await beforeApply(image, edits)
+export async function apply(editsPipeline: Sharp, edits: ParsedEdits) {
+  await beforeApply(editsPipeline, edits)
 
   const {w, h, fit, crop} = edits
   // The first thing we need to do is apply edits that affect the requested output size.
@@ -31,68 +34,71 @@ export async function apply(image, edits) {
       // Should be partially possible in Sharp. Just not a priority
       throw new NotImplementedException()
     case 'max':
-      scaleMax(image, w.processedValue, h.processedValue, false)
+      scaleMax(editsPipeline, w.processedValue as number, h.processedValue as number)
       break
     case 'min':
-      await scaleCrop(image, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue, false)
+      await scaleCrop(editsPipeline, w.processedValue as number, h.processedValue as number, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue)
       break
     case 'fill':
-      await fill(image, edits.fill.processedValue, w.processedValue, h.processedValue, edits['fill-color'].processedValue)
+      await fill(editsPipeline, edits.fill.processedValue, w.processedValue, h.processedValue, edits['fill-color'].processedValue)
       break
     case 'scale':
-      scale(image, w.processedValue, h.processedValue)
+      scale(editsPipeline, w.processedValue, h.processedValue)
       break
     case 'crop':
-      await scaleCrop(image, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue, true)
+      await scaleCrop(editsPipeline, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue)
       break
     case 'clip':
-      scaleClip(image, w.processedValue, h.processedValue, true)
+      scaleClip(editsPipeline, w.processedValue, h.processedValue)
       break
     }
   }
 }
 
 /**
- * @param {sharp} image
+ * @param {sharp} pipeline
  * @param width
  * @param height
  * @returns {*}
  */
-export function scaleMax(image, width = null, height = null) {
-  image.resize({
-    width,
-    height,
-    withoutEnlargement: true,
-    fit: sharp.fit.inside
-  })
+export function scaleMax(pipeline: sharp.Sharp, width: number|null = null, height: number|null = null) {
+  const resizeOptions: ResizeOptions = {
+    width: width ?? undefined,
+    height: height ?? undefined,
+    fit: sharp.fit.inside,
+    withoutEnlargement: true
+  }
+  pipeline.resize(resizeOptions)
 }
 
 /**
  *
- * @param {sharp} image
+ * @param {sharp} pipeline
  * @param width
  * @param height
  * @returns {*}
  */
-export function scaleClip(image, width = null, height = null) {
-  image.resize({
-    width,
-    height,
-    withoutEnlargement: false,
-    fit: sharp.fit.inside
-  })
+export function scaleClip(pipeline: sharp.Sharp, width: number|null = null, height: number|null = null) {
+  const resizeOptions: ResizeOptions = {
+    width: width ?? undefined,
+    height: height ?? undefined,
+    fit: sharp.fit.inside,
+    withoutEnlargement: false
+  }
+  pipeline.resize(resizeOptions)
 }
 
 /**
  *
- * @param {sharp} image
+ * @param {sharp} pipeline
+ * @param mode
  * @param width
  * @param height
  * @param color
  * @returns {*}
  */
-export async function fill(image, mode, width = null, height = null, color = null) {
-  const resizeParams = {
+export async function fill(pipeline: sharp.Sharp, mode: FillMode, width = null, height = null, color = null) {
+  const resizeParams: ResizeOptions = {
     withoutEnlargement: false,
     fit: sharp.fit.contain
   }
@@ -135,7 +141,7 @@ export async function fill(image, mode, width = null, height = null, color = nul
       resizeParams.background = {alpha, r, g, b}
     }
   }
-  image.resize(resizeParams)
+  pipeline.resize(resizeParams)
 }
 
 /**
@@ -156,7 +162,7 @@ export function scale(image, width, height) {
 
 /**
  * Handle cropping modes
- * @param {sharp} image
+ * @param {sharp} editsPipeline
  * @param width
  * @param height
  * @param crop
@@ -164,7 +170,7 @@ export function scale(image, width, height) {
  * @param fpy
  * @returns {*}
  */
-export async function scaleCrop(image, width = null, height = null, crop = null, fpx = null, fpy = null) {
+export async function scaleCrop(editsPipeline: sharp.Sharp, width: number|null = null, height: number|null = null, crop:string[] = [], fpx:number|null = null, fpy:number|null = null) {
   // top, bottom, left, right, faces, focalpoint, edges, and entropy
   // TODO: This should happen in the schemaParser
   if (!Array.isArray(crop)) {
@@ -173,9 +179,9 @@ export async function scaleCrop(image, width = null, height = null, crop = null,
 
   // First we'll handle entropy mode - this one is simpler
   if (crop.includes('entropy')) {
-    image.resize({
-      width,
-      height,
+    editsPipeline.resize({
+      width: width ?? undefined,
+      height: height ?? undefined,
       withoutEnlargement: false,
       fit: sharp.fit.cover,
       position: sharp.strategy.entropy
@@ -185,10 +191,11 @@ export async function scaleCrop(image, width = null, height = null, crop = null,
 
   // Now handle focalpoint, and left, right, top, bottom
   // extract metadata from image to resize
-  const metadata = await image.metadata()
+  const metadata = await editsPipeline.metadata()
 
-  const originalWidth = parseFloat(metadata.width)
-  const originalHeight = parseFloat(metadata.height)
+  // I removed a parseFloat here because it seemed redundant
+  const originalWidth = metadata.width as number
+  const originalHeight = metadata.height as number
 
   const ratio = originalWidth / originalHeight
 
@@ -200,9 +207,11 @@ export async function scaleCrop(image, width = null, height = null, crop = null,
   }
 
   // compute new width & height
+  // TODO: FIXME: This looks like a potential bug if width or height is null!
   const factor = Math.max(width / originalWidth, height / originalHeight)
-  const newWidth = parseInt(originalWidth * factor)
-  const newHeight = parseInt(originalHeight * factor)
+  // I removed a parseInt here because it seemed redundant
+  const newWidth = originalWidth * factor
+  const newHeight = originalHeight * factor
 
   // if we don't have a focal point, default to center-center
   if (crop.length && crop[0] !== 'focalpoint') {
@@ -222,6 +231,7 @@ export async function scaleCrop(image, width = null, height = null, crop = null,
     }
   }
 
+  // TODO: Ensure fpx and fpy are never null! These should be set in the schema parser *I think*
   let fpxLeft = Math.floor((newWidth * fpx) - (0.5 * width))
   let fpyTop = Math.floor((newHeight * fpy) - (0.5 * height))
 
@@ -248,7 +258,7 @@ export async function scaleCrop(image, width = null, height = null, crop = null,
   }
   width = Math.ceil(width)
   height = Math.ceil(height)
-  image.resize({
+  editsPipeline.resize({
     width: newWidth,
     height: newHeight,
     withoutEnlargement: false,
@@ -263,42 +273,49 @@ export async function scaleCrop(image, width = null, height = null, crop = null,
 
 /**
  * We'll do any pre-work here
- * @param image
+ * @param editsPipeline
  * @param edits
  */
-export async function beforeApply(image, edits) {
+export async function beforeApply(editsPipeline: sharp.Sharp, edits: ParsedEdits) {
   const {w, h, dpr, ar} = edits
+  let processedWidth: ProcessedInputValueType = (w.processedValue as number|null) ?? null
+  let processedHeight: ProcessedInputValueType = (h.processedValue as number|null) ?? null
+  const processedAr: ProcessedInputValueType = (ar.processedValue as number|null) ?? null
+  const processedDpr: ProcessedInputValueType = (dpr.processedValue as number|null) ?? null
 
   // Apply aspect ratio edits
 
   // Case 1: We have one dimension set
-  if (ar.processedValue && ((w.processedValue && !h.processedValue) || (h.processedValue && !w.processedValue))) {
-    if (w.processedValue) {
-      h.processedValue = parseInt(w.processedValue * ar.processedValue)
+  if (processedAr && ((processedWidth && !processedHeight) || (processedHeight && !processedWidth))) {
+    if (processedWidth) {
+      processedHeight = processedWidth * processedAr
     }
-    if (h.processedValue) {
-      w.processedValue = parseInt(h.processedValue / ar.processedValue)
+    if (processedHeight) {
+      processedWidth = processedHeight / processedAr
     }
   }
 
   // Case 2: We don't have dimensions set, so we need to look at the original image dimensions
-  if (ar.processedValue && ((!w.processedValue && !h.processedValue))) {
-    const metadata = await image.metadata()
+  if (processedAr && ((!processedWidth && !processedHeight))) {
+    const metadata = await editsPipeline.metadata()
 
-    const originalWidth = parseInt(metadata.width)
-    const originalHeight = parseInt(metadata.height)
+    // I removed a parseInt here because it seemed redundant.
+    const originalWidth = metadata.width as number
+    const originalHeight = metadata.height as number
 
-    h.processedValue = originalHeight * ar.processedValue
-    w.processedValue = originalWidth * ar.processedValue
+    processedHeight = originalHeight * (processedAr as number)
+    processedWidth = originalWidth * (processedAr as number)
   }
 
   // Apply dpr edits
-  if ((w.processedValue || h.processedValue) && dpr.processedValue) {
-    if (w.processedValue) {
-      w.processedValue *= dpr.processedValue
+  if ((processedWidth || processedHeight) && processedDpr) {
+    if (processedWidth) {
+      processedWidth *= processedDpr
     }
-    if (h.processedValue) {
-      h.processedValue *= dpr.processedValue
+    if (processedHeight) {
+      processedHeight *= processedDpr
     }
   }
+  edits.w.processedValue = processedWidth
+  edits.h.processedValue = processedHeight
 }

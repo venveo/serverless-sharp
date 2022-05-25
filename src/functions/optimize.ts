@@ -12,33 +12,35 @@ import {
 import {
   GenericInvocationEvent,
   QueryStringParameters,
-  RequestHeaders
+  GenericHeaders, GenericInvocationResponse, ProcessedImageRequest
 } from "../types/common";
 
 export const handler: Handler = async function (event: APIGatewayProxyEvent, context): Promise<APIGatewayProxyResult> {
-  const beforeHandle = beforeHandleRequest(event)
+  const normalizedEvent: GenericInvocationEvent = {
+    queryParams: event.queryStringParameters as QueryStringParameters,
+    path: event.path,
+    headers: event.headers as GenericHeaders
+  }
+
+  const beforeHandle = beforeHandleRequest(normalizedEvent)
 
   if (!beforeHandle.allowed) {
     if (context && context.succeed) {
       context.succeed(beforeHandle.response)
     }
-    return beforeHandle.response
-  }
-
-  const normalizedEvent: GenericInvocationEvent = {
-    queryParams: event.queryStringParameters as QueryStringParameters,
-    path: event.path,
-    headers: event.headers as RequestHeaders
+    return beforeHandle.response as APIGatewayProxyResult
   }
 
   try {
     const imageRequest = new ImageRequest(normalizedEvent)
-    await imageRequest.process() // This is important! We need to load the metadata off the image and check the format
+
+    // This is important! We need to load the metadata off the image and check the format
+    await imageRequest.process()
     const imageHandler = new ImageHandler(imageRequest)
 
     const processedRequest = await imageHandler.process()
 
-    const originalImageSize = imageRequest.originalImageSize
+    const originalImageSize = imageRequest.inputObjectSize as number
     const newImageSize = processedRequest.ContentLength
     const sizeDifference = newImageSize - originalImageSize
 
@@ -78,24 +80,22 @@ export const handler: Handler = async function (event: APIGatewayProxyEvent, con
  * @param processedRequest
  * @param {boolean} isErr - has an error been thrown?
  */
-const getResponseHeaders = (processedRequest, isErr) => {
-  const timenow = new Date()
-  const headers = {
+const getResponseHeaders = (processedRequest: ProcessedImageRequest | null, isErr = false): GenericHeaders => {
+  const timeNow = new Date()
+  const headers: GenericHeaders = {
     'Access-Control-Allow-Methods': 'GET',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Credentials': true,
-    'Last-Modified': timenow.toString()
+    'Access-Control-Allow-Credentials': true, // TODO: Should this be a string?
+    'Last-Modified': timeNow.toString()
   }
   const cacheControlDefault = getSetting('DEFAULT_CACHE_CONTROL')
   if (processedRequest) {
-    if ('CacheControl' in processedRequest && processedRequest.CacheControl !== undefined) {
+    if (processedRequest.CacheControl) {
       headers['Cache-Control'] = processedRequest.CacheControl
     } else if (cacheControlDefault) {
       headers['Cache-Control'] = cacheControlDefault
     }
-    if ('ContentType' in processedRequest) {
-      headers['Content-Type'] = processedRequest.ContentType
-    }
+    headers['Content-Type'] = processedRequest.ContentType
   }
   if (isErr) {
     headers['Content-Type'] = 'text/plain'
@@ -103,19 +103,19 @@ const getResponseHeaders = (processedRequest, isErr) => {
   return headers
 }
 
-const beforeHandleRequest = (event) => {
-  const result = {
+const beforeHandleRequest = (normalizedEvent: GenericInvocationEvent) => {
+  const result: { allowed: boolean; response: GenericInvocationResponse | null } = {
     allowed: true,
     response: null
   }
   // Handle API Gateway events AND Lambda URL events
-  const path = event['rawPath'] !== undefined ? event.rawPath : event.path
+  const path = normalizedEvent.path
   if (shouldSkipRequest(path)) {
     result.allowed = false
     result.response = {
       statusCode: 404,
       headers: getResponseHeaders(null, true),
-      body: null,
+      body: '',
       isBase64Encoded: false
     }
   }

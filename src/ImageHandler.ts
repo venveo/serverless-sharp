@@ -3,7 +3,7 @@ import {getSetting} from "./utils/settings";
 import ImageRequest from "./ImageRequest";
 import * as imageOps from "./image-ops";
 import RequestNotProcessedException from "./errors/RequestNotProcessedException";
-import {ImageExtensions, ParsedSchemaItem} from "./types/common";
+import {ImageExtensions, ParsedEdits, ProcessedImageRequest} from "./types/common";
 import {FormatEnum, Sharp} from "sharp";
 
 export default class ImageHandler {
@@ -19,36 +19,38 @@ export default class ImageHandler {
   /**
    * Main method for processing image requests and outputting modified images.
    */
-  async process() {
+  async process(): Promise<ProcessedImageRequest> {
     // Get the original image
     const originalImageObject = this.request.originalImageObject
-    const originalImageBody = this.request.originalImageBody
-    if (!originalImageBody || !originalImageObject || !this.request.sharpObject) {
+    const originalImageBody = this.request.inputObjectStream
+    if (!originalImageBody || !originalImageObject || !this.request.sharpPipeline) {
       throw new RequestNotProcessedException('Original image body or image object not available prior to processing.')
     }
 
-    let contentType = originalImageObject.ContentType
-    let format
+    let contentType = originalImageObject.ContentType ?? null
+    if (!contentType) {
+      throw new RequestNotProcessedException('Original image content type unknown.')
+    }
+    // TODO: Add typechecking here
+    let format = 'input'
     let bufferImage
 
     // We have some edits to process
-    if (this.request.edits && Object.keys(this.request.edits).length) {
-      try {
-        // We're calling rotate on this immediately in order to ensure metadata for rotation doesn't get lost
-        const pipeline = this.request.sharpObject.rotate()
-        await this.applyEdits(pipeline, this.request.edits)
-        await this.applyOptimizations(pipeline)
-        bufferImage = await pipeline.toBuffer()
-        // pipeline.options is not in the Sharp ts definitions. Should probably create a PR
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        format = pipeline.options.formatOut
-      } catch (err) {
-        console.error('Unhandlable image encountered', err)
-        bufferImage = Buffer.from(originalImageBody.toString(), 'binary')
+    try {
+      // We're calling rotate on this immediately in order to ensure metadata for rotation doesn't get lost
+      const pipeline = this.request.sharpPipeline
+      const editsPipeline = pipeline.clone()
+      if (this.request.edits && Object.keys(this.request.edits).length) {
+        await this.applyEdits(editsPipeline, this.request.edits)
       }
-    } else {
-      // No edits, just return the original
+      await this.applyOptimizations(editsPipeline)
+      bufferImage = await editsPipeline.toBuffer()
+      // pipeline.options is not in the Sharp ts definitions. Should probably create a PR
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      format = editsPipeline.options.formatOut
+    } catch (err) {
+      console.error('Unhandlable image encountered', err)
       bufferImage = Buffer.from(originalImageBody.toString(), 'binary')
     }
     if (format) {
@@ -77,7 +79,7 @@ export default class ImageHandler {
     }
 
     return {
-      CacheControl: originalImageObject.CacheControl,
+      CacheControl: originalImageObject.CacheControl ?? null,
       Body: bufferImage.toString('base64'),
       ContentType: contentType,
       ContentLength: Buffer.byteLength(bufferImage, 'base64')
@@ -87,22 +89,19 @@ export default class ImageHandler {
   /**
    * Applies image modifications to the original image based on edits
    * specified in the ImageRequest.
-   * @param {sharp} image - The original image.
+   * @param {sharp} editsPipeline the image pipeline
    * @param {Object} edits - The edits to be made to the original image.
    */
-  async applyEdits(image: Sharp, edits: { [operation: string]: ParsedSchemaItem }) {
-    await imageOps.restrictSize(image, this.request.originalMetadata)
-    await imageOps.apply(image, edits)
+  async applyEdits(editsPipeline: Sharp, edits: ParsedEdits) {
+    imageOps.restrictSize(editsPipeline, this.request.originalMetadata)
+    await imageOps.apply(editsPipeline, edits)
   }
 
   /**
    * TODO: Move me out of here
-   * @param image
-   * @param edits
-   * @param headers
-   * @returns {Promise<sharp>}
+   * @param editsPipeline
    */
-  async applyOptimizations(image: Sharp) {
+  applyOptimizations(editsPipeline: Sharp): void {
     // const minColors = 128 // arbitrary number
     // const maxColors = 256 * 256 * 256 // max colors in RGB color space
     const {edits}: ImageRequest = this.request
@@ -141,18 +140,18 @@ export default class ImageHandler {
     // adjust quality based on file type
     if (fm === ImageExtensions.JPG || fm === ImageExtensions.JPEG) {
       if (autoVals.includes('compress') && quality < 100 && edits.q !== undefined) {
-        image.jpeg({
+        editsPipeline.jpeg({
           quality: quality,
           mozjpeg: true
         })
       } else {
-        image.jpeg({
+        editsPipeline.jpeg({
           quality: quality,
           trellisQuantisation: true
         })
       }
     } else if (fm === 'png') {
-      image.png({
+      editsPipeline.png({
         quality: quality
       })
     } else if (fm === 'webp') {
@@ -163,7 +162,7 @@ export default class ImageHandler {
       if ('lossless' in edits && edits.lossless.processedValue === true) {
         options.lossless = true
       }
-      image.webp(options)
+      editsPipeline.webp(options)
     } else if (fm === 'avif') {
       const options = {
         quality: quality,
@@ -172,12 +171,10 @@ export default class ImageHandler {
       if ('lossless' in edits && edits.lossless.processedValue === true) {
         options.lossless = true
       }
-      image.avif(options)
+      editsPipeline.avif(options)
     } else if (fm !== undefined) {
-      image.toFormat(fm as keyof FormatEnum)
+      editsPipeline.toFormat(fm as keyof FormatEnum)
     }
-
-    return image
   }
 }
 
