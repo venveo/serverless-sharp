@@ -2,7 +2,7 @@
   "name": "sharp-layer",
   "version": "1.0.0",
   "dependencies": {
-    "sharp": "^0.30.4"
+    "sharp": "^0.30.5"
   },
   "keywords": [],
   "description": ""
