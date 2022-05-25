@@ -114,9 +114,7 @@ export default class ImageRequest {
    * Gets the original image from an Amazon S3 bucket.
    */
   async getInputObject(): Promise<GetObjectCommandOutput> {
-    const s3 = new S3Client({
-      region: 'us-east-1'
-    });
+    const s3 = new S3Client({});
 
     const imageLocation: GetObjectCommandInput = {Bucket: this.bucketDetails.name, Key: decodeURIComponent(this.key)}
     const request = s3.send(new GetObjectCommand(imageLocation))

@@ -37,7 +37,7 @@ export async function apply(editsPipeline: Sharp, edits: ParsedEdits) {
       scaleMax(editsPipeline, w.processedValue as number, h.processedValue as number)
       break
     case 'min':
-      await scaleCrop(editsPipeline, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue)
+      await scaleCrop(editsPipeline, w.processedValue as number, h.processedValue as number, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue)
       break
     case 'fill':
       await fill(editsPipeline, edits.fill.processedValue, w.processedValue, h.processedValue, edits['fill-color'].processedValue)
