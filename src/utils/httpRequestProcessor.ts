@@ -63,7 +63,7 @@ export function extractBucketNameAndPrefix(fullPath: string): BucketDetails {
  * Parses headers from an event and retrieves special compatibility cases for modern image types
  * @return {string[]}
  */
-export function getAcceptedImageFormatsFromHeaders(headers: GenericHeaders) {
+export function getAcceptedImageFormatsFromHeaders(headers: GenericHeaders): string[] {
   if (headers === undefined || !headers.Accept) {
     return [];
   }

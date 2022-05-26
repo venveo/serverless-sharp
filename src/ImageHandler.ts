@@ -4,7 +4,7 @@ import ImageRequest from "./ImageRequest";
 import * as imageOps from "./image-ops";
 import RequestNotProcessedException from "./errors/RequestNotProcessedException";
 import {ImageExtensions, ParsedEdits, ProcessedImageRequest} from "./types/common";
-import {FormatEnum, Sharp} from "sharp";
+import {FormatEnum, Metadata, Sharp} from "sharp";
 
 export default class ImageHandler {
   private readonly request: ImageRequest;
@@ -93,7 +93,7 @@ export default class ImageHandler {
    * @param {Object} edits - The edits to be made to the original image.
    */
   async applyEdits(editsPipeline: Sharp, edits: ParsedEdits) {
-    imageOps.restrictSize(editsPipeline, this.request.originalMetadata)
+    imageOps.restrictSize(editsPipeline, this.request.originalMetadata as Metadata)
     await imageOps.apply(editsPipeline, edits)
   }
 
@@ -104,15 +104,11 @@ export default class ImageHandler {
   applyOptimizations(editsPipeline: Sharp): void {
     // const minColors = 128 // arbitrary number
     // const maxColors = 256 * 256 * 256 // max colors in RGB color space
-    const {edits}: ImageRequest = this.request
-    if (!edits) {
-      // TODO: Is this safe?
-      return
-    }
+    let {edits}: ImageRequest = this.request ?? null
 
-    const auto = edits.auto
+    const auto = edits?.auto
 
-    let autoVals = auto.processedValue
+    let autoVals = auto?.processedValue
     if (!Array.isArray(autoVals)) {
       autoVals = []
     }
@@ -129,8 +125,10 @@ export default class ImageHandler {
         }
       }
     }
+    // Ensure edits is an object before we start processing.
+    edits = edits ?? {}
 
-    const fm = edits.fm.processedValue
+    const fm = edits?.fm?.processedValue ?? this.request.getAutoFormat();
 
     if (autoVals.includes('compress')) {
       quality = getSetting('DEFAULT_COMPRESS_QUALITY')
@@ -152,7 +150,8 @@ export default class ImageHandler {
       }
     } else if (fm === 'png') {
       editsPipeline.png({
-        quality: quality
+        quality: quality,
+        palette: true
       })
     } else if (fm === 'webp') {
       const options = {
@@ -172,8 +171,10 @@ export default class ImageHandler {
         options.lossless = true
       }
       editsPipeline.avif(options)
-    } else if (fm !== undefined) {
+    } else if (fm !== null) {
       editsPipeline.toFormat(fm as keyof FormatEnum)
+    } else {
+      throw new RequestNotProcessedException('Unable to determine output format for image')
     }
   }
 }

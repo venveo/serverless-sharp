@@ -5,6 +5,12 @@
 - Added support for AVIF output with `auto=format`
 - Added esbuild for bundling build
 - Added "offline" npm command for local testing
+- Added image generation tests for common use-cases
+
+### Fixed
+- Fixed bug that could result in pngs being larger than inputs
+- Fixed potential errors caused by rounding during cropping
+- Fixed potential bugs around input request formatting and schema parsing
 
 ### Changed
 - Fix potential error with undefined multiValueQueryStringParameters

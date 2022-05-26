@@ -1,13 +1,14 @@
 import {Sharp} from "sharp";
+import {ParsedEdits} from "../types/common";
 
 /**
  *
- * @param image
+ * @param editsPipeline
  * @param edits
  */
-export function apply(image: Sharp, edits) {
-  if (edits.blur) {
-    blur(image, edits.blur.processedValue)
+export function apply(editsPipeline: Sharp, edits: ParsedEdits) {
+  if (edits.blur && edits.blur.processedValue !== 0) {
+    blur(editsPipeline, edits.blur.processedValue as number)
   }
 }
 
@@ -16,7 +17,7 @@ export function apply(image: Sharp, edits) {
  * @param image
  * @param val
  */
-export function blur(image: Sharp, val: number) {
+export function blur(editsPipeline: Sharp, val: number) {
   if (val === 0) {
     return
   }
@@ -24,5 +25,5 @@ export function blur(image: Sharp, val: number) {
   const result = ((val - 0) / (2000 - 0)) * (1000 - 0.3) + 0.3
   // Seems like Imgix blurs a little less than we do, so this is just a magic number to make them more similar
   // result *= 0.22
-  image.blur(result)
+  editsPipeline.blur(result)
 }

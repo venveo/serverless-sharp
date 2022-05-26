@@ -64,7 +64,9 @@ export default class ImageRequest {
     // TODO: This is redundant. Remove it.
     this.headers = this.event.headers ?? null
 
-    const queryParams = this.event.queryParams ? this.normalizeQueryParams(this.event.queryParams) : null
+    // It's important that we normalize the query parameters even if none are provided
+    // we'll take this opportunity to determine the proper output format for the image
+    const queryParams = this.normalizeQueryParams(this.event.queryParams ?? {})
 
     this.schema = queryParams ? getSchemaForQueryParams(queryParams) : null
     this.edits = (this.schema && queryParams) ? normalizeAndValidateSchema(this.schema, queryParams) : null

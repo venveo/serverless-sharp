@@ -210,8 +210,8 @@ export async function scaleCrop(editsPipeline: sharp.Sharp, width: number|null =
   // TODO: FIXME: This looks like a potential bug if width or height is null!
   const factor = Math.max(width / originalWidth, height / originalHeight)
   // I removed a parseInt here because it seemed redundant
-  const newWidth = originalWidth * factor
-  const newHeight = originalHeight * factor
+  const newWidth = Math.ceil(originalWidth * factor)
+  const newHeight = Math.ceil(originalHeight * factor)
 
   // if we don't have a focal point, default to center-center
   if (crop.length && crop[0] !== 'focalpoint') {
