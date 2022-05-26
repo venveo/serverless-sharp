@@ -169,6 +169,25 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
   })
 
   /**
+   * Input jpg output avif
+   */
+  test('Output AVIF', async () => {
+    const event: GenericInvocationEvent = {
+      path: 'irrelevant.jpg',
+      queryParams: {
+        fm: 'avif'
+      }
+    }
+    const metadata = await processRequestAndGetMetadata(event)
+    expect(metadata).toBeDefined()
+    // Ensure input image matches known values
+    expect(metadata.format).toEqual('heif');
+    // The input image is square, so the output should be the smallest input dimension for both width & height
+    expect(metadata.width).toEqual(testJpegWidth);
+    expect(metadata.height).toEqual(testJpegHeight);
+  })
+
+  /**
    * Input jpg output gif
    */
   test('Output GIF', async () => {
