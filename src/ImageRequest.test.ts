@@ -8,26 +8,25 @@ import { mockClient } from "aws-sdk-client-mock";
 import {S3Client, GetObjectCommand, GetObjectCommandOutput} from "@aws-sdk/client-s3"
 import * as fs from "fs";
 import path from "path";
-import {PathLike} from "fs";
 
 describe('Testing ImageRequest', () => {
   const OLD_ENV = process.env
   const s3Mock = mockClient(S3Client);
 
-  const testJpegPath = path.resolve(__dirname, '../data/tests/SampleJPGImage_500kbmb.jpg');
+  const testJpegPath = '../data/tests/SampleJPGImage_500kbmb.jpg';
   const testJpegWidth = 1792;
   const testJpegHeight = 1792;
   const testJpegSize = 512017;
 
 
-  const processRequest = async (event: GenericInvocationEvent, imagePath: PathLike = testJpegPath): Promise<ImageRequest> => {
-
+  const processRequest = async (event: GenericInvocationEvent, imagePath: string = testJpegPath, contentType = 'image/jpg'): Promise<ImageRequest> => {
+    imagePath = path.resolve(__dirname, imagePath);
     const imageRequest = new ImageRequest(event)
 
     const testJpegStream = fs.createReadStream(imagePath)
     const response: GetObjectCommandOutput = {
       Body: testJpegStream,
-      ContentType: 'image/jpg',
+      ContentType: contentType,
       $metadata: {}
     }
     s3Mock.on(GetObjectCommand).resolves(response);
@@ -150,5 +149,18 @@ describe('Testing ImageRequest', () => {
     const request = await processRequest(event)
     // Ensure input image matches known values
     expect(request.getAutoFormat()).toEqual('avif');
+  })
+
+
+  test('GetAutoFormat - PNG (no alpha) to JPG', async () => {
+    const event: GenericInvocationEvent = {
+      path: '/some/prefix/images/my-object.png',
+      queryParams: {
+        auto: 'format'
+      },
+    }
+    const request = await processRequest(event, '../data/tests/PNG_demonstration_1_no_alpha.png', 'image/png')
+    // Ensure input image matches known values
+    expect(request.getAutoFormat()).toEqual('jpeg');
   })
 })

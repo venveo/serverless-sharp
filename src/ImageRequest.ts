@@ -73,16 +73,17 @@ export default class ImageRequest {
   }
 
   getAutoFormat() {
-    if (!this.headers || !this.originalMetadata || this.originalMetadata.format === undefined) {
+    if (!this.originalMetadata || this.originalMetadata.format === undefined) {
       return null;
     }
+    const headers = this.headers ?? {}
     // TODO: Use enums here
     const coercibleFormats = ['jpg', 'png', 'webp', 'avif', 'jpeg', 'tiff']
     let autoParam = null
     if (this.event.queryParams && this.event.queryParams.auto) {
       autoParam = this.event.queryParams.auto
     }
-    const specialOutputFormats = getAcceptedImageFormatsFromHeaders(this.headers)
+    const specialOutputFormats = getAcceptedImageFormatsFromHeaders(headers)
 
     if (
       !autoParam ||
@@ -146,9 +147,6 @@ export default class ImageRequest {
    * @param params
    */
   normalizeQueryParams(params: QueryStringParameters = {}): QueryStringParameters {
-    if (!params) {
-      params = {}
-    }
     const normalizedParams = replaceAliases(params)
     normalizedParams.fm = this.getAutoFormat() ?? normalizedParams.fm ?? this.originalMetadata?.format ?? null
 
