@@ -72,7 +72,7 @@ export function getAcceptedImageFormatsFromHeaders(headers: GenericHeaders): str
     'image/apng': 'apng',
     'image/webp': 'webp'
   }
-  return headers.Accept.toLowerCase()
+  return headers.Accept.toString().toLowerCase()
     .split(',')
     .map((mime: string) => {
       return specialFormats[mime] ?? null
