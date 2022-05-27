@@ -2,7 +2,6 @@ import ImageRequest from "../ImageRequest";
 import ImageHandler from "../ImageHandler";
 
 import {shouldSkipRequest} from "../utils/security";
-import {getSetting} from "../utils/settings";
 import {Handler} from "aws-lambda";
 
 import {
@@ -12,8 +11,9 @@ import {
 import {
   GenericInvocationEvent,
   QueryStringParameters,
-  GenericHeaders, GenericInvocationResponse, ProcessedImageRequest
+  GenericHeaders, GenericInvocationResponse
 } from "../types/common";
+import {getResponseHeaders} from "../utils/httpRequestProcessor";
 
 export const handler: Handler = async function (event: APIGatewayProxyEvent, context): Promise<APIGatewayProxyResult> {
   const normalizedEvent: GenericInvocationEvent = {
@@ -74,34 +74,6 @@ export const handler: Handler = async function (event: APIGatewayProxyEvent, con
   }
 }
 
-/**
- * Generates the appropriate set of response headers based on a success
- * or error condition.
- * @param processedRequest
- * @param {boolean} isErr - has an error been thrown?
- */
-const getResponseHeaders = (processedRequest: ProcessedImageRequest | null, isErr = false): GenericHeaders => {
-  const timeNow = new Date()
-  const headers: GenericHeaders = {
-    'Access-Control-Allow-Methods': 'GET',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Credentials': true, // TODO: Should this be a string?
-    'Last-Modified': timeNow.toString()
-  }
-  const cacheControlDefault = getSetting('DEFAULT_CACHE_CONTROL')
-  if (processedRequest) {
-    if (processedRequest.CacheControl) {
-      headers['Cache-Control'] = processedRequest.CacheControl
-    } else if (cacheControlDefault) {
-      headers['Cache-Control'] = cacheControlDefault
-    }
-    headers['Content-Type'] = processedRequest.ContentType
-  }
-  if (isErr) {
-    headers['Content-Type'] = 'text/plain'
-  }
-  return headers
-}
 
 const beforeHandleRequest = (normalizedEvent: GenericInvocationEvent) => {
   const result: { allowed: boolean; response: GenericInvocationResponse | null } = {
