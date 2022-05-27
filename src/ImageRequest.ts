@@ -97,17 +97,14 @@ export default class ImageRequest {
       return null
     }
 
-    // TODO: Use enum here
     if (specialOutputFormats.includes(ImageExtensions.AVIF)) {
       return ImageExtensions.AVIF
     }
     // If avif isn't available, try to use webp
-    // TODO: Use enum here
     else if (specialOutputFormats.includes(ImageExtensions.WEBP)) {
       return ImageExtensions.WEBP
     }
     // Coerce pngs and tiffs without alpha channels to jpg
-    // TODO: Use enum here
     else if (!this.originalMetadata.hasAlpha && ([ImageExtensions.PNG, ImageExtensions.TIFF].includes(originalFormat))) {
       return 'jpeg'
     }
