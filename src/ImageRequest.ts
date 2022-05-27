@@ -55,7 +55,7 @@ export default class ImageRequest {
   async process(): Promise<void> {
     this.originalImageObject = await this.getInputObject()
 
-    this.inputObjectStream = this.originalImageObject?.Body as Stream
+    this.inputObjectStream = <Stream>this.originalImageObject?.Body
     this.inputObjectSize = this.originalImageObject.ContentLength ?? null
 
     // Pipe the body Stream from S3 to our sharp pipeline
