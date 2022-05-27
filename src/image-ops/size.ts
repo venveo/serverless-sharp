@@ -5,6 +5,7 @@ import sharp, {ResizeOptions, Sharp} from 'sharp'
 import NotImplementedException from "../errors/NotImplementedException";
 import {FillMode} from "../types/imgix";
 import {ParsedEdits, ProcessedInputValueType} from "../types/common";
+import InvalidDimensionsException from "../errors/InvalidDimensionsException";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const schema = require('../../data/schema')
@@ -34,10 +35,10 @@ export async function apply(editsPipeline: Sharp, edits: ParsedEdits) {
       // Should be partially possible in Sharp. Just not a priority
       throw new NotImplementedException()
     case 'max':
-      scaleMax(editsPipeline, w.processedValue as number, h.processedValue as number)
+      scaleMax(editsPipeline, <number>w.processedValue, <number>h.processedValue)
       break
     case 'min':
-      await scaleCrop(editsPipeline, w.processedValue as number, h.processedValue as number, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue)
+      await scaleCrop(editsPipeline, <number>w.processedValue, <number>h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue)
       break
     case 'fill':
       await fill(editsPipeline, edits.fill.processedValue, w.processedValue, h.processedValue, edits['fill-color'].processedValue)
@@ -146,13 +147,13 @@ export async function fill(pipeline: sharp.Sharp, mode: FillMode, width = null, 
 
 /**
  * Stretch an image to fit the dimensions requested
- * @param {sharp} image
+ * @param pipeline
  * @param width
  * @param height
  * @returns {*}
  */
-export function scale(image, width, height) {
-  image.resize({
+export function scale(pipeline: sharp.Sharp, width?: number, height?: number) {
+  pipeline.resize({
     width,
     height,
     withoutEnlargement: true,
@@ -205,9 +206,10 @@ export async function scaleCrop(editsPipeline: sharp.Sharp, width: number|null =
   if (height && !width) {
     width = height * ratio
   }
-
+  if (!width || !height) {
+    throw new InvalidDimensionsException()
+  }
   // compute new width & height
-  // TODO: FIXME: This looks like a potential bug if width or height is null!
   const factor = Math.max(width / originalWidth, height / originalHeight)
   // I removed a parseInt here because it seemed redundant
   const newWidth = Math.ceil(originalWidth * factor)
