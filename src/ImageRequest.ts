@@ -72,6 +72,10 @@ export default class ImageRequest {
     this.edits = (this.schema && queryParams) ? normalizeAndValidateSchema(this.schema, queryParams) : null
   }
 
+  /**
+   * Determines the best compatible output format for the input request, taking into account "Accept" headers, image
+   * transparency, and typical format sizes.
+   */
   getAutoFormat() {
     if (!this.originalMetadata || this.originalMetadata.format === undefined) {
       return null;
