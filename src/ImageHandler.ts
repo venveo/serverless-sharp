@@ -41,7 +41,7 @@ export default class ImageHandler {
       const pipeline = this.request.sharpPipeline
       const editsPipeline = pipeline.clone()
       if (this.request.edits && Object.keys(this.request.edits).length) {
-        await this.applyEdits(editsPipeline, this.request.edits)
+        await this.applyEditsToPipeline(editsPipeline)
       }
       await this.applyOptimizations(editsPipeline)
       bufferImage = await editsPipeline.toBuffer()
@@ -92,9 +92,9 @@ export default class ImageHandler {
    * @param {sharp} editsPipeline the image pipeline
    * @param {Object} edits - The edits to be made to the original image.
    */
-  async applyEdits(editsPipeline: Sharp, edits: ParsedEdits) {
+  async applyEditsToPipeline(editsPipeline: Sharp) {
     imageOps.restrictSize(editsPipeline, this.request.originalMetadata as Metadata)
-    await imageOps.apply(editsPipeline, edits)
+    await imageOps.apply(editsPipeline, this.request.edits as ParsedEdits)
   }
 
   /**
