@@ -1,4 +1,4 @@
-import {QueryStringParameters, BucketDetails, GenericHeaders} from "../types/common";
+import {QueryStringParameters, BucketDetails, GenericHeaders, ImageExtensions} from "../types/common";
 
 /**
  * Extracts the name of the appropriate Amazon S3 object
@@ -64,18 +64,18 @@ export function extractBucketNameAndPrefix(fullPath: string): BucketDetails {
  * @return {string[]}
  */
 export function getAcceptedImageFormatsFromHeaders(headers: GenericHeaders): string[] {
-  if (headers === undefined || !headers.Accept) {
+  if (!headers?.Accept) {
     return [];
   }
-  const specialFormats: { [index: string]: string } = {
-    'image/avif': 'avif',
-    'image/apng': 'apng',
-    'image/webp': 'webp'
+  const specialFormats: { [mimeType: string]: string } = {
+    'image/avif': ImageExtensions.AVIF,
+    // 'image/apng': 'apng', // apng is not supported by Sharp yet
+    'image/webp': ImageExtensions.WEBP
   }
   return headers.Accept.toString().toLowerCase()
     .split(',')
     .map((mime: string) => {
       return specialFormats[mime] ?? null
     })
-    .filter((e: any) => e !== null)
+    .filter((e: string) => e !== null)
 }

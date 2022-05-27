@@ -7,7 +7,8 @@ import {ParsedEdits} from "../types/common";
  * @param edits
  */
 export function apply(editsPipeline: Sharp, edits: ParsedEdits) {
-  if (edits.blur && edits.blur.processedValue !== 0) {
+  // Blur has a default value of 0, so as long as its set, we should go ahead and process it.
+  if (edits?.blur) {
     blur(editsPipeline, edits.blur.processedValue as number)
   }
 }

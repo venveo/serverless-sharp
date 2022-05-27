@@ -1,9 +1,9 @@
 import sharp from "sharp";
 
 import {
-  getAcceptedImageFormatsFromHeaders,
+  extractBucketNameAndPrefix,
   extractObjectKeyFromUri,
-  extractBucketNameAndPrefix
+  getAcceptedImageFormatsFromHeaders
 } from "./utils/httpRequestProcessor";
 import {getSchemaForQueryParams, normalizeAndValidateSchema, replaceAliases} from "./utils/schemaParser";
 import {verifyHash} from "./utils/security";
@@ -11,14 +11,16 @@ import {getSetting} from "./utils/settings";
 import HashException from "./errors/HashException";
 import {
   BucketDetails,
-  GenericHeaders,
+  GenericInvocationEvent,
+  ImageExtensions,
   ParameterTypesSchema,
-  QueryStringParameters,
-  GenericInvocationEvent, ParsedEdits
+  ParsedEdits,
+  QueryStringParameters
 } from "./types/common";
 
-import {GetObjectCommandInput, GetObjectCommandOutput, GetObjectCommand, S3Client} from "@aws-sdk/client-s3"
+import {GetObjectCommand, GetObjectCommandInput, GetObjectCommandOutput, S3Client} from "@aws-sdk/client-s3"
 import {Stream} from "stream";
+import {normalizeExtension} from "./utils/formats";
 
 export default class ImageRequest {
   bucketDetails: BucketDetails
@@ -34,7 +36,6 @@ export default class ImageRequest {
   originalMetadata: sharp.Metadata | null = null;
   schema: ParameterTypesSchema | null = null;
   edits: ParsedEdits | null = null;
-  headers: GenericHeaders | null = null;
 
   constructor(event: GenericInvocationEvent) {
     this.event = event
@@ -61,8 +62,6 @@ export default class ImageRequest {
     this.inputObjectStream.pipe(this.sharpPipeline)
 
     this.originalMetadata = await this.sharpPipeline.metadata()
-    // TODO: This is redundant. Remove it.
-    this.headers = this.event.headers ?? null
 
     // It's important that we normalize the query parameters even if none are provided
     // we'll take this opportunity to determine the proper output format for the image
@@ -80,9 +79,10 @@ export default class ImageRequest {
     if (!this.originalMetadata || this.originalMetadata.format === undefined) {
       return null;
     }
-    const headers = this.headers ?? {}
-    // TODO: Use enums here
-    const coercibleFormats = ['jpg', 'png', 'webp', 'avif', 'jpeg', 'tiff']
+    const originalFormat = <ImageExtensions>normalizeExtension(this.originalMetadata.format)
+
+    const headers = this.event.headers ?? {}
+    const coercibleFormats = [ImageExtensions.JPEG, ImageExtensions.PNG, ImageExtensions.WEBP, ImageExtensions.AVIF, ImageExtensions.JPG, ImageExtensions.TIFF]
     let autoParam = null
     if (this.event.queryParams && this.event.queryParams.auto) {
       autoParam = this.event.queryParams.auto
@@ -92,23 +92,23 @@ export default class ImageRequest {
     if (
       !autoParam ||
       !autoParam.includes('format') ||
-      !coercibleFormats.includes(this.originalMetadata.format)
+      !coercibleFormats.includes(originalFormat)
     ) {
       return null
     }
 
     // TODO: Use enum here
-    if (specialOutputFormats.includes('avif')) {
-      return 'avif'
+    if (specialOutputFormats.includes(ImageExtensions.AVIF)) {
+      return ImageExtensions.AVIF
     }
     // If avif isn't available, try to use webp
     // TODO: Use enum here
-    else if (specialOutputFormats.includes('webp')) {
-      return 'webp'
+    else if (specialOutputFormats.includes(ImageExtensions.WEBP)) {
+      return ImageExtensions.WEBP
     }
     // Coerce pngs and tiffs without alpha channels to jpg
     // TODO: Use enum here
-    else if (!this.originalMetadata.hasAlpha && (['png', 'tiff'].includes(this.originalMetadata.format))) {
+    else if (!this.originalMetadata.hasAlpha && ([ImageExtensions.PNG, ImageExtensions.TIFF].includes(originalFormat))) {
       return 'jpeg'
     }
 

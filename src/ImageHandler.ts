@@ -5,6 +5,7 @@ import * as imageOps from "./image-ops";
 import RequestNotProcessedException from "./errors/RequestNotProcessedException";
 import {ImageExtensions, ParsedEdits, ProcessedImageRequest} from "./types/common";
 import {FormatEnum, Metadata, Sharp} from "sharp";
+import {getMimeTypeForExtension, normalizeExtension} from "./utils/formats";
 
 export default class ImageHandler {
   private readonly request: ImageRequest;
@@ -48,33 +49,15 @@ export default class ImageHandler {
       // pipeline.options is not in the Sharp ts definitions. Should probably create a PR
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      format = editsPipeline.options.formatOut
+      format = editsPipeline?.options?.formatOut
     } catch (err) {
       console.error('Unhandlable image encountered', err)
       bufferImage = Buffer.from(originalImageBody.toString(), 'binary')
     }
-    if (format) {
-      switch (format.toLowerCase()) {
-      case ImageExtensions.JPEG:
-      case ImageExtensions.JPG:
-        contentType = 'image/jpeg'
-        break
-      case ImageExtensions.PNG:
-        contentType = 'image/png'
-        break
-      case ImageExtensions.WEBP:
-        contentType = 'image/webp'
-        break
-      case ImageExtensions.GIF:
-        contentType = 'image/gif'
-        break
-      case ImageExtensions.HEIF:
-        contentType = 'image/avif'
-        break
-      case 'input':
-        break
-      default:
-        console.warn('Unexpected output content type encountered: ' + contentType)
+    if (format !== 'input') {
+      contentType = getMimeTypeForExtension(format)
+      if (!contentType) {
+        throw new RequestNotProcessedException('Output image content type unknown.')
       }
     }
 
@@ -128,7 +111,11 @@ export default class ImageHandler {
     // Ensure edits is an object before we start processing.
     edits = edits ?? {}
 
-    const fm = edits?.fm?.processedValue ?? this.request.getAutoFormat();
+    let fm = edits?.fm?.processedValue ?? this.request.getAutoFormat();
+    if (!fm) {
+      throw new RequestNotProcessedException('Unable to determine output format for image')
+    }
+    fm = normalizeExtension(<string>fm)
 
     if (autoVals.includes('compress')) {
       quality = getSetting('DEFAULT_COMPRESS_QUALITY')
@@ -148,12 +135,12 @@ export default class ImageHandler {
           trellisQuantisation: true
         })
       }
-    } else if (fm === 'png') {
+    } else if (fm === ImageExtensions.PNG) {
       editsPipeline.png({
         quality: quality,
         palette: true
       })
-    } else if (fm === 'webp') {
+    } else if (fm === ImageExtensions.WEBP) {
       const options = {
         quality: quality,
         lossless: false
@@ -162,7 +149,7 @@ export default class ImageHandler {
         options.lossless = true
       }
       editsPipeline.webp(options)
-    } else if (fm === 'avif') {
+    } else if (fm === ImageExtensions.AVIF) {
       const options = {
         quality: quality,
         lossless: false

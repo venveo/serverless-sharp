@@ -18,11 +18,11 @@ export type BucketDetails = {
 
 
 export interface QueryStringParameters {
-  [index: string]: string;
+  [parameter: string]: string;
 }
 
 export interface GenericHeaders {
-  [index: string]: boolean | number | string;
+  [header: string]: boolean | number | string;
 }
 
 export type ParameterTypesSchema = { [key: string]: ParameterType }
@@ -34,7 +34,9 @@ export enum ImageExtensions {
   WEBP = 'webp',
   AVIF = 'avif',
   TIFF = 'tiff',
+  TIF = 'tif',
   HEIF = 'heif',
+  HEIC = 'heic',
   GIF = 'gif'
 }
 
