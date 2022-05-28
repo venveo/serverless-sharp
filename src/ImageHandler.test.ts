@@ -10,6 +10,8 @@ import ImageHandler from "./ImageHandler";
 import sharp from "sharp";
 import {PathLike} from "fs";
 
+jest.useRealTimers();
+
 describe('Testing ImageHandler Processing with JPEG Input', () => {
   const OLD_ENV = process.env
   const s3Mock = mockClient(S3Client);
