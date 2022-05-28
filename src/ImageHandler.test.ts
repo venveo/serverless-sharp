@@ -172,6 +172,7 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
    * Input jpg output avif
    */
   test('Output AVIF', async () => {
+    jest.setTimeout(30*1000)
     const event: GenericInvocationEvent = {
       path: 'irrelevant.jpg',
       queryParams: {
