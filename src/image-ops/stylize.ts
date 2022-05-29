@@ -1,5 +1,6 @@
 import {Sharp} from "sharp";
 import {ParsedEdits} from "../types/common";
+import {remapNumberInRange} from "../utils/valueNormalization";
 
 /**
  *
@@ -28,10 +29,6 @@ export function blur(editsPipeline: Sharp, sigma: number) {
   if (sigma <= 0) {
     return
   }
-  let result = ((sigma - imgixMin) / (imgixMax - imgixMin)) * (sharpMax - sharpMin) + sharpMin
-  // Seems like Imgix blurs a little less than we do, so this is just a magic number to make them more similar
-  result *= blurMultiplier
-  // Clamp the result to valid input range
-  result = Math.max(sharpMin, Math.min(sharpMax, result))
+  const result = remapNumberInRange(imgixMin, imgixMax, sharpMin, sharpMax, sigma, blurMultiplier)
   editsPipeline.blur(result)
 }

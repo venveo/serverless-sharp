@@ -36,7 +36,8 @@ export function getSchemaForQueryParams(queryParameters: QueryStringParameters =
   const result: { [key: string]: ParameterType } = {}
 
   Object.keys(queryParameters).forEach((val: string) => {
-    if (params[val] !== undefined) {
+    // Note: we're skipping over query params without a value - we'll assume these just use default values.
+    if (queryParameters[val] && params[val] !== undefined) {
       result[val] = params[val]
     }
   })

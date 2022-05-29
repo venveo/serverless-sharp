@@ -12,6 +12,7 @@
 - Fixed potential errors caused by rounding during cropping
 - Fixed potential bugs around input request formatting and schema parsing
 - Fix blur out of range issues
+- Fix schema parser not removing query parameters with empty values (use defaults)
 
 ### Changed
 - Fix potential error with undefined multiValueQueryStringParameters

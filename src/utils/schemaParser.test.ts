@@ -96,4 +96,16 @@ describe('Tests for schema validation', () => {
 
     expect(validatedSchema.dpr.processedValue).toEqual(0)
   })
+
+  test('Null value normalization', () => {
+    // This is to handle a url like this: image.jpg?sharp
+    // Should use default value if one exists
+    const request = {
+      sharp: ''
+    }
+    const schema = schemaParser.getSchemaForQueryParams(request)
+    const validatedSchema = schemaParser.normalizeAndValidateSchema(schema, request)
+
+    expect(validatedSchema.sharp.processedValue).toEqual(0)
+  })
 })
