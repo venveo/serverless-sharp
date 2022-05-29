@@ -95,3 +95,12 @@ The `compress` parameter will try to run post-processed optimizations on the ima
 ## `blur` - gaussian blur
 
 Between 0-2000
+
+
+## `px` - pixelate
+
+Between 0-100
+
+## `bri` - brightness
+
+Between -200-200

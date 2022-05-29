@@ -1,13 +1,14 @@
 import {getSetting} from "../utils/settings";
-import * as size from "./size";
-import * as stylize from "./stylize";
+import {apply as applySize, scaleMax} from "./size";
+import {apply as applyStylize} from "./stylize";
+import {apply as applyAdjustment} from './adjustment'
 import sharp from "sharp";
 import {ParsedEdits} from "../types/common";
 
 const operationsByCategory = {
-  size: size.apply,
-  stylize: stylize.apply
-  // adjustment: adjustment.apply
+  adjustment: applyAdjustment,
+  size: applySize,
+  stylize: applyStylize
 }
 
 /**
@@ -17,7 +18,12 @@ const operationsByCategory = {
  * @return {Promise<void>}
  */
 export async function apply(editsPipeline: sharp.Sharp, edits: ParsedEdits) {
-  const editsByCategory = {}
+  // @see https://docs.imgix.com/setup/serving-assets#order-of-operations
+  const editsByCategory = {
+    adjustment: [],
+    size: [], // size must come first!
+    stylize: [],
+  }
   for (const edit in edits) {
     if (editsByCategory[edits[edit].schema.category] === undefined) {
       editsByCategory[edits[edit].schema.category] = {}
@@ -27,9 +33,13 @@ export async function apply(editsPipeline: sharp.Sharp, edits: ParsedEdits) {
 
   for (const category in editsByCategory) {
     if (editsByCategory[category] !== undefined && operationsByCategory[category] !== undefined) {
-      await operationsByCategory[category](editsPipeline, edits)
+      const updatedEdits = await operationsByCategory[category](editsPipeline, edits)
+      if (updatedEdits) {
+        editsPipeline = updatedEdits
+      }
     }
   }
+  return editsPipeline
 }
 
 /**
@@ -40,8 +50,8 @@ export async function apply(editsPipeline: sharp.Sharp, edits: ParsedEdits) {
 export function restrictSize(editsPipeline: sharp.Sharp, metadata: sharp.Metadata): void {
   const maxImgWidth: number = getSetting('MAX_IMAGE_WIDTH')
   const maxImgHeight: number = getSetting('MAX_IMAGE_HEIGHT')
-  let width: number | null = metadata.width as number
-  let height: number | null = metadata.height as number
+  let width: number | null = <number>metadata.width
+  let height: number | null = <number>metadata.height
 
   if ((maxImgWidth && width > maxImgWidth) || (maxImgHeight && height > maxImgHeight)) {
     // NOTE: This originally had a "parseFloat" - but I'm not sure why. I removed it. If I created a bug, I'm sorry.
@@ -49,6 +59,6 @@ export function restrictSize(editsPipeline: sharp.Sharp, metadata: sharp.Metadat
 
     width = aspectRatio >= 1 ? maxImgWidth : null
     height = width === null ? maxImgHeight : null
-    size.scaleMax(editsPipeline, width, height)
+    scaleMax(editsPipeline, width, height)
   }
 }

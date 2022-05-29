@@ -35,24 +35,19 @@ export async function apply(editsPipeline: Sharp, edits: ParsedEdits) {
       // Should be partially possible in Sharp. Just not a priority
       throw new NotImplementedException()
     case 'max':
-      scaleMax(editsPipeline, <number>w.processedValue, <number>h.processedValue)
-      break
+      return scaleMax(editsPipeline, <number>w.processedValue, <number>h.processedValue)
     case 'min':
-      await scaleCrop(editsPipeline, <number>w.processedValue, <number>h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue)
-      break
+      return scaleCrop(editsPipeline, <number>w.processedValue, <number>h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue)
     case 'fill':
-      await fill(editsPipeline, edits.fill.processedValue, w.processedValue, h.processedValue, edits['fill-color'].processedValue)
-      break
+      return fill(editsPipeline, <FillMode>edits.fill.processedValue, w.processedValue, h.processedValue, edits['fill-color'].processedValue)
     case 'scale':
-      scale(editsPipeline, w.processedValue, h.processedValue)
-      break
+      return scale(editsPipeline, w.processedValue, h.processedValue)
     case 'crop':
-      await scaleCrop(editsPipeline, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue)
-      break
+      return await scaleCrop(editsPipeline, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue)
     case 'clip':
-      scaleClip(editsPipeline, w.processedValue, h.processedValue)
-      break
+      return scaleClip(editsPipeline, w.processedValue, h.processedValue)
     }
+    return editsPipeline
   }
 }
 
@@ -69,7 +64,7 @@ export function scaleMax(pipeline: sharp.Sharp, width: number|null = null, heigh
     fit: sharp.fit.inside,
     withoutEnlargement: true
   }
-  pipeline.resize(resizeOptions)
+  return pipeline.resize(resizeOptions)
 }
 
 /**
@@ -86,7 +81,7 @@ export function scaleClip(pipeline: sharp.Sharp, width: number|null = null, heig
     fit: sharp.fit.inside,
     withoutEnlargement: false
   }
-  pipeline.resize(resizeOptions)
+  return pipeline.resize(resizeOptions)
 }
 
 /**
@@ -142,7 +137,7 @@ export async function fill(pipeline: sharp.Sharp, mode: FillMode, width = null, 
       resizeParams.background = {alpha, r, g, b}
     }
   }
-  pipeline.resize(resizeParams)
+  return pipeline.resize(resizeParams)
 }
 
 /**
@@ -153,7 +148,7 @@ export async function fill(pipeline: sharp.Sharp, mode: FillMode, width = null, 
  * @returns {*}
  */
 export function scale(pipeline: sharp.Sharp, width?: number, height?: number) {
-  pipeline.resize({
+  return pipeline.resize({
     width,
     height,
     withoutEnlargement: true,
@@ -171,7 +166,7 @@ export function scale(pipeline: sharp.Sharp, width?: number, height?: number) {
  * @param fpy
  * @returns {*}
  */
-export async function scaleCrop(editsPipeline: sharp.Sharp, width: number|null = null, height: number|null = null, crop:string[] = [], fpx:number|null = null, fpy:number|null = null) {
+export async function scaleCrop(editsPipeline: sharp.Sharp, width: number|null = null, height: number|null = null, crop:string[] = [], fpx = 0.5, fpy = 0.5) {
   // top, bottom, left, right, faces, focalpoint, edges, and entropy
   // TODO: This should happen in the schemaParser
   if (!Array.isArray(crop)) {
@@ -180,14 +175,13 @@ export async function scaleCrop(editsPipeline: sharp.Sharp, width: number|null =
 
   // First we'll handle entropy mode - this one is simpler
   if (crop.includes('entropy')) {
-    editsPipeline.resize({
+    return editsPipeline.resize({
       width: width ?? undefined,
       height: height ?? undefined,
       withoutEnlargement: false,
       fit: sharp.fit.cover,
       position: sharp.strategy.entropy
     })
-    return
   }
 
   // Now handle focalpoint, and left, right, top, bottom
@@ -195,8 +189,8 @@ export async function scaleCrop(editsPipeline: sharp.Sharp, width: number|null =
   const metadata = await editsPipeline.metadata()
 
   // I removed a parseFloat here because it seemed redundant
-  const originalWidth = metadata.width as number
-  const originalHeight = metadata.height as number
+  const originalWidth = <number>metadata.width
+  const originalHeight = <number>metadata.height
 
   const ratio = originalWidth / originalHeight
 
@@ -233,7 +227,6 @@ export async function scaleCrop(editsPipeline: sharp.Sharp, width: number|null =
     }
   }
 
-  // TODO: Ensure fpx and fpy are never null! These should be set in the schema parser *I think*
   let fpxLeft = Math.floor((newWidth * fpx) - (0.5 * width))
   let fpyTop = Math.floor((newHeight * fpy) - (0.5 * height))
 
@@ -260,7 +253,7 @@ export async function scaleCrop(editsPipeline: sharp.Sharp, width: number|null =
   }
   width = Math.ceil(width)
   height = Math.ceil(height)
-  editsPipeline.resize({
+  const buffer = await editsPipeline.resize({
     width: newWidth,
     height: newHeight,
     withoutEnlargement: false,
@@ -270,7 +263,8 @@ export async function scaleCrop(editsPipeline: sharp.Sharp, width: number|null =
     top: fpyTop,
     width,
     height
-  })
+  }).toBuffer()
+  return sharp(buffer)
 }
 
 /**

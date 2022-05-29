@@ -6,6 +6,8 @@
 - Added esbuild for bundling build
 - Added "offline" npm command for local testing
 - Added image generation tests for common use-cases
+- Added support for brightness via ?bri=
+- Added support for pixelate via ?px=
 
 ### Fixed
 - Fixed bug that could result in pngs being larger than inputs

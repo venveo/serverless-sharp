@@ -40,9 +40,9 @@ export default class ImageHandler {
     try {
       // We're calling rotate on this immediately in order to ensure metadata for rotation doesn't get lost
       const pipeline = this.request.sharpPipeline
-      const editsPipeline = pipeline.clone()
+      let editsPipeline = pipeline.clone()
       if (this.request.edits && Object.keys(this.request.edits).length) {
-        await this.applyEditsToPipeline(editsPipeline)
+        editsPipeline = await this.applyEditsToPipeline(editsPipeline)
       }
       await this.applyOptimizations(editsPipeline)
       bufferImage = await editsPipeline.toBuffer()
@@ -70,14 +70,13 @@ export default class ImageHandler {
   }
 
   /**
-   * Applies image modifications to the original image based on edits
-   * specified in the ImageRequest.
-   * @param {sharp} editsPipeline the image pipeline
-   * @param {Object} edits - The edits to be made to the original image.
+   * Applies image modifications to the original image based on edits specified in the ImageRequest. A promise is returned
+   * with a Sharp pipeline, which may or may not differ from the input.
+   * @param {sharp} editsPipeline the input image pipeline
    */
-  async applyEditsToPipeline(editsPipeline: Sharp) {
-    imageOps.restrictSize(editsPipeline, this.request.originalMetadata as Metadata)
-    await imageOps.apply(editsPipeline, this.request.edits as ParsedEdits)
+  async applyEditsToPipeline(editsPipeline: Sharp): Promise<Sharp> {
+    imageOps.restrictSize(editsPipeline, <Metadata>this.request.originalMetadata)
+    return await imageOps.apply(editsPipeline, this.request.edits as ParsedEdits)
   }
 
   /**

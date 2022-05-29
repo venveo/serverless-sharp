@@ -3,38 +3,30 @@
  */
 
 import {Sharp} from "sharp";
+import {ParsedEdits} from "../types/common";
 
 /**
- * Applies all of the adjustment edits to the image
- * @param image
+ * Applies all the adjustment edits to the image
+ * @param imagePipeline
  * @param edits
  */
-export function apply(image: Sharp, edits) {
+export async function apply(imagePipeline: Sharp, edits: ParsedEdits) {
+  let outputPipeline = imagePipeline;
   if (edits.bri) {
-    bri(image, edits.bri.processedValue)
+    outputPipeline = await bri(imagePipeline, <number>edits.bri.processedValue)
   }
-  if (edits.sharp) {
-    sharp(image)
-  }
+  return Promise.resolve(outputPipeline)
 }
 
 /**
  *
- * @param image
+ * @param imagePipeline
  * @param val
  */
-export function bri(image: Sharp, val: number) {
-  // TODO: This is wrong! Brightness in imgix is -200-200 for SOME REASON??
-  // Also, it doesn't scale nicely to Sharp. Sharp doesn't go completely black
-  image.modulate({
-    brightness: val
-  })
-}
-
-/**
- *
- * @param image
- */
-export function sharp(image: Sharp) {
-  image.sharpen()
+export function bri(imagePipeline: Sharp, val: number) {
+  // Brightness isn't an exact match to Imgix, but it's pretty close. PR welcome.
+  // Note: we're using lightness instead of brightness here - this is intentional. Sharp's brightness is a multiplier
+  return Promise.resolve(imagePipeline.modulate({
+    lightness: Math.min(200, Math.max(val, -200))
+  }))
 }
