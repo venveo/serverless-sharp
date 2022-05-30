@@ -6,11 +6,11 @@
 - Added esbuild for bundling build
 - Added "offline" npm command for local testing
 - Added image generation tests for common use-cases
-- Added support for brightness via ?bri=
-- Added support for pixelate via ?px=
-- Added "fit=fill"
-- Added "fit=fillmax"
-- Added "fill=blur"
+- Added support for brightness via `bri=<number>`
+- Added support for pixelate via `px=<number>`
+- Added `fit=fill`
+- Added `fit=fillmax`
+- Added `fill=blur`
 
 ### Fixed
 - Fixed bug that could result in pngs being larger than inputs
