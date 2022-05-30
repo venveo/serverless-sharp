@@ -26,20 +26,15 @@ export async function apply(editsPipeline: Sharp, edits: ParsedEdits) {
     case 'clamp':
       // https://github.com/venveo/serverless-sharp/issues/26
       // Should extends the edge pixels outwards to match the given dimensions.
-      // Not currently possible in Sharp.
       throw new NotImplementedException()
     case 'fillmax':
-      // https://github.com/venveo/serverless-sharp/issues/27
-      // Should resize the image while preserving aspect ratio within the dimensions given.
-      // If the width or height exceeds the available width and height, fill with solid color or blurred image
-      // Should be partially possible in Sharp. Just not a priority
-      throw new NotImplementedException()
+      return await fill(editsPipeline, <FillMode>edits.fill.processedValue, w.processedValue, h.processedValue, edits['fill-color'].processedValue, true)
     case 'max':
       return scaleMax(editsPipeline, <number>w.processedValue, <number>h.processedValue)
     case 'min':
       return scaleCrop(editsPipeline, <number>w.processedValue, <number>h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue)
     case 'fill':
-      return await fill(editsPipeline, <FillMode>edits.fill.processedValue, w.processedValue, h.processedValue, edits['fill-color'].processedValue)
+      return await fill(editsPipeline, <FillMode>edits.fill.processedValue, w.processedValue, h.processedValue, edits['fill-color'].processedValue, false)
     case 'scale':
       return scale(editsPipeline, w.processedValue, h.processedValue)
     case 'crop':
@@ -91,9 +86,10 @@ export function scaleClip(pipeline: sharp.Sharp, width: number | null = null, he
  * @param width
  * @param height
  * @param color
+ * @param withoutEnlargement
  * @returns {*}
  */
-export async function fill(pipeline: sharp.Sharp, mode: FillMode, width = null, height = null, color = null) {
+export async function fill(pipeline: sharp.Sharp, mode: FillMode, width = null, height = null, color = null, withoutEnlargement = true) {
   const resizeParams: ResizeOptions = {
     withoutEnlargement: false,
     fit: sharp.fit.contain
@@ -106,9 +102,10 @@ export async function fill(pipeline: sharp.Sharp, mode: FillMode, width = null, 
   }
 
   if (mode === FillMode.blur) {
-    const blurredBg = pipeline.clone().blur(60).resize({...resizeParams, fit: sharp.fit.fill})
+    // This is a little weird, but we're doing it because blur is expensive and is faster on smaller images
+    const blurredBg = sharp(await pipeline.clone().resize(200).blur(10).toBuffer()).resize({...resizeParams, fit: sharp.fit.fill})
     blurredBg.composite([
-      {input: await pipeline.toBuffer()}
+      {input: await pipeline.resize({...resizeParams, fit: sharp.fit.inside, withoutEnlargement: withoutEnlargement}).toBuffer()}
     ])
     return blurredBg
   }
@@ -287,7 +284,6 @@ export async function beforeApply(editsPipeline: sharp.Sharp, edits: ParsedEdits
   let processedHeight: ProcessedInputValueType = (h.processedValue as number | null) ?? null
   const processedAr: ProcessedInputValueType = (ar.processedValue as number | null) ?? null
   const processedDpr: ProcessedInputValueType = (dpr.processedValue as number | null) ?? null
-
   // Apply aspect ratio edits
 
   // Case 1: We have one dimension set
@@ -304,12 +300,11 @@ export async function beforeApply(editsPipeline: sharp.Sharp, edits: ParsedEdits
   if (processedAr && ((!processedWidth && !processedHeight))) {
     const metadata = await editsPipeline.metadata()
 
-    // I removed a parseInt here because it seemed redundant.
-    const originalWidth = metadata.width as number
-    const originalHeight = metadata.height as number
+    const originalWidth = <number>metadata.width
+    const originalHeight = <number>metadata.height
 
-    processedHeight = originalHeight * (processedAr as number)
-    processedWidth = originalWidth * (processedAr as number)
+    processedHeight = originalHeight * (<number>processedAr)
+    processedWidth = originalWidth * (<number>processedAr)
   }
 
   // Apply dpr edits

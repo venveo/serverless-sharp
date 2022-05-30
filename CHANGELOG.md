@@ -8,7 +8,9 @@
 - Added image generation tests for common use-cases
 - Added support for brightness via ?bri=
 - Added support for pixelate via ?px=
-- Added "fit=fill&fill=blur"
+- Added "fit=fill"
+- Added "fit=fillmax"
+- Added "fill=blur"
 
 ### Fixed
 - Fixed bug that could result in pngs being larger than inputs
