@@ -48,7 +48,13 @@ Scales image to supplied height while maintaining aspect ratio
 
 ## `fit` - resize fitting mode
  
-Can be one of: `fill`, `scale`, `crop`, `clip`, `min`, `max`
+Can be one of: `fill`, `fillmax`, `scale`, `crop`, `clip`, `min`, `max`
+
+## `fill` - fill mode when fit is fill or fillmax
+
+Can be one of: `solid`, `blur`
+
+Default is `solid`
 
 ## `fill-color`
  
