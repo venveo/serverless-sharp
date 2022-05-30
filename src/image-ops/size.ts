@@ -39,7 +39,7 @@ export async function apply(editsPipeline: Sharp, edits: ParsedEdits) {
     case 'min':
       return scaleCrop(editsPipeline, <number>w.processedValue, <number>h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue)
     case 'fill':
-      return fill(editsPipeline, <FillMode>edits.fill.processedValue, w.processedValue, h.processedValue, edits['fill-color'].processedValue)
+      return await fill(editsPipeline, <FillMode>edits.fill.processedValue, w.processedValue, h.processedValue, edits['fill-color'].processedValue)
     case 'scale':
       return scale(editsPipeline, w.processedValue, h.processedValue)
     case 'crop':
@@ -57,7 +57,7 @@ export async function apply(editsPipeline: Sharp, edits: ParsedEdits) {
  * @param height
  * @returns {*}
  */
-export function scaleMax(pipeline: sharp.Sharp, width: number|null = null, height: number|null = null) {
+export function scaleMax(pipeline: sharp.Sharp, width: number | null = null, height: number | null = null) {
   const resizeOptions: ResizeOptions = {
     width: width ?? undefined,
     height: height ?? undefined,
@@ -74,7 +74,7 @@ export function scaleMax(pipeline: sharp.Sharp, width: number|null = null, heigh
  * @param height
  * @returns {*}
  */
-export function scaleClip(pipeline: sharp.Sharp, width: number|null = null, height: number|null = null) {
+export function scaleClip(pipeline: sharp.Sharp, width: number | null = null, height: number | null = null) {
   const resizeOptions: ResizeOptions = {
     width: width ?? undefined,
     height: height ?? undefined,
@@ -104,7 +104,16 @@ export async function fill(pipeline: sharp.Sharp, mode: FillMode, width = null, 
   if (height) {
     resizeParams.height = height
   }
-  if (color) {
+
+  if (mode === FillMode.blur) {
+    const blurredBg = pipeline.clone().blur(60).resize({...resizeParams, fit: sharp.fit.fill})
+    blurredBg.composite([
+      {input: await pipeline.toBuffer()}
+    ])
+    return blurredBg
+  }
+
+  if (mode === FillMode.solid && color) {
     // either a color keyword or 3- (RGB), 4- (ARGB) 6- (RRGGBB) or 8-digit (AARRGGBB) hexadecimal values
     if (schema.colorKeywordValues.includes(color)) {
       // is a color keyword
@@ -136,8 +145,8 @@ export async function fill(pipeline: sharp.Sharp, mode: FillMode, width = null, 
       const b = parseInt(color[7] + color[8], 16)
       resizeParams.background = {alpha, r, g, b}
     }
+    return pipeline.resize(resizeParams)
   }
-  return pipeline.resize(resizeParams)
 }
 
 /**
@@ -166,7 +175,7 @@ export function scale(pipeline: sharp.Sharp, width?: number, height?: number) {
  * @param fpy
  * @returns {*}
  */
-export async function scaleCrop(editsPipeline: sharp.Sharp, width: number|null = null, height: number|null = null, crop:string[] = [], fpx = 0.5, fpy = 0.5) {
+export async function scaleCrop(editsPipeline: sharp.Sharp, width: number | null = null, height: number | null = null, crop: string[] = [], fpx = 0.5, fpy = 0.5) {
   // top, bottom, left, right, faces, focalpoint, edges, and entropy
   // TODO: This should happen in the schemaParser
   if (!Array.isArray(crop)) {
@@ -274,10 +283,10 @@ export async function scaleCrop(editsPipeline: sharp.Sharp, width: number|null =
  */
 export async function beforeApply(editsPipeline: sharp.Sharp, edits: ParsedEdits) {
   const {w, h, dpr, ar} = edits
-  let processedWidth: ProcessedInputValueType = (w.processedValue as number|null) ?? null
-  let processedHeight: ProcessedInputValueType = (h.processedValue as number|null) ?? null
-  const processedAr: ProcessedInputValueType = (ar.processedValue as number|null) ?? null
-  const processedDpr: ProcessedInputValueType = (dpr.processedValue as number|null) ?? null
+  let processedWidth: ProcessedInputValueType = (w.processedValue as number | null) ?? null
+  let processedHeight: ProcessedInputValueType = (h.processedValue as number | null) ?? null
+  const processedAr: ProcessedInputValueType = (ar.processedValue as number | null) ?? null
+  const processedDpr: ProcessedInputValueType = (dpr.processedValue as number | null) ?? null
 
   // Apply aspect ratio edits
 
