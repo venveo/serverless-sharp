@@ -39,7 +39,7 @@ function fixedEncodeURIComponent(str: string): string {
  * @param hash
  */
 export function verifyHash(path: string, queryStringParameters: QueryStringParameters, hash: string): boolean {
-  const parsed = calculateHash(path, queryStringParameters, getSetting('SECURITY_KEY'))
+  const parsed = calculateHash(path, queryStringParameters, <string>getSetting('SECURITY_KEY'))
   return parsed.toLowerCase() === hash.toLowerCase()
 }
 
@@ -49,19 +49,15 @@ export function verifyHash(path: string, queryStringParameters: QueryStringParam
  */
 export function shouldSkipRequest(path: string): boolean {
   // Check if the file is explicitly ignored
-  const filesToIgnore = getSetting('SLS_IGNORE')
+  const filesToIgnore = <string[]>getSetting('SLS_IGNORE')
   if (filesToIgnore && pathIsIgnored(path, filesToIgnore)) {
     return true;
   }
 
   // Check if there is a Regular Expression we need to validate against the path
-  const validPathRegex: RegExp|null = getSetting('SLS_VALID_PATH_REGEX');
+  const validPathRegex: RegExp|null = <RegExp|null>getSetting('SLS_VALID_PATH_REGEX');
   // Check if the path matches our regex pattern
-  if (validPathRegex && !pathMatchesRegex(path, validPathRegex)) {
-    return true
-  }
-
-  return false
+  return !!(validPathRegex && !pathMatchesRegex(path, validPathRegex));
 }
 
 export function pathIsIgnored(path: string, filesToIgnore: string[]): boolean {
