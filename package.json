@@ -33,11 +33,8 @@
     "serverless": "^3.0.0",
     "serverless-esbuild": "^1.26.2",
     "serverless-offline": "^8.0.0",
-    "sharp": "0.30.5",
+    "sharp": "0.30.6",
     "ts-jest": "^28.0.0",
     "typescript": "^4.6.3"
-  },
-  "dependencies": {
-    "winston": "^3.7.2"
   }
 }
