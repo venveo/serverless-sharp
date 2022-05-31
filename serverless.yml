@@ -1,4 +1,6 @@
-service: ${self:custom.settings.serviceName}
+frameworkVersion: '3'
+
+service: serverless-sharp
 
 provider:
   name: aws
@@ -12,7 +14,9 @@ provider:
         - Effect: "Allow"
           Action:
             - "s3:GetObject"
-          Resource: "arn:aws:s3:::${self:custom.settings.environment.SOURCE_BUCKET}/*"
+          Resource:
+            - "arn:aws:s3:::${self:custom.settings.environment.SOURCE_BUCKET}"
+            - "arn:aws:s3:::${self:custom.settings.environment.SOURCE_BUCKET}/*"
   apiGateway:
     binaryMediaTypes:
       - '*/*'
@@ -22,9 +26,8 @@ layers:
     path: lambdaLayers/SharpLayer # required, path to layer contents on disk
     name: ${self:provider.stage}-sharp # optional, Deployed Lambda layer name
     package:
-      include:
-        - node_modules/**
-    description: sharp@0.27.2
+      artifact: lambdaLayers/SharpLayer/out/sharp-0.30.6-aws-lambda-linux-x64-node-14.zip
+    description: sharp@0.30.6
     compatibleRuntimes:
       - nodejs14.x
     licenseInfo: Apache License 2.0
@@ -32,11 +35,11 @@ layers:
 
 resources:
   Conditions:
-    CustomDomain: !Not [!Equals ["${self:custom.settings.environment.CUSTOM_DOMAIN, ''}", ""]]
-    ArnCertificate: !Not [!Equals ["${self:custom.settings.environment.ACM_CERTIFICATE_ARN, ''}", ""]]
+    CustomDomain: !Not [ !Equals [ "${self:custom.settings.environment.CUSTOM_DOMAIN, ''}", "" ] ]
+    ArnCertificate: !Not [ !Equals [ "${self:custom.settings.environment.ACM_CERTIFICATE_ARN, ''}", "" ] ]
     CreateCertificate: !And
-      - !Not [!Equals ["${self:custom.settings.environment.CUSTOM_DOMAIN, ''}", ""]]
-      - !Equals ["${self:custom.settings.environment.ACM_CERTIFICATE_ARN, ''}", ""]
+      - !Not [ !Equals [ "${self:custom.settings.environment.CUSTOM_DOMAIN, ''}", "" ] ]
+      - !Equals [ "${self:custom.settings.environment.ACM_CERTIFICATE_ARN, ''}", "" ]
   Resources:
     CloudFrontDistribution:
       Type: AWS::CloudFront::Distribution
@@ -66,16 +69,16 @@ resources:
                 OriginProtocolPolicy: https-only
           Aliases:
             Fn::If:
-            - CustomDomain
-            - - '${self:custom.settings.environment.CUSTOM_DOMAIN, self:custom.empty}'
-            - Ref: AWS::NoValue
+              - CustomDomain
+              - - '${self:custom.settings.environment.CUSTOM_DOMAIN, self:custom.empty}'
+              - Ref: AWS::NoValue
           ViewerCertificate:
             Fn::If:
               - CreateCertificate
               - AcmCertificateArn: !If
-                - ArnCertificate
-                - self:custom.settings.environment.ACM_CERTIFICATE_ARN
-                - Ref: Certificate
+                  - ArnCertificate
+                  - self:custom.settings.environment.ACM_CERTIFICATE_ARN
+                  - Ref: Certificate
                 SslSupportMethod: 'sni-only'
                 MinimumProtocolVersion: 'TLSv1'
               - Ref: AWS::NoValue
@@ -91,15 +94,7 @@ resources:
         'Fn::GetAtt': [ CloudFrontDistribution, DomainName ]
 functions:
   index:
-    package:
-      individually: true
-      exclude:
-        - node_modules/**
-        - docs/**
-        - .idea/**
-        - bin/darwin/**
-        - coverage/**
-    handler: src/index.handler
+    handler: src/functions/optimize.handler
     layers:
       - { Ref: SharpLambdaLayer }
     events:
@@ -109,12 +104,25 @@ functions:
           response:
             contentHandling: CONVERT_TO_BINARY
     environment: ${self:custom.settings.environment}
+#    url: true TODO: Switch to URLs
 custom:
   empty: ''
   settingsFilePath: ${opt:settings,'./settings.yml'}
   settings: ${file(${self:custom.settingsFilePath}):stages.${self:provider.stage}}
   serverless-offline:
+    host: 0.0.0.0
     httpPort: ${self:custom.settings.offlinePort}
     noPrependStageInUrl: true
+  esbuild:
+    bundle: true
+    minify: false
+    sourcemap: true
+    keepNames: true
+    exclude:
+      - sharp
+      - \@aws-sdk/client-s3
+    external:
+      - sharp
 plugins:
+  - serverless-esbuild
   - serverless-offline

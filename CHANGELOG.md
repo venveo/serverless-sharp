@@ -1,8 +1,31 @@
 # Changelog
 
-## Unreleased
+## [2.2.0] - Unreleased
 ### Added
 - Added support for AVIF output with `auto=format`
+- Added esbuild for bundling build
+- Added "offline" npm command for local testing
+- Added image generation tests for common use-cases
+- Added support for brightness via `bri=<number>`
+- Added support for pixelate via `px=<number>`
+- Added `fit=fill`
+- Added `fit=fillmax`
+- Added `fill=blur`
+
+### Fixed
+- Fixed bug that could result in pngs being larger than inputs
+- Fixed potential errors caused by rounding during cropping
+- Fixed potential bugs around input request formatting and schema parsing
+- Fix blur out of range issues
+- Fix schema parser not removing query parameters with empty values (use defaults)
+
+### Changed
+- Fix potential error with undefined multiValueQueryStringParameters
+- Updated Imgix schema
+- Updated to Serverless framework 3
+- Updated Sharp to 0.30.4
+- Added Makefile for building Sharp Lambda layer
+- checkHash has become ensureHash
 
 ### Fixed
 - Fix quality parameter (`q`) not being respected with `auto=format`

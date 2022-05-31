@@ -1,5 +1,5 @@
 {
-  "version": "11.2.0",
+  "version": "11.13.0",
   "parameters": {
     "ar": {
       "display_name": "aspect ratio",
@@ -18,6 +18,7 @@
       "depends": [
         "fit=crop"
       ],
+      "url": "https://docs.imgix.com/apis/url/size/ar",
       "short_description": "Specifies an aspect ratio to maintain when resizing and cropping the image"
     },
     "auto": {
@@ -57,7 +58,7 @@
           "type": "color_keyword"
         }
       ],
-      "default": "#fff",
+      "default": "fff",
       "url": "https://docs.imgix.com/apis/url/bg",
       "short_description": "Colors the background of padded and partially-transparent images."
     },
@@ -115,6 +116,28 @@
       ],
       "url": "https://docs.imgix.com/apis/url/blending/blend-alpha",
       "short_description": "Changes the alpha of the blend image."
+    },
+    "blend-color": {
+      "display_name": "blend color",
+      "category": "blending",
+      "available_in": [
+        "url"
+      ],
+      "expects": [
+        {
+          "type": "hex_color"
+        },
+        {
+          "type": "color_keyword"
+        }
+      ],
+      "aliases": [
+        "blendcolor",
+        "blend-clr",
+        "blendclr"
+      ],
+      "url": "https://docs.imgix.com/apis/url/blending/blend-color",
+      "short_description": "Specifies a color to use when applying the blend."
     },
     "blend-crop": {
       "display_name": "blend crop",
@@ -422,6 +445,48 @@
       "url": "https://docs.imgix.com/apis/url/stylize/blur",
       "short_description": "Applies a gaussian blur to an image."
     },
+    "border-bottom": {
+      "display_name": "border bottom",
+      "category": "border-and-padding",
+      "available_in": [
+        "url"
+      ],
+      "expects": [
+        {
+          "type": "integer",
+          "suggested_range": {
+            "min": 0,
+            "max": 100
+          }
+        }
+      ],
+      "depends": [
+        "border"
+      ],
+      "url": "https://docs.imgix.com/apis/url/border-and-padding/border-bottom",
+      "short_description": "Sets bottom border of an image."
+    },
+    "border-left": {
+      "display_name": "border left",
+      "category": "border-and-padding",
+      "available_in": [
+        "url"
+      ],
+      "expects": [
+        {
+          "type": "integer",
+          "suggested_range": {
+            "min": 0,
+            "max": 100
+          }
+        }
+      ],
+      "depends": [
+        "border"
+      ],
+      "url": "https://docs.imgix.com/apis/url/border-and-padding/border-left",
+      "short_description": "Sets left border of an image."
+    },
     "border-radius-inner": {
       "display_name": "inner border radius",
       "category": "border-and-padding",
@@ -535,6 +600,48 @@
       ],
       "url": "https://docs.imgix.com/apis/url/border-and-padding/border-radius",
       "short_description": "Sets the outer radius of the image's border in pixels."
+    },
+    "border-right": {
+      "display_name": "border right",
+      "category": "border-and-padding",
+      "available_in": [
+        "url"
+      ],
+      "expects": [
+        {
+          "type": "integer",
+          "suggested_range": {
+            "min": 0,
+            "max": 100
+          }
+        }
+      ],
+      "depends": [
+        "border"
+      ],
+      "url": "https://docs.imgix.com/apis/url/border-and-padding/border-right",
+      "short_description": "Sets right border of an image."
+    },
+    "border-top": {
+      "display_name": "border top",
+      "category": "border-and-padding",
+      "available_in": [
+        "url"
+      ],
+      "expects": [
+        {
+          "type": "integer",
+          "suggested_range": {
+            "min": 0,
+            "max": 100
+          }
+        }
+      ],
+      "depends": [
+        "border"
+      ],
+      "url": "https://docs.imgix.com/apis/url/border-and-padding/border-top",
+      "short_description": "Sets top border of an image."
     },
     "border": {
       "display_name": "border size & color",
@@ -1031,7 +1138,7 @@
       "aliases": [
         "fillcolor"
       ],
-      "default": "#fff",
+      "default": "fff",
       "depends": [
         "fill=solid"
       ],
@@ -1132,7 +1239,9 @@
             "png8",
             "png32",
             "webp",
-            "webm"
+            "webm",
+            "blurhash",
+            "avif"
           ]
         }
       ],
@@ -1212,7 +1321,7 @@
       ],
       "expects": [
         {
-          "type": "integer",
+          "type": "number",
           "default": 1,
           "suggested_range": {
             "min": 1,
@@ -1251,6 +1360,60 @@
       "url": "https://docs.imgix.com/apis/url/adjustment/gam",
       "short_description": "Adjusts the gamma of the source image."
     },
+    "grid-colors": {
+      "display_name": "grid colors",
+      "category": "fill",
+      "available_in": [
+        "url"
+      ],
+      "expects": [
+        {
+          "0": [
+            {
+              "type": "hex_color"
+            },
+            {
+              "type": "color_keyword"
+            }
+          ],
+          "1": [
+            {
+              "type": "hex_color"
+            },
+            {
+              "type": "color_keyword"
+            }
+          ],
+          "type": "list",
+          "default": "D0D7DD,FFFFFF",
+          "length": 2
+        }
+      ],
+      "depends": [
+        "transparency"
+      ],
+      "short_description": "Sets grid colors for the transparency checkerboard grid."
+    },
+    "grid-size": {
+      "display_name": "grid size",
+      "category": "fill",
+      "available_in": [
+        "url"
+      ],
+      "expects": [
+        {
+          "type": "integer",
+          "default": 4,
+          "strict_range": {
+            "min": 0
+          }
+        }
+      ],
+      "depends": [
+        "transparency"
+      ],
+      "short_description": "Sets grid size for the transparency checkerboard grid."
+    },
     "h": {
       "display_name": "image height",
       "category": "size",
@@ -1273,6 +1436,9 @@
             "max": 1
           }
         }
+      ],
+      "aliases": [
+        "height"
       ],
       "url": "https://docs.imgix.com/apis/url/size/h",
       "short_description": "Adjusts the height of the output image."
@@ -1355,6 +1521,23 @@
       "default": false,
       "url": "https://docs.imgix.com/apis/url/adjustment/invert",
       "short_description": "Inverts the colors on the source image."
+    },
+    "iptc": {
+      "display_name": "IPTC Passthrough",
+      "category": "format",
+      "available_in": [
+        "url"
+      ],
+      "expects": [
+        {
+          "type": "string",
+          "possible_values": [
+            "allow",
+            "block"
+          ]
+        }
+      ],
+      "short_description": "Determine if IPTC data should be passed for JPEG images."
     },
     "lossless": {
       "display_name": "lossless compression",
@@ -1533,7 +1716,7 @@
           }
         }
       ],
-      "default": 10,
+      "default": 5,
       "aliases": [
         "mp",
         "markpad"
@@ -1543,6 +1726,26 @@
       ],
       "url": "https://docs.imgix.com/apis/url/watermark/mark-pad",
       "short_description": "Applies padding to the watermark image."
+    },
+    "mark-rot": {
+      "display_name": "watermark rotation",
+      "category": "watermark",
+      "available_in": [
+        "url",
+        "graph"
+      ],
+      "expects": [
+        {
+          "type": "number",
+          "suggested_range": {
+            "min": 0,
+            "max": 359
+          }
+        }
+      ],
+      "default": 0,
+      "url": "https://docs.imgix.com/apis/url/watermark/mark-rot",
+      "short_description": "Rotates a watermark or tiled watermarks by a specified number of degrees."
     },
     "mark-scale": {
       "display_name": "watermark scale",
@@ -1568,6 +1771,30 @@
       ],
       "url": "https://docs.imgix.com/apis/url/watermark/mark-scale",
       "short_description": "Adjusts the scale of the watermark image."
+    },
+    "mark-tile": {
+      "display_name": "watermark tile",
+      "category": "watermark",
+      "available_in": [
+        "url"
+      ],
+      "expects": [
+        {
+          "type": "string",
+          "possible_values": [
+            "grid"
+          ]
+        }
+      ],
+      "aliases": [
+        "mtile",
+        "marktile"
+      ],
+      "depends": [
+        "mark"
+      ],
+      "url": "https://docs.imgix.com/apis/url/watermark/mark-tile",
+      "short_description": "Adds tiled watermark."
     },
     "mark-w": {
       "display_name": "watermark width",
@@ -1669,6 +1896,31 @@
       "url": "https://docs.imgix.com/apis/url/watermark/mark",
       "short_description": "Specifies the location of the watermark image."
     },
+    "mask-bg": {
+      "display_name": "mask background color",
+      "category": "mask",
+      "available_in": [
+        "url",
+        "graph"
+      ],
+      "expects": [
+        {
+          "type": "hex_color"
+        },
+        {
+          "type": "color_keyword"
+        }
+      ],
+      "default": "fff",
+      "aliases": [
+        "maskbg"
+      ],
+      "depends": [
+        "mask"
+      ],
+      "url": "https://docs.imgix.com/apis/url/mask/mask-bg",
+      "short_description": "Colors the background of the transparent mask area of images"
+    },
     "mask": {
       "display_name": "mask type",
       "category": "mask",
@@ -1693,28 +1945,6 @@
       ],
       "url": "https://docs.imgix.com/apis/url/mask",
       "short_description": "Defines the type of mask and specifies the URL if that type is selected."
-    },
-    "maskbg": {
-      "display_name": "mask background color",
-      "category": "mask",
-      "available_in": [
-        "url",
-        "graph"
-      ],
-      "expects": [
-        {
-          "type": "hex_color"
-        },
-        {
-          "type": "color_keyword"
-        }
-      ],
-      "default": "#fff",
-      "depends": [
-        "mask"
-      ],
-      "url": "https://docs.imgix.com/apis/url/mask/mask-bg",
-      "short_description": "Colors the background of the transparent mask area of images"
     },
     "max-h": {
       "display_name": "maximum height",
@@ -1905,6 +2135,78 @@
       "url": "https://docs.imgix.com/apis/url/rotation/orient",
       "short_description": "Changes the image orientation."
     },
+    "pad-bottom": {
+      "display_name": "padding bottom",
+      "category": "border-and-padding",
+      "available_in": [
+        "url"
+      ],
+      "expects": [
+        {
+          "type": "integer",
+          "suggested_range": {
+            "min": 0
+          },
+          "default": 0
+        }
+      ],
+      "url": "https://docs.imgix.com/apis/url/border-and-padding/pad-bottom",
+      "short_description": "Sets bottom padding of an image."
+    },
+    "pad-left": {
+      "display_name": "padding left",
+      "category": "border-and-padding",
+      "available_in": [
+        "url"
+      ],
+      "expects": [
+        {
+          "type": "integer",
+          "suggested_range": {
+            "min": 0
+          },
+          "default": 0
+        }
+      ],
+      "url": "https://docs.imgix.com/apis/url/border-and-padding/pad-left",
+      "short_description": "Sets left padding of an image."
+    },
+    "pad-right": {
+      "display_name": "padding right",
+      "category": "border-and-padding",
+      "available_in": [
+        "url"
+      ],
+      "expects": [
+        {
+          "type": "integer",
+          "suggested_range": {
+            "min": 0
+          },
+          "default": 0
+        }
+      ],
+      "url": "https://docs.imgix.com/apis/url/border-and-padding/pad-right",
+      "short_description": "Sets right padding of an image."
+    },
+    "pad-top": {
+      "display_name": "padding top",
+      "category": "border-and-padding",
+      "available_in": [
+        "url"
+      ],
+      "expects": [
+        {
+          "type": "integer",
+          "suggested_range": {
+            "min": 0
+          },
+          "default": 0
+        }
+      ],
+      "url": "https://docs.imgix.com/apis/url/border-and-padding/pad-top",
+      "short_description": "Sets top padding of an image."
+    },
     "pad": {
       "display_name": "padding",
       "category": "border-and-padding",
@@ -1939,7 +2241,7 @@
         }
       ],
       "default": 1,
-      "url": "https://docs.imgix.com/apis/url/pdf-page-number",
+      "url": "https://docs.imgix.com/apis/url/pdf/page",
       "short_description": "Selects a page from a PDF for display."
     },
     "palette": {
@@ -1960,6 +2262,25 @@
       ],
       "url": "https://docs.imgix.com/apis/url/color-palette/palette",
       "short_description": "Specifies an output format for palette-extraction."
+    },
+    "pdf-annotation": {
+      "display_name": "pdf annotation",
+      "category": "pdf",
+      "available_in": [
+        "url",
+        "graph"
+      ],
+      "expects": [
+        {
+          "type": "boolean"
+        }
+      ],
+      "default": true,
+      "aliases": [
+        "annotation"
+      ],
+      "url": "https://docs.imgix.com/apis/url/pdf/pdf-annotation",
+      "short_description": "Enables or disables PDF annotation."
     },
     "prefix": {
       "display_name": "css prefix",
@@ -2050,6 +2371,13 @@
                 "center",
                 "right"
               ]
+            },
+            {
+              "type": "unit_scalar",
+              "strict_range": {
+                "min": 0,
+                "max": 1
+              }
             }
           ],
           "1": [
@@ -2066,6 +2394,13 @@
                 "middle",
                 "bottom"
               ]
+            },
+            {
+              "type": "unit_scalar",
+              "strict_range": {
+                "min": 0,
+                "max": 1
+              }
             }
           ],
           "2": [
@@ -2084,7 +2419,8 @@
               }
             }
           ],
-          "type": "list"
+          "type": "list",
+          "length": 4
         }
       ],
       "url": "https://docs.imgix.com/apis/url/size/rect",
@@ -2189,6 +2525,23 @@
       "default": 0,
       "url": "https://docs.imgix.com/apis/url/adjustment/sharp",
       "short_description": "Adjusts the sharpness of the source image."
+    },
+    "transparency": {
+      "display_name": "transparency",
+      "category": "fill",
+      "available_in": [
+        "url"
+      ],
+      "expects": [
+        {
+          "type": "string",
+          "possible_values": [
+            "grid"
+          ]
+        }
+      ],
+      "url": "https://docs.imgix.com/apis/url/fill/transparency",
+      "short_description": "Adds checkerboard behind images which support transparency."
     },
     "trim-color": {
       "display_name": "trim color",
@@ -2522,7 +2875,7 @@
           "type": "color_keyword"
         }
       ],
-      "default": "#fff",
+      "default": "fff",
       "aliases": [
         "txtlinecolor",
         "txt-line-clr",
@@ -2684,6 +3037,48 @@
       "url": "https://docs.imgix.com/apis/url/text/txt-width",
       "short_description": "Sets the width of rendered text."
     },
+    "txt-x": {
+      "display_name": "text x position",
+      "category": "text",
+      "available_in": [
+        "url"
+      ],
+      "expects": [
+        {
+          "type": "integer"
+        }
+      ],
+      "aliases": [
+        "txtx"
+      ],
+      "default": 0,
+      "depends": [
+        "txt"
+      ],
+      "url": "https://docs.imgix.com/apis/url/text/txt-x",
+      "short_description": "Sets the horizontal (x) position of the text in pixels relative to the left edge of the base image."
+    },
+    "txt-y": {
+      "display_name": "text y position",
+      "category": "text",
+      "available_in": [
+        "url"
+      ],
+      "expects": [
+        {
+          "type": "integer"
+        }
+      ],
+      "aliases": [
+        "txty"
+      ],
+      "default": 0,
+      "depends": [
+        "txt"
+      ],
+      "url": "https://docs.imgix.com/apis/url/text/txt-y",
+      "short_description": "Sets the vertical (y) position of the text in pixels relative to the top edge of the base image."
+    },
     "txt": {
       "display_name": "text string",
       "category": "text",
@@ -2786,6 +3181,9 @@
           }
         }
       ],
+      "aliases": [
+        "width"
+      ],
       "url": "https://docs.imgix.com/apis/url/size/w",
       "short_description": "Adjusts the width of the output image."
     }
@@ -2795,6 +3193,9 @@
     "ba": "blend-align",
     "blendalpha": "blend-alpha",
     "balph": "blend-alpha",
+    "blendcolor": "blend-color",
+    "blend-clr": "blend-color",
+    "blendclr": "blend-color",
     "blendcrop": "blend-crop",
     "bc": "blend-crop",
     "blendfit": "blend-fit",
@@ -2816,6 +3217,7 @@
     "b": "blend",
     "fillcolor": "fill-color",
     "f": "fit",
+    "height": "h",
     "inv": "invert",
     "ma": "mark-align",
     "markalign": "mark-align",
@@ -2831,6 +3233,8 @@
     "markpad": "mark-pad",
     "ms": "mark-scale",
     "markscale": "mark-scale",
+    "mtile": "mark-tile",
+    "marktile": "mark-tile",
     "mw": "mark-w",
     "markw": "mark-w",
     "mx": "mark-x",
@@ -2838,12 +3242,14 @@
     "my": "mark-y",
     "marky": "mark-y",
     "m": "mark",
+    "maskbg": "mask-bg",
     "max-height": "max-h",
     "max-width": "max-w",
     "min-height": "min-h",
     "min-width": "min-w",
     "mono": "monochrome",
     "or": "orient",
+    "annotation": "pdf-annotation",
     "trimcolor": "trim-color",
     "trimmd": "trim-md",
     "trimpad": "trim-pad",
@@ -2876,7 +3282,10 @@
     "txttrack": "txt-track",
     "tt": "txt-track",
     "txtwidth": "txt-width",
-    "t": "txt"
+    "txtx": "txt-x",
+    "txty": "txt-y",
+    "t": "txt",
+    "width": "w"
   },
   "categoryValues": [
     "adjustment",

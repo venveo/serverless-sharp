@@ -1,0 +1,9 @@
+{
+  "name": "sharp-layer",
+  "version": "1.0.0",
+  "dependencies": {
+    "sharp": "^0.30.6"
+  },
+  "keywords": [],
+  "description": ""
+}
