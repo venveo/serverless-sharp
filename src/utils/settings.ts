@@ -95,7 +95,7 @@ const processValue = function (setting: string, value: string | number) {
   }
 }
 
-const processString = function (value: any) {
+const processString = function (value: string|undefined|null|number|object) {
   if (value === '' || value == null) {
     return null
   }
