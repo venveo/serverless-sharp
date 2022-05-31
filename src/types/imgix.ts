@@ -19,6 +19,42 @@ export interface ParameterType {
     url?:               string;
 }
 
+export enum CropMode {
+  TOP = "top",
+  BOTTOM = "bottom",
+  LEFT = "left",
+  RIGHT = "right",
+  FACES = "faces",
+  ENTROPY = "entropy",
+  EDGES = "edges",
+  FOCALPOINT = "focalpoint"
+}
+
+export enum AutoMode {
+  ENHANCE = "enhance",
+  FORMAT = "format",
+  REDEYE = "redeye",
+  COMPRESS = "compress",
+  TRUE = "true"
+}
+
+export enum FillMode {
+  BLUR = "blur",
+  SOLID = "solid"
+}
+
+export enum ResizeFitMode {
+  CLAMP = "clamp",
+  CLIP = "clip",
+  CROP = "crop",
+  FACEAREA = "facearea",
+  FILL = "fill",
+  FILLMAX = "fillmax",
+  MAX = "max",
+  MIN = "min",
+  SCALE = "scale"
+}
+
 export interface ExpectedValueDefinition {
     default?: string|number;
     possible_values?: Array<string|number>;
@@ -384,9 +420,4 @@ export interface The0 extends ExpectedValueDefinition{
     possible_values?: string[];
     strict_range?:    MinMaxRange;
     type:             ExpectedValueType.String;
-}
-
-export enum FillMode {
-    blur = "blur",
-    solid = "solid"
 }
