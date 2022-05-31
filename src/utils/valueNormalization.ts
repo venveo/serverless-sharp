@@ -1,3 +1,11 @@
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+import {Color} from "sharp";
+import ColorException from "../errors/ColorException";
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const schema = require('../../data/schema.json')
+
 /**
  * Remaps a number to a given range
  * e.g. 0-100 => -1000-0
@@ -13,4 +21,47 @@ export function remapNumberInRange(originalMin: number, originalMax: number, new
   result *= multiplier
   // Clamp the result to valid input range
   return Math.max(newMin, Math.min(newMax, result))
+}
+
+/**
+ *
+ * @param color
+ */
+export function normalizeColorForSharp(color: string): Color {
+  // either a color keyword or 3- (RGB), 4- (ARGB) 6- (RRGGBB) or 8-digit (AARRGGBB) hexadecimal values
+  if (schema.colorKeywordValues.includes(color)) {
+    // is a color keyword
+    return color
+  }
+  if (/^#[0-9A-Fa-f]{3}$/.test(color)) {
+    // 3-digit (RGB)
+    const r = parseInt(color[1] + color[1], 16)
+    const g = parseInt(color[2] + color[2], 16)
+    const b = parseInt(color[3] + color[3], 16)
+    return {r, g, b}
+  }
+  if (/^#[0-9A-Fa-f]{4}$/.test(color)) {
+    // 4-digit (ARGB)
+    const alpha = parseInt(color[1] + color[1], 16) / 255.0
+    const r = parseInt(color[2] + color[2], 16)
+    const g = parseInt(color[3] + color[3], 16)
+    const b = parseInt(color[4] + color[4], 16)
+    return {alpha, r, g, b}
+  }
+  if (/^#[0-9A-Fa-f]{6}$/.test(color)) {
+    // 6-digit (RRGGBB)
+    const r = parseInt(color[1] + color[2], 16)
+    const g = parseInt(color[3] + color[4], 16)
+    const b = parseInt(color[5] + color[6], 16)
+    return {r, g, b}
+  }
+  if (/^#[0-9A-Fa-f]{8}$/.test(color)) {
+    // 8-digit (AARRGGBB)
+    const alpha = parseInt(color[1] + color[2], 16) / 255.0
+    const r = parseInt(color[3] + color[4], 16)
+    const g = parseInt(color[5] + color[6], 16)
+    const b = parseInt(color[7] + color[8], 16)
+    return {alpha, r, g, b}
+  }
+  throw new ColorException(color)
 }

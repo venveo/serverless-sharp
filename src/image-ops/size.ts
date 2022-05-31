@@ -111,39 +111,10 @@ export async function fill(pipeline: sharp.Sharp, mode: FillMode, width = null, 
   }
 
   if (mode === FillMode.solid && color) {
-    // either a color keyword or 3- (RGB), 4- (ARGB) 6- (RRGGBB) or 8-digit (AARRGGBB) hexadecimal values
-    if (schema.colorKeywordValues.includes(color)) {
-      // is a color keyword
-      resizeParams.background = color
-    } else if (/^#[0-9A-Fa-f]{3}$/.test(color)) {
-      // 3-digit (RGB)
-      const r = parseInt(color[1] + color[1], 16)
-      const g = parseInt(color[2] + color[2], 16)
-      const b = parseInt(color[3] + color[3], 16)
-      resizeParams.background = {r, g, b}
-    } else if (/^#[0-9A-Fa-f]{4}$/.test(color)) {
-      // 4-digit (ARGB)
-      const alpha = parseInt(color[1] + color[1], 16) / 255.0
-      const r = parseInt(color[2] + color[2], 16)
-      const g = parseInt(color[3] + color[3], 16)
-      const b = parseInt(color[4] + color[4], 16)
-      resizeParams.background = {alpha, r, g, b}
-    } else if (/^#[0-9A-Fa-f]{6}$/.test(color)) {
-      // 6-digit (RRGGBB)
-      const r = parseInt(color[1] + color[2], 16)
-      const g = parseInt(color[3] + color[4], 16)
-      const b = parseInt(color[5] + color[6], 16)
-      resizeParams.background = {r, g, b}
-    } else if (/^#[0-9A-Fa-f]{8}$/.test(color)) {
-      // 8-digit (AARRGGBB)
-      const alpha = parseInt(color[1] + color[2], 16) / 255.0
-      const r = parseInt(color[3] + color[4], 16)
-      const g = parseInt(color[5] + color[6], 16)
-      const b = parseInt(color[7] + color[8], 16)
-      resizeParams.background = {alpha, r, g, b}
-    }
+    resizeParams.background = normalizeColorForSharp(color)
     return pipeline.resize(resizeParams)
   }
+  return pipeline
 }
 
 /**
