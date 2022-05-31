@@ -59,7 +59,9 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
 
   test('Original', async () => {
     const event: GenericInvocationEvent = {
-      path: 'irrelevant.jpg'
+      path: 'irrelevant.jpg',
+      headers: {},
+      queryParams: {}
     }
     const metadata = await processRequestAndGetMetadata(event)
     expect(metadata).toBeDefined()
@@ -78,7 +80,8 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
       path: 'irrelevant.jpg',
       queryParams: {
         width: '250'
-      }
+      },
+      headers: {}
     }
     const metadata = await processRequestAndGetMetadata(event)
     expect(metadata).toBeDefined()
@@ -98,7 +101,8 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
       queryParams: {
         width: '250',
         height: '500',
-      }
+      },
+      headers: {}
     }
     const metadata = await processRequestAndGetMetadata(event)
     expect(metadata).toBeDefined()
@@ -120,7 +124,8 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
         width: '250',
         height: '500',
         fit: 'crop'
-      }
+      },
+      headers: {}
     }
     const metadata = await processRequestAndGetMetadata(event)
     expect(metadata).toBeDefined()
@@ -140,7 +145,8 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
       path: 'irrelevant.jpg',
       queryParams: {
         fm: 'png'
-      }
+      },
+      headers: {}
     }
     const metadata = await processRequestAndGetMetadata(event)
     expect(metadata).toBeDefined()
@@ -159,7 +165,8 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
       path: 'irrelevant.jpg',
       queryParams: {
         fm: 'webp'
-      }
+      },
+      headers: {}
     }
     const metadata = await processRequestAndGetMetadata(event)
     expect(metadata).toBeDefined()
@@ -179,7 +186,8 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
       path: 'irrelevant.jpg',
       queryParams: {
         fm: 'avif'
-      }
+      },
+      headers: {}
     }
     const metadata = await processRequestAndGetMetadata(event)
     expect(metadata).toBeDefined()
@@ -198,7 +206,8 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
       path: 'irrelevant.jpg',
       queryParams: {
         fm: 'gif'
-      }
+      },
+      headers: {}
     }
     const metadata = await processRequestAndGetMetadata(event)
     expect(metadata).toBeDefined()
@@ -263,7 +272,9 @@ describe('Testing ImageHandler Processing with Transparent PNG Input', () => {
 
   test('Original', async () => {
     const event: GenericInvocationEvent = {
-      path: 'irrelevant.png'
+      path: 'irrelevant.png',
+      headers: {},
+      queryParams: {}
     }
     const metadata = await processRequestAndGetMetadata(event)
     expect(metadata).toBeDefined()
@@ -282,7 +293,8 @@ describe('Testing ImageHandler Processing with Transparent PNG Input', () => {
       path: 'irrelevant.png',
       queryParams: {
         width: '250'
-      }
+      },
+      headers: {}
     }
     const metadata = await processRequestAndGetMetadata(event)
     expect(metadata).toBeDefined()
@@ -302,7 +314,8 @@ describe('Testing ImageHandler Processing with Transparent PNG Input', () => {
       queryParams: {
         width: '250',
         height: '500',
-      }
+      },
+      headers: {}
     }
     const metadata = await processRequestAndGetMetadata(event)
     expect(metadata).toBeDefined()
@@ -323,7 +336,8 @@ describe('Testing ImageHandler Processing with Transparent PNG Input', () => {
         width: '250',
         height: '500',
         fit: 'crop'
-      }
+      },
+      headers: {}
     }
     const metadata = await processRequestAndGetMetadata(event)
     expect(metadata).toBeDefined()
@@ -340,7 +354,8 @@ describe('Testing ImageHandler Processing with Transparent PNG Input', () => {
       path: 'irrelevant.png',
       queryParams: {
         fm: 'jpg'
-      }
+      },
+      headers: {}
     }
     const metadata = await processRequestAndGetMetadata(event)
     expect(metadata).toBeDefined()
@@ -359,7 +374,8 @@ describe('Testing ImageHandler Processing with Transparent PNG Input', () => {
       path: 'irrelevant.png',
       queryParams: {
         fm: 'webp'
-      }
+      },
+      headers: {}
     }
     const metadata = await processRequestAndGetMetadata(event)
     expect(metadata).toBeDefined()
@@ -378,7 +394,8 @@ describe('Testing ImageHandler Processing with Transparent PNG Input', () => {
       path: 'irrelevant.png',
       queryParams: {
         fm: 'avif'
-      }
+      },
+      headers: {}
     }
     const metadata = await processRequestAndGetMetadata(event)
     expect(metadata).toBeDefined()
@@ -397,7 +414,8 @@ describe('Testing ImageHandler Processing with Transparent PNG Input', () => {
       path: 'irrelevant.png',
       queryParams: {
         fm: 'gif'
-      }
+      },
+      headers: {}
     }
     const metadata = await processRequestAndGetMetadata(event)
     expect(metadata).toBeDefined()

@@ -17,9 +17,9 @@ import {getResponseHeaders} from "../utils/httpRequestProcessor";
 
 export const handler: Handler = async function (event: APIGatewayProxyEvent, context): Promise<APIGatewayProxyResult> {
   const normalizedEvent: GenericInvocationEvent = {
-    queryParams: event.queryStringParameters as QueryStringParameters,
+    queryParams: <QueryStringParameters>event.queryStringParameters ?? {},
     path: event.path,
-    headers: event.headers as GenericHeaders
+    headers: <GenericHeaders>event.headers ?? {}
   }
 
   const beforeHandle = beforeHandleRequest(normalizedEvent)

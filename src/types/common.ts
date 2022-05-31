@@ -44,8 +44,8 @@ export type ProcessedInputValueType = string | number | Array<string | number> |
 
 export type GenericInvocationEvent = {
   path: string,
-  headers?: GenericHeaders | null,
-  queryParams?: QueryStringParameters | null
+  headers: GenericHeaders,
+  queryParams: QueryStringParameters
 }
 
 export interface GenericInvocationResponse {

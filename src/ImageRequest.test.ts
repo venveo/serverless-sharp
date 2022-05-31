@@ -51,7 +51,9 @@ describe('Testing ImageRequest', () => {
 
   test('Can CreateImageRequest', () => {
     const event: GenericInvocationEvent = {
-      path: '/some/prefix/images/my-object.png'
+      headers: {},
+      path: '/some/prefix/images/my-object.png',
+      queryParams: {}
     }
 
     process.env.SECURITY_KEY = ''
@@ -68,6 +70,7 @@ describe('Testing ImageRequest', () => {
   test('Can CreateImageRequest - with hash (valid)', () => {
     const event = {
       path: '/some/prefix/images/my-object.png',
+      headers: {},
       queryParams: {
         s: ''
       }
@@ -87,6 +90,7 @@ describe('Testing ImageRequest', () => {
   test('Can CreateImageRequest - with hash (invalid)', () => {
     const event = {
       path: '/some/prefix/images/my-object.png',
+      headers: {},
       queryParams: {
         s: ''
       }
@@ -105,7 +109,9 @@ describe('Testing ImageRequest', () => {
 
   test('Process Request - Input JPG', async () => {
     const event: GenericInvocationEvent = {
-      path: '/some/prefix/images/my-object.png'
+      path: '/some/prefix/images/my-object.png',
+      headers: {},
+      queryParams: {}
     }
 
 
@@ -158,6 +164,7 @@ describe('Testing ImageRequest', () => {
       queryParams: {
         auto: 'format'
       },
+      headers: {}
     }
     const request = await processRequest(event, '../data/tests/PNG_demonstration_1_no_alpha.png', 'image/png')
     // Ensure input image matches known values
