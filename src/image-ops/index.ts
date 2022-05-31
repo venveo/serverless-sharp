@@ -2,8 +2,9 @@ import {getSetting} from "../utils/settings";
 import {apply as applySize, scaleMax} from "./size";
 import {apply as applyStylize} from "./stylize";
 import {apply as applyAdjustment} from './adjustment'
-import sharp from "sharp";
-import {ParsedEdits} from "../types/common";
+import sharp, {Sharp} from "sharp";
+import {ParsedEdits, ParsedSchemaItem} from "../types/common";
+import InvalidDimensionsException from "../errors/InvalidDimensionsException";
 
 const operationsByCategory = {
   adjustment: applyAdjustment,
@@ -47,11 +48,14 @@ export async function apply(editsPipeline: sharp.Sharp, edits: ParsedEdits) {
  * @param editsPipeline
  * @param metadata
  */
-export function restrictSize(editsPipeline: sharp.Sharp, metadata: sharp.Metadata): void {
-  const maxImgWidth: number = getSetting('MAX_IMAGE_WIDTH')
-  const maxImgHeight: number = getSetting('MAX_IMAGE_HEIGHT')
-  let width: number | null = <number>metadata.width
-  let height: number | null = <number>metadata.height
+export function restrictSize(editsPipeline: sharp.Sharp, metadata: sharp.Metadata): Sharp {
+  const maxImgWidth: number = <number>getSetting('MAX_IMAGE_WIDTH')
+  const maxImgHeight: number = <number>getSetting('MAX_IMAGE_HEIGHT')
+  let width = metadata.width ?? null
+  let height = metadata.height ?? null
+  if (!width || !height) {
+    throw new InvalidDimensionsException("Either width or height on input object metadata could not be determined");
+  }
 
   if ((maxImgWidth && width > maxImgWidth) || (maxImgHeight && height > maxImgHeight)) {
     // NOTE: This originally had a "parseFloat" - but I'm not sure why. I removed it. If I created a bug, I'm sorry.
@@ -59,6 +63,7 @@ export function restrictSize(editsPipeline: sharp.Sharp, metadata: sharp.Metadat
 
     width = aspectRatio >= 1 ? maxImgWidth : null
     height = width === null ? maxImgHeight : null
-    scaleMax(editsPipeline, width, height)
+    return scaleMax(editsPipeline, width, height)
   }
+  return editsPipeline
 }
