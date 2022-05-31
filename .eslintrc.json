@@ -31,7 +31,7 @@
     "sourceType": "module"
   },
   "rules": {
-    "no-console": "warn",
+    "no-console": "off",
     "indent": ["error", 2]
   }
 }
