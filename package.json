@@ -22,7 +22,7 @@
     "jest": "^26.0.1",
     "serverless": "^2.30.1",
     "serverless-offline": "^7.0.0",
-    "sharp": "0.28.0",
+    "sharp": "0.30.5",
     "standard": "^16.0.3"
   }
 }
