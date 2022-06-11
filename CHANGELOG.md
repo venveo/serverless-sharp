@@ -16,8 +16,9 @@
 - Fixed bug that could result in pngs being larger than inputs
 - Fixed potential errors caused by rounding during cropping
 - Fixed potential bugs around input request formatting and schema parsing
-- Fix blur out of range issues
-- Fix schema parser not removing query parameters with empty values (use defaults)
+- Fixed blur out of range issues
+- Fixed schema parser not removing query parameters with empty values (use defaults)
+- Fixed Last-Modified date not being the correct format (Thanks, @bs-thomas)
 
 ### Changed
 - Fix potential error with undefined multiValueQueryStringParameters

@@ -1,4 +1,5 @@
 import * as httpRequestProcessor from "./httpRequestProcessor";
+import {ProcessedImageRequest} from "../types/common";
 
 describe('extractObjectKeyFromUri', () => {
   test('gets basic path', () => {
@@ -91,3 +92,29 @@ describe('processSourceBucket', () => {
     })
   })
 })
+
+describe('getResponseHeaders', () => {
+  const processedRequest: ProcessedImageRequest = {
+    Body: 'foo',
+    CacheControl: 'public, max-age=3600',
+    ContentLength: 3,
+    ContentType: 'image/jpeg'
+  }
+  jest
+    .useFakeTimers()
+    .setSystemTime(new Date('2020-01-01 03:24:00 GMT'));
+
+  const responseHeaders = httpRequestProcessor.getResponseHeaders(processedRequest)
+  test('Default headers', () => {
+    expect(responseHeaders).toMatchObject({
+      ...responseHeaders,
+      'Cache-Control': 'public, max-age=3600',
+      'Content-Type': 'image/jpeg',
+      'Access-Control-Allow-Methods': 'GET',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Credentials': 'true',
+      'Last-Modified': 'Wed, 01 Jan 2020 03:24:00 GMT' // Note: we mocked the system time above
+    })
+  });
+
+});

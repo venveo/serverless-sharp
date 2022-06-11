@@ -99,8 +99,8 @@ export function getResponseHeaders(processedRequest: ProcessedImageRequest | nul
   const headers: GenericHeaders = {
     'Access-Control-Allow-Methods': 'GET',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Credentials': true, // TODO: Should this be a string?
-    'Last-Modified': timeNow.toString()
+    'Access-Control-Allow-Credentials': 'true',
+    'Last-Modified': timeNow.toUTCString()
   }
   const cacheControlDefault = <string>getSetting('DEFAULT_CACHE_CONTROL')
   if (processedRequest) {
