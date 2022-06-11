@@ -4,7 +4,7 @@ import {ExpectedValueDefinition, Imgix, ParameterType} from "../types/imgix";
 import {processInputValue} from "./inputValueProcessor";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const schema: Imgix = require('../../data/schema')
+const schema: Imgix = require('../../data/schema.json')
 
 /**
  * Replaces any aliased keys with its base key
