@@ -10,10 +10,10 @@ import {ParsedEdits} from "../types/common";
  * @param imagePipeline
  * @param edits
  */
-export async function apply(imagePipeline: Sharp, edits: ParsedEdits) {
+export async function apply(imagePipeline: Sharp, edits: ParsedEdits): Promise<Sharp> {
   let outputPipeline = imagePipeline;
   if (edits.bri) {
-    outputPipeline = await bri(imagePipeline, <number>edits.bri.processedValue)
+    outputPipeline = bri(imagePipeline, edits.bri.processedValue)
   }
   return Promise.resolve(outputPipeline)
 }
@@ -23,10 +23,10 @@ export async function apply(imagePipeline: Sharp, edits: ParsedEdits) {
  * @param imagePipeline
  * @param val
  */
-export function bri(imagePipeline: Sharp, val: number) {
+export function bri(imagePipeline: Sharp, val: number): Sharp {
   // Brightness isn't an exact match to Imgix, but it's pretty close. PR welcome.
   // Note: we're using lightness instead of brightness here - this is intentional. Sharp's brightness is a multiplier
-  return Promise.resolve(imagePipeline.modulate({
+  return imagePipeline.modulate({
     lightness: Math.min(200, Math.max(val, -200))
-  }))
+  })
 }

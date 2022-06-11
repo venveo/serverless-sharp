@@ -3,47 +3,56 @@
  */
 import sharp, {ResizeOptions, Sharp} from 'sharp'
 import NotImplementedException from "../errors/NotImplementedException";
-import {FillMode} from "../types/imgix";
-import {ParsedEdits, ProcessedInputValueType} from "../types/common";
+import {CropMode, FillMode, ResizeFitMode} from "../types/imgix";
+import {InputCropPosition, InputDimension, ParsedEdits} from "../types/common";
 import InvalidDimensionsException from "../errors/InvalidDimensionsException";
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const schema = require('../../data/schema')
+import {normalizeColorForSharp} from "../utils/valueNormalization";
 
 /**
  * Apply all supported size operations
- * @param editsPipeline
+ * @param imagePipeline
  * @param edits
  * @return {Promise<void>}
  */
-export async function apply(editsPipeline: Sharp, edits: ParsedEdits) {
-  await beforeApply(editsPipeline, edits)
+export async function apply(imagePipeline: Sharp, edits: ParsedEdits): Promise<Sharp> {
+  await beforeApply(imagePipeline, edits)
 
   const {w, h, fit, crop} = edits
   // The first thing we need to do is apply edits that affect the requested output size.
   if (w.processedValue || h.processedValue) {
     switch (fit.processedValue) {
-    case 'clamp':
+    case ResizeFitMode.CLAMP:
       // https://github.com/venveo/serverless-sharp/issues/26
-      // Should extends the edge pixels outwards to match the given dimensions.
+      // Should extend the edge pixels outwards to match the given dimensions.
       throw new NotImplementedException()
-    case 'fillmax':
-      return await fill(editsPipeline, <FillMode>edits.fill.processedValue, w.processedValue, h.processedValue, edits['fill-color'].processedValue, true)
-    case 'max':
-      return scaleMax(editsPipeline, <number>w.processedValue, <number>h.processedValue)
-    case 'min':
-      return scaleCrop(editsPipeline, <number>w.processedValue, <number>h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue)
-    case 'fill':
-      return await fill(editsPipeline, <FillMode>edits.fill.processedValue, w.processedValue, h.processedValue, edits['fill-color'].processedValue, false)
-    case 'scale':
-      return scale(editsPipeline, w.processedValue, h.processedValue)
-    case 'crop':
-      return await scaleCrop(editsPipeline, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue)
-    case 'clip':
-      return scaleClip(editsPipeline, w.processedValue, h.processedValue)
+    case ResizeFitMode.FILL:
+      if (edits.fill.processedValue) {
+        imagePipeline = await fill(imagePipeline, edits.fill.processedValue, w.processedValue, h.processedValue, edits['fill-color'].processedValue ?? null, false)
+      }
+      break
+    case ResizeFitMode.FILLMAX:
+      if (edits.fill.processedValue) {
+        imagePipeline = await fill(imagePipeline, edits.fill.processedValue, w.processedValue ?? null, h.processedValue ?? null, edits['fill-color'].processedValue ?? null, true)
+      }
+      break
+    case ResizeFitMode.MAX:
+      imagePipeline = scaleMax(imagePipeline, w.processedValue ?? null, h.processedValue ?? null)
+      break
+    case ResizeFitMode.MIN:
+      imagePipeline = await scaleCrop(imagePipeline, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue)
+      break
+    case ResizeFitMode.SCALE:
+      imagePipeline = scale(imagePipeline, w.processedValue, h.processedValue)
+      break
+    case ResizeFitMode.CROP:
+      imagePipeline = await scaleCrop(imagePipeline, w.processedValue, h.processedValue, crop.processedValue, edits['fp-x'].processedValue, edits['fp-y'].processedValue)
+      break
+    case ResizeFitMode.CLIP:
+      imagePipeline = scaleClip(imagePipeline, w.processedValue, h.processedValue)
+      break
     }
-    return editsPipeline
   }
+  return Promise.resolve(imagePipeline)
 }
 
 /**
@@ -52,7 +61,7 @@ export async function apply(editsPipeline: Sharp, edits: ParsedEdits) {
  * @param height
  * @returns {*}
  */
-export function scaleMax(pipeline: sharp.Sharp, width: number | null = null, height: number | null = null) {
+export function scaleMax(pipeline: sharp.Sharp, width: InputDimension | null = null, height: InputDimension | null = null) {
   const resizeOptions: ResizeOptions = {
     width: width ?? undefined,
     height: height ?? undefined,
@@ -69,7 +78,7 @@ export function scaleMax(pipeline: sharp.Sharp, width: number | null = null, hei
  * @param height
  * @returns {*}
  */
-export function scaleClip(pipeline: sharp.Sharp, width: number | null = null, height: number | null = null) {
+export function scaleClip(pipeline: sharp.Sharp, width: InputDimension | null = null, height: InputDimension | null = null) {
   const resizeOptions: ResizeOptions = {
     width: width ?? undefined,
     height: height ?? undefined,
@@ -89,7 +98,7 @@ export function scaleClip(pipeline: sharp.Sharp, width: number | null = null, he
  * @param withoutEnlargement
  * @returns {*}
  */
-export async function fill(pipeline: sharp.Sharp, mode: FillMode, width = null, height = null, color = null, withoutEnlargement = true) {
+export async function fill(pipeline: sharp.Sharp, mode: FillMode, width: InputDimension | null = null, height: InputDimension | null = null, color: string | null, withoutEnlargement = true) {
   const resizeParams: ResizeOptions = {
     withoutEnlargement: false,
     fit: sharp.fit.contain
@@ -101,16 +110,25 @@ export async function fill(pipeline: sharp.Sharp, mode: FillMode, width = null, 
     resizeParams.height = height
   }
 
-  if (mode === FillMode.blur) {
+  if (mode === FillMode.BLUR) {
     // This is a little weird, but we're doing it because blur is expensive and is faster on smaller images
-    const blurredBg = sharp(await pipeline.clone().resize(200).blur(10).toBuffer()).resize({...resizeParams, fit: sharp.fit.fill})
+    const blurredBg = sharp(await pipeline.clone().resize(200).blur(60).toBuffer()).resize({
+      ...resizeParams,
+      fit: sharp.fit.fill
+    })
     blurredBg.composite([
-      {input: await pipeline.resize({...resizeParams, fit: sharp.fit.inside, withoutEnlargement: withoutEnlargement}).toBuffer()}
+      {
+        input: await pipeline.resize({
+          ...resizeParams,
+          fit: sharp.fit.inside,
+          withoutEnlargement: withoutEnlargement
+        }).toBuffer()
+      }
     ])
     return blurredBg
   }
 
-  if (mode === FillMode.solid && color) {
+  if (mode === FillMode.SOLID && color) {
     resizeParams.background = normalizeColorForSharp(color)
     return pipeline.resize(resizeParams)
   }
@@ -124,10 +142,10 @@ export async function fill(pipeline: sharp.Sharp, mode: FillMode, width = null, 
  * @param height
  * @returns {*}
  */
-export function scale(pipeline: sharp.Sharp, width?: number, height?: number) {
+export function scale(pipeline: sharp.Sharp, width: InputDimension | null = null, height: InputDimension | null = null) {
   return pipeline.resize({
-    width,
-    height,
+    width: width ?? undefined,
+    height: height ?? undefined,
     withoutEnlargement: true,
     fit: sharp.fit.fill
   })
@@ -143,15 +161,9 @@ export function scale(pipeline: sharp.Sharp, width?: number, height?: number) {
  * @param fpy
  * @returns {*}
  */
-export async function scaleCrop(editsPipeline: sharp.Sharp, width: number | null = null, height: number | null = null, crop: string[] = [], fpx = 0.5, fpy = 0.5) {
-  // top, bottom, left, right, faces, focalpoint, edges, and entropy
-  // TODO: This should happen in the schemaParser
-  if (!Array.isArray(crop)) {
-    crop = []
-  }
-
+export async function scaleCrop(editsPipeline: sharp.Sharp, width: InputDimension | null = null, height: InputDimension | null = null, crop: InputCropPosition = [], fpx = 0.5, fpy = 0.5) {
   // First we'll handle entropy mode - this one is simpler
-  if (crop.includes('entropy')) {
+  if (crop.includes(CropMode.ENTROPY)) {
     return editsPipeline.resize({
       width: width ?? undefined,
       height: height ?? undefined,
@@ -187,19 +199,19 @@ export async function scaleCrop(editsPipeline: sharp.Sharp, width: number | null
   const newHeight = Math.ceil(originalHeight * factor)
 
   // if we don't have a focal point, default to center-center
-  if (crop.length && crop[0] !== 'focalpoint') {
+  if (crop.length && crop[0] !== CropMode.FOCALPOINT) {
     fpx = 0.5
     fpy = 0.5
 
     // use position arguments to set focal point, if provided
-    if (crop.includes('left')) {
+    if (crop.includes(CropMode.LEFT)) {
       fpx = 0
-    } else if (crop.includes('right')) {
+    } else if (crop.includes(CropMode.RIGHT)) {
       fpx = 1
     }
-    if (crop.includes('top')) {
+    if (crop.includes(CropMode.TOP)) {
       fpy = 0
-    } else if (crop.includes('bottom')) {
+    } else if (crop.includes(CropMode.BOTTOM)) {
       fpy = 1
     }
   }
@@ -251,10 +263,10 @@ export async function scaleCrop(editsPipeline: sharp.Sharp, width: number | null
  */
 export async function beforeApply(editsPipeline: sharp.Sharp, edits: ParsedEdits) {
   const {w, h, dpr, ar} = edits
-  let processedWidth: ProcessedInputValueType = (w.processedValue as number | null) ?? null
-  let processedHeight: ProcessedInputValueType = (h.processedValue as number | null) ?? null
-  const processedAr: ProcessedInputValueType = (ar.processedValue as number | null) ?? null
-  const processedDpr: ProcessedInputValueType = (dpr.processedValue as number | null) ?? null
+  let processedWidth = w.processedValue
+  let processedHeight = h.processedValue
+  const processedAr = ar.processedValue
+  const processedDpr = dpr.processedValue
   // Apply aspect ratio edits
 
   // Case 1: We have one dimension set
@@ -274,8 +286,8 @@ export async function beforeApply(editsPipeline: sharp.Sharp, edits: ParsedEdits
     const originalWidth = <number>metadata.width
     const originalHeight = <number>metadata.height
 
-    processedHeight = originalHeight * (<number>processedAr)
-    processedWidth = originalWidth * (<number>processedAr)
+    processedHeight = originalHeight * processedAr
+    processedWidth = originalWidth * processedAr
   }
 
   // Apply dpr edits

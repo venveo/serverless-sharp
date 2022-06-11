@@ -4,18 +4,18 @@ import {remapNumberInRange} from "../utils/valueNormalization";
 
 /**
  *
- * @param editsPipeline
+ * @param imagePipeline
  * @param edits
  */
-export async function apply(editsPipeline: Sharp, edits: ParsedEdits) {
+export async function apply(imagePipeline: Sharp, edits: ParsedEdits): Promise<Sharp> {
   // Blur has a default value of 0, so as long as its set, we should go ahead and process it.
   if (edits?.blur) {
-    editsPipeline = blur(editsPipeline, edits.blur.processedValue as number)
+    imagePipeline = blur(imagePipeline, edits.blur.processedValue)
   }
   if (edits?.px) {
-    editsPipeline = await px(editsPipeline, edits.px.processedValue as number)
+    imagePipeline = await px(imagePipeline, edits.px.processedValue)
   }
-  return Promise.resolve(editsPipeline)
+  return Promise.resolve(imagePipeline)
 }
 
 /**
@@ -23,7 +23,7 @@ export async function apply(editsPipeline: Sharp, edits: ParsedEdits) {
  * @param editsPipeline
  * @param sigma
  */
-export function blur(editsPipeline: Sharp, sigma: number) {
+export function blur(editsPipeline: Sharp, sigma: number): Sharp {
   // We need to convert Imgix's scale of int(0) - int(2000) to float(0.3) - float(1000)
   const blurMultiplier = 0.22
   const imgixMax = 2000
@@ -34,8 +34,7 @@ export function blur(editsPipeline: Sharp, sigma: number) {
     return editsPipeline
   }
   const result = remapNumberInRange(imgixMin, imgixMax, sharpMin, sharpMax, sigma, blurMultiplier)
-  editsPipeline.blur(result)
-  return editsPipeline
+  return editsPipeline.blur(result)
 }
 
 /**
@@ -43,14 +42,14 @@ export function blur(editsPipeline: Sharp, sigma: number) {
  * @param editsPipeline
  * @param px
  */
-export async function px(editsPipeline: Sharp, px = 0) {
+export async function px(editsPipeline: Sharp, px = 0): Promise<Sharp> {
   // Ensure range is between 0 and 100
   px = Math.max(0, Math.min(100, px))
   if (px === 0) {
-    return Promise.resolve(editsPipeline)
+    return editsPipeline
   }
   const metadata = await editsPipeline.metadata()
   const buffer = await editsPipeline.toBuffer()
   const resized = await sharp(buffer).resize(Math.floor(<number>metadata.width / px), null, { kernel: sharp.kernel.nearest }).toBuffer()
-  return Promise.resolve(sharp(resized).resize(metadata.width, null, { kernel: sharp.kernel.nearest }))
+  return sharp(resized).resize(metadata.width, null, { kernel: sharp.kernel.nearest })
 }

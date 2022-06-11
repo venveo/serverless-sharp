@@ -6,7 +6,7 @@ import sharp, {Sharp} from "sharp";
 import {ParsedEdits, ParsedSchemaItem} from "../types/common";
 import InvalidDimensionsException from "../errors/InvalidDimensionsException";
 
-const operationsByCategory = {
+const operationsByCategory: { [category: string]: ((imagePipeline: sharp.Sharp, edits: ParsedEdits) => Promise<sharp.Sharp>) } = {
   adjustment: applyAdjustment,
   size: applySize,
   stylize: applyStylize
@@ -20,10 +20,10 @@ const operationsByCategory = {
  */
 export async function apply(editsPipeline: sharp.Sharp, edits: ParsedEdits) {
   // @see https://docs.imgix.com/setup/serving-assets#order-of-operations
-  const editsByCategory = {
-    adjustment: [],
-    size: [], // size must come first!
-    stylize: [],
+  const editsByCategory: { [category: string]: { [edit: string]: ParsedSchemaItem } } = {
+    adjustment: {},
+    size: {},
+    stylize: {},
   }
   for (const edit in edits) {
     if (editsByCategory[edits[edit].schema.category] === undefined) {
