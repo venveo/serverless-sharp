@@ -3,9 +3,10 @@ import {getSetting} from "./utils/settings";
 import ImageRequest from "./ImageRequest";
 import * as imageOps from "./image-ops";
 import RequestNotProcessedException from "./errors/RequestNotProcessedException";
-import {ImageExtensions, ParsedEdits, ProcessedImageRequest} from "./types/common";
+import {ImageExtensions, ProcessedImageRequest} from "./types/common";
 import {FormatEnum, Metadata, Sharp} from "sharp";
 import {getMimeTypeForExtension, normalizeExtension} from "./utils/formats";
+import {AutoMode} from "./types/imgix";
 
 export default class ImageHandler {
   private readonly request: ImageRequest;
@@ -76,7 +77,10 @@ export default class ImageHandler {
    */
   async applyEditsToPipeline(editsPipeline: Sharp): Promise<Sharp> {
     imageOps.restrictSize(editsPipeline, <Metadata>this.request.originalMetadata)
-    return await imageOps.apply(editsPipeline, this.request.edits as ParsedEdits)
+    if (!this.request.edits) {
+      throw new Error('Edits is not processed')
+    }
+    return await imageOps.apply(editsPipeline, this.request.edits)
   }
 
   /**
@@ -91,12 +95,12 @@ export default class ImageHandler {
     const auto = edits?.auto
 
     let autoVals = auto?.processedValue
-    if (!Array.isArray(autoVals)) {
+    if (!autoVals || !Array.isArray(autoVals)) {
       autoVals = []
     }
 
-    // Determine our quality - if it was implicitly determined, we'll use the environment setting rather than the schema
-    let quality = getSetting('DEFAULT_QUALITY')
+    // Determine our quality - if it was implicitly determined, we'll use the environment setting rather than the schemaForQueryParams
+    let quality = <number>getSetting('DEFAULT_QUALITY')
     if (edits) {
       if (!edits.q.implicit) {
         quality = parseInt(edits.q.processedValue as string)
@@ -116,14 +120,14 @@ export default class ImageHandler {
     }
     fm = normalizeExtension(<string>fm)
 
-    if (autoVals.includes('compress')) {
-      quality = getSetting('DEFAULT_COMPRESS_QUALITY')
+    if (autoVals.includes(AutoMode.COMPRESS)) {
+      quality = <number>getSetting('DEFAULT_COMPRESS_QUALITY')
     }
 
 
     // adjust quality based on file type
     if (fm === ImageExtensions.JPG || fm === ImageExtensions.JPEG) {
-      if (autoVals.includes('compress') && quality < 100 && edits.q !== undefined) {
+      if (autoVals.includes(AutoMode.COMPRESS) && quality < 100 && edits.q !== undefined) {
         editsPipeline.jpeg({
           quality: quality,
           mozjpeg: true
