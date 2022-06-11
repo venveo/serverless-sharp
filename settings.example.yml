@@ -9,7 +9,7 @@ defaults: &defaults
     MAX_IMAGE_WIDTH: 2000
     MAX_IMAGE_HEIGHT: 2000
     PNGQUANT_SPEED: 10
-    DEFAULT_CACHE_CONTROL: 'max-age=2592000'
+    DEFAULT_CACHE_CONTROL: 'public, max-age=2592000'
     LOG_LEVEL: info
 
 stages:

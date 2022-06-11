@@ -26,6 +26,7 @@
 - Updated Sharp to 0.30.4
 - Added Makefile for building Sharp Lambda layer
 - checkHash has become ensureHash
+- The default Cache-Control header now includes 'public'
 
 ### Fixed
 - Fix quality parameter (`q`) not being respected with `auto=format`
