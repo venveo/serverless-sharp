@@ -59,7 +59,7 @@ const getResponseHeaders = (processedRequest, isErr) => {
     'Access-Control-Allow-Methods': 'GET',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Allow-Credentials': true,
-    'Last-Modified': timenow.toString()
+    'Last-Modified': timenow.toUTCString()
   }
   const cacheControlDefault = settings.getSetting('DEFAULT_CACHE_CONTROL')
   if (processedRequest) {
