@@ -44,7 +44,7 @@ export default class ImageRequest {
       this.ensureHash()
     }
 
-    this.bucketDetails = extractBucketNameAndPrefix(getSetting('SOURCE_BUCKET'))
+    this.bucketDetails = extractBucketNameAndPrefix(<string>getSetting('SOURCE_BUCKET'))
     this.key = extractObjectKeyFromUri(event.path, this.bucketDetails.prefix)
     this.sharpPipeline = sharp().rotate()
   }
@@ -74,6 +74,7 @@ export default class ImageRequest {
   /**
    * Determines the best compatible output format for the input request, taking into account "Accept" headers, image
    * transparency, and typical format sizes.
+   * TODO: Move this to utils/httpRequestProcessor
    */
   getAutoFormat() {
     if (!this.originalMetadata || this.originalMetadata.format === undefined) {
@@ -144,8 +145,8 @@ export default class ImageRequest {
   }
 
   /**
-   *
    * @param params
+   * TODO: Move this to httpRequestProcessor
    */
   normalizeQueryParams(params: QueryStringParameters = {}): QueryStringParameters {
     const normalizedParams = replaceAliases(params)
