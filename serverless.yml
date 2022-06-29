@@ -67,17 +67,20 @@ resources:
           Aliases:
             Fn::If:
             - CustomDomain
-            - - '${self:custom.settings.environment.CUSTOM_DOMAIN, self:custom.empty}'
+            - - '${self:custom.settings.environment.CUSTOM_DOMAIN, ""}'
             - Ref: AWS::NoValue
           ViewerCertificate:
             Fn::If:
+            - ArnCertificate
+            - MinimumProtocolVersion: 'TLSv1'
+              SslSupportMethod: 'sni-only'
+              AcmCertificateArn: ${self:custom.settings.environment.ACM_CERTIFICATE_ARN,''}
+            - Fn::If:
               - CreateCertificate
-              - AcmCertificateArn: !If
-                - ArnCertificate
-                - self:custom.settings.environment.ACM_CERTIFICATE_ARN
-                - Ref: Certificate
+              - MinimumProtocolVersion: 'TLSv1'
                 SslSupportMethod: 'sni-only'
-                MinimumProtocolVersion: 'TLSv1'
+                AcmCertificateArn:
+                  Ref: Certificate
               - Ref: AWS::NoValue
     Certificate:
       Type: AWS::CertificateManager::Certificate
