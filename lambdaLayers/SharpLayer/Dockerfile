@@ -1,4 +1,4 @@
-FROM amazon/aws-lambda-nodejs:14 as builder
+FROM amazon/aws-lambda-nodejs:16 as builder
 RUN yum -y install make gcc* zip
 WORKDIR /app
 COPY . .

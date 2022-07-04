@@ -4,7 +4,7 @@ service: serverless-sharp
 
 provider:
   name: aws
-  runtime: nodejs14.x
+  runtime: nodejs16.x
   timeout: 10
   stage: ${opt:stage,'dev'}
   region: ${self:custom.settings.region}
@@ -26,7 +26,7 @@ layers:
     path: lambdaLayers/SharpLayer # required, path to layer contents on disk
     name: ${self:provider.stage}-sharp # optional, Deployed Lambda layer name
     package:
-      artifact: lambdaLayers/SharpLayer/out/sharp-0.30.7-aws-lambda-linux-x64-node-14.zip
+      artifact: lambdaLayers/SharpLayer/out/sharp-0.30.7-aws-lambda-linux-x64-node-16.zip
     description: sharp@0.30.7
     compatibleRuntimes:
       - nodejs14.x

@@ -24,10 +24,11 @@
 - Fix potential error with undefined multiValueQueryStringParameters
 - Updated Imgix schema
 - Updated to Serverless framework 3
-- Updated Sharp to 0.30.4
+- Updated Sharp to 0.30.7
 - Added Makefile for building Sharp Lambda layer
 - checkHash has become ensureHash
 - The default Cache-Control header now includes 'public'
+- Update to Node 16 runtime
 
 ### Fixed
 - Fix quality parameter (`q`) not being respected with `auto=format`
