@@ -57,7 +57,7 @@ export interface GenericInvocationResponse {
 
 
 export type ProcessedImageRequest = {
-  CacheControl: string|null,
+  CacheControl: string | null,
   Body: string,
   ContentType: string,
   ContentLength: number

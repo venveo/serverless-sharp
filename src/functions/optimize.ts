@@ -32,12 +32,17 @@ export const handler: Handler = async function (event: APIGatewayProxyEvent, con
   }
 
   try {
+    // The purpose of the ImageRequest object is to handle downloading the image and
+    // interpreting its metadata
     const imageRequest = new ImageRequest(normalizedEvent)
 
     // This is important! We need to load the metadata off the image and check the format
+    // In the future, we should probably ditch the image request object in favor of a
+    // functional approach (i.e. ImageRequest becomes an interface that gets operated on)
     await imageRequest.process()
-    const imageHandler = new ImageHandler(imageRequest)
 
+    // The purpose of the ImageHandler is to actually perform the image manipulations
+    const imageHandler = new ImageHandler(imageRequest)
     const processedRequest = await imageHandler.process()
 
     const originalImageSize = imageRequest.inputObjectSize as number
@@ -75,6 +80,10 @@ export const handler: Handler = async function (event: APIGatewayProxyEvent, con
 }
 
 
+/**
+ * Executes inexpensive pre-flight checks to see if the function should proceed
+ * @param normalizedEvent - input event to validate
+ */
 const beforeHandleRequest = (normalizedEvent: GenericInvocationEvent) => {
   const result: { allowed: boolean; response: GenericInvocationResponse | null } = {
     allowed: true,

@@ -5,7 +5,13 @@ import {
   extractObjectKeyFromUri,
   getAcceptedImageFormatsFromHeaders
 } from "./utils/httpRequestProcessor";
-import {getSchemaForQueryParams, normalizeAndValidateSchema, replaceAliases} from "./utils/schemaParser";
+
+import {
+  getSchemaForQueryParams,
+  normalizeAndValidateSchema,
+  replaceAliases
+} from "./utils/schemaParser";
+
 import {verifyHash} from "./utils/security";
 import {getSetting} from "./utils/settings";
 import HashException from "./errors/HashException";
@@ -23,11 +29,9 @@ import {Stream} from "stream";
 import {normalizeExtension} from "./utils/formats";
 
 export default class ImageRequest {
-  bucketDetails: BucketDetails
-
-  key: string
-  event: GenericInvocationEvent
-
+  readonly bucketDetails: BucketDetails
+  readonly key: string
+  readonly event: GenericInvocationEvent
   originalImageObject: GetObjectCommandOutput | null = null;
   inputObjectStream: Stream | null = null;
   inputObjectSize: number | null = null;
@@ -74,9 +78,9 @@ export default class ImageRequest {
   /**
    * Determines the best compatible output format for the input request, taking into account "Accept" headers, image
    * transparency, and typical format sizes.
-   * TODO: Move this to utils/httpRequestProcessor
+   * @return Returns the new extension of the image or null if no changes should be made
    */
-  getAutoFormat() {
+  getAutoFormat(): ImageExtensions|null {
     if (!this.originalMetadata || this.originalMetadata.format === undefined) {
       return null;
     }
@@ -84,9 +88,9 @@ export default class ImageRequest {
 
     const headers = this.event.headers ?? {}
     const coercibleFormats = [ImageExtensions.JPEG, ImageExtensions.PNG, ImageExtensions.WEBP, ImageExtensions.AVIF, ImageExtensions.JPG, ImageExtensions.TIFF]
-    let autoParam = null
-    if (this.event.queryParams && this.event.queryParams.auto) {
-      autoParam = this.event.queryParams.auto
+    let autoParam: string[] = []
+    if (this.event.queryParams.auto) {
+      autoParam = this.event.queryParams.auto.split(',')
     }
     const specialOutputFormats = getAcceptedImageFormatsFromHeaders(headers)
 
@@ -107,7 +111,7 @@ export default class ImageRequest {
     }
     // Coerce pngs and tiffs without alpha channels to jpg
     else if (!this.originalMetadata.hasAlpha && ([ImageExtensions.PNG, ImageExtensions.TIFF].includes(originalFormat))) {
-      return 'jpeg'
+      return ImageExtensions.JPEG
     }
 
     return null

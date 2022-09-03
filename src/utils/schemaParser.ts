@@ -28,7 +28,7 @@ export function replaceAliases(queryParameters: QueryStringParameters = {}): Que
 }
 
 /**
- * Gets all of the valid schema parameters from an object, indexed by the parameter type
+ * Gets all the valid schema parameters from an object, indexed by the parameter type
  * @param queryParameters
  */
 export function getSchemaForQueryParams(queryParameters: QueryStringParameters = {}): ParameterTypesSchema {
