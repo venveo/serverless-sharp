@@ -1,17 +1,13 @@
 import ImageRequest from "../ImageRequest";
 import ImageHandler from "../ImageHandler";
 
-import {shouldSkipRequest} from "../utils/security";
 import {Handler} from "aws-lambda";
 
 import {
-  APIGatewayProxyEvent,
   APIGatewayProxyResult
 } from "aws-lambda";
 import {
   GenericInvocationEvent,
-  QueryStringParameters,
-  GenericHeaders, GenericInvocationResponse
 } from "../types/common";
 import {getResponseHeaders} from "../utils/httpRequestProcessor";
 
@@ -19,34 +15,20 @@ import middy from '@middy/core';
 import httpEventNormalizer from '@middy/http-event-normalizer'
 import httpHeaderNormalizer from "@middy/http-header-normalizer";
 import httpErrorHandler from '@middy/http-error-handler'
+import convertApiGwToGeneric from "../middleware/convertApiGwToGeneric";
+import pathCheckMiddleware from "../middleware/pathCheckMiddleware";
 
 /**
  * Entrypoint for the Lambda function to process images
  * @param event - The event object from our proxy
  * @param context - Event context data
  */
-const lambdaFunction: Handler = async function (event: APIGatewayProxyEvent, context): Promise<APIGatewayProxyResult> {
-  // First, we'll take the event we receive and abstract it to something generic. This makes the code less specific
-  // to a particular Cloud provider.
-  const normalizedEvent: GenericInvocationEvent = {
-    queryParams: <QueryStringParameters>event.queryStringParameters ?? {},
-    path: event.path,
-    headers: <GenericHeaders>event.headers ?? {}
-  }
-
-  const beforeHandle = beforeHandleRequest(normalizedEvent)
-
-  if (!beforeHandle.allowed) {
-    if (context && context.succeed) {
-      context.succeed(beforeHandle.response)
-    }
-    return beforeHandle.response as APIGatewayProxyResult
-  }
+const lambdaFunction: Handler = async function (event: GenericInvocationEvent, context): Promise<APIGatewayProxyResult> {
 
   try {
     // The purpose of the ImageRequest object is to handle downloading the image and
     // interpreting its metadata
-    const imageRequest = new ImageRequest(normalizedEvent)
+    const imageRequest = new ImageRequest(event)
 
     // This is important! We need to load the metadata off the image and check the format
     // In the future, we should probably ditch the image request object in favor of a
@@ -91,33 +73,15 @@ const lambdaFunction: Handler = async function (event: APIGatewayProxyEvent, con
   }
 }
 
-
-/**
- * Executes inexpensive pre-flight checks to see if the function should proceed
- * @param normalizedEvent - input event to validate
- */
-const beforeHandleRequest = (normalizedEvent: GenericInvocationEvent) => {
-  const result: { allowed: boolean; response: GenericInvocationResponse | null } = {
-    allowed: true,
-    response: null
-  }
-  // Handle API Gateway events AND Lambda URL events
-  const path = normalizedEvent.path
-  if (shouldSkipRequest(path)) {
-    result.allowed = false
-    result.response = {
-      statusCode: 404,
-      headers: getResponseHeaders(null, true),
-      body: '',
-      isBase64Encoded: false
-    }
-  }
-
-  return result
-}
-
 export const handler = middy()
+  // Normalize potential AWS event sources
   .use(httpEventNormalizer())
+  // Normalize potential differences in header formatting (e.g. all headers will be converted to lower-case)
   .use(httpHeaderNormalizer())
+  // Convert the API Gateway event we just normalized into a GenericInvocationEvent
+  .use(convertApiGwToGeneric())
+  // Allows us to use http-errors library as responses
   .use(httpErrorHandler())
+  // Ensure the requested file path is allowed
+  .use(pathCheckMiddleware())
   .handler(lambdaFunction)
