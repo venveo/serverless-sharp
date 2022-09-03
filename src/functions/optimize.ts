@@ -15,7 +15,19 @@ import {
 } from "../types/common";
 import {getResponseHeaders} from "../utils/httpRequestProcessor";
 
-export const handler: Handler = async function (event: APIGatewayProxyEvent, context): Promise<APIGatewayProxyResult> {
+import middy from '@middy/core';
+import httpEventNormalizer from '@middy/http-event-normalizer'
+import httpHeaderNormalizer from "@middy/http-header-normalizer";
+import httpErrorHandler from '@middy/http-error-handler'
+
+/**
+ * Entrypoint for the Lambda function to process images
+ * @param event - The event object from our proxy
+ * @param context - Event context data
+ */
+const lambdaFunction: Handler = async function (event: APIGatewayProxyEvent, context): Promise<APIGatewayProxyResult> {
+  // First, we'll take the event we receive and abstract it to something generic. This makes the code less specific
+  // to a particular Cloud provider.
   const normalizedEvent: GenericInvocationEvent = {
     queryParams: <QueryStringParameters>event.queryStringParameters ?? {},
     path: event.path,
@@ -103,3 +115,9 @@ const beforeHandleRequest = (normalizedEvent: GenericInvocationEvent) => {
 
   return result
 }
+
+export const handler = middy()
+  .use(httpEventNormalizer())
+  .use(httpHeaderNormalizer())
+  .use(httpErrorHandler())
+  .handler(lambdaFunction)
