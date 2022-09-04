@@ -1,5 +1,5 @@
 import middy from "@middy/core";
-import {GenericHeaders, GenericInvocationEvent, QueryStringParameters} from "../types/common";
+import {GenericHeaders, QueryStringParameters} from "../types/common";
 
 /**
  * Converts an APIGatewayRequest to a GenericInvocationEvent
@@ -7,11 +7,10 @@ import {GenericHeaders, GenericInvocationEvent, QueryStringParameters} from "../
 const convertApiGwToGenericMiddleware = (): middy.MiddlewareObj => {
 
   const before: middy.MiddlewareFn = async (request) => {
-    const { event } = request
     request.event = {
-      queryParams: <QueryStringParameters>event.queryStringParameters ?? {},
-      path: event.path,
-      headers: <GenericHeaders>event.headers ?? {}
+      queryParams: <QueryStringParameters>request.event.queryStringParameters ?? {},
+      path: request.event.path,
+      headers: <GenericHeaders>request.event.headers ?? {}
     }
   }
   return {
