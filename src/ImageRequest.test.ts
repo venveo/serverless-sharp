@@ -1,6 +1,5 @@
 /* eslint-env jest */
 import ImageRequest from "./ImageRequest";
-import HashException from "./errors/HashException";
 import {calculateHash} from "./utils/security";
 import {GenericInvocationEvent} from "./types/common";
 
@@ -85,26 +84,6 @@ describe('Testing ImageRequest', () => {
     expect(bucketDetails.name).toEqual('assets.test.com')
     expect(bucketDetails.prefix).toEqual('some/prefix')
     expect(request.key).toEqual('some/prefix/images/my-object.png')
-  })
-
-  test('Can CreateImageRequest - with hash (invalid)', () => {
-    const event = {
-      path: '/some/prefix/images/my-object.png',
-      headers: {},
-      queryParams: {
-        s: ''
-      }
-    }
-    process.env.SECURITY_KEY = '12345asdf'
-    process.env.SOURCE_BUCKET = 'assets.test.com/some/prefix'
-
-    const hash = 'password'
-
-    event.queryParams.s = hash
-
-    expect(() => {
-      new ImageRequest(event)
-    }).toThrow(HashException)
   })
 
   test('Process Request - Input JPG', async () => {

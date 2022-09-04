@@ -12,9 +12,7 @@ import {
   replaceAliases
 } from "./utils/schemaParser";
 
-import {verifyHash} from "./utils/security";
 import {getSetting} from "./utils/settings";
-import HashException from "./errors/HashException";
 import {
   BucketDetails,
   GenericInvocationEvent,
@@ -38,15 +36,10 @@ export default class ImageRequest {
 
   readonly sharpPipeline: sharp.Sharp;
   originalMetadata: sharp.Metadata | null = null;
-  schema: ParameterTypesSchema | null = null;
   edits: ParsedEdits | null = null;
 
   constructor(event: GenericInvocationEvent) {
     this.event = event
-    // If the hash isn't set when it should be, we'll throw an error.
-    if (getSetting('SECURITY_KEY')) {
-      this.ensureHash()
-    }
 
     this.bucketDetails = extractBucketNameAndPrefix(<string>getSetting('SOURCE_BUCKET'))
     this.key = extractObjectKeyFromUri(event.path, this.bucketDetails.prefix)
@@ -67,12 +60,15 @@ export default class ImageRequest {
 
     this.originalMetadata = await this.sharpPipeline.metadata()
 
-    // It's important that we normalize the query parameters even if none are provided
-    // we'll take this opportunity to determine the proper output format for the image
-    const queryParams = this.normalizeQueryParams(this.event.queryParams ?? {})
+    // It's important that we normalize the query parameters even if none are provided. This replaces aliases and
+    // determines the proper output format for the image
+    const queryParams = this.normalizeQueryParams(this.event.queryParams)
 
-    this.schema = queryParams ? getSchemaForQueryParams(queryParams) : null
-    this.edits = (this.schema && queryParams) ? normalizeAndValidateSchema(this.schema, queryParams) : null
+    // Extracts the relevant parameters from the schema.json file
+    const schemaForQueryParams = getSchemaForQueryParams(queryParams)
+
+    this.edits = normalizeAndValidateSchema(schemaForQueryParams, queryParams)
+
   }
 
   /**
@@ -80,7 +76,7 @@ export default class ImageRequest {
    * transparency, and typical format sizes.
    * @return Returns the new extension of the image or null if no changes should be made
    */
-  getAutoFormat(): ImageExtensions|null {
+  getAutoFormat(): ImageExtensions | null {
     if (!this.originalMetadata || this.originalMetadata.format === undefined) {
       return null;
     }
@@ -129,28 +125,8 @@ export default class ImageRequest {
   }
 
   /**
-   * Parses the name of the appropriate Amazon S3 key corresponding to the
-   * original image.
-   *
-   * Throws a HashException if the hash is invalid or not present when it needs to be.
-   */
-  ensureHash(): void {
-    const {queryParams, path} = this.event
-    if (queryParams && queryParams.s === undefined) {
-      throw new HashException()
-    }
-    if (queryParams) {
-      const hash = queryParams.s
-      const isValid = verifyHash(path, queryParams, hash)
-      if (!isValid) {
-        throw new HashException()
-      }
-    }
-  }
-
-  /**
-   * @param params
-   * TODO: Move this to httpRequestProcessor
+   * Adjusts the input query parameters based on the context of this request
+   * @param params - input query parameters
    */
   normalizeQueryParams(params: QueryStringParameters = {}): QueryStringParameters {
     const normalizedParams = replaceAliases(params)

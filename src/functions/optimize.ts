@@ -1,4 +1,4 @@
-import ImageRequest from "../ImageRequest";
+import ImageRequest, {createS3ImageTransformRequest} from "../ImageRequest";
 import ImageHandler from "../ImageHandler";
 
 import {Handler} from "aws-lambda";
@@ -17,6 +17,7 @@ import httpHeaderNormalizer from "@middy/http-header-normalizer";
 import httpErrorHandler from '@middy/http-error-handler'
 import convertApiGwToGeneric from "../middleware/convertApiGwToGeneric";
 import pathCheckMiddleware from "../middleware/pathCheckMiddleware";
+import hashCheckMiddleware from "../middleware/hashCheckMiddleware";
 
 /**
  * Entrypoint for the Lambda function to process images
@@ -84,4 +85,6 @@ export const handler = middy()
   .use(httpErrorHandler())
   // Ensure the requested file path is allowed
   .use(pathCheckMiddleware())
+  // Ensures a valid hash is present if needed
+  .use(hashCheckMiddleware())
   .handler(lambdaFunction)
