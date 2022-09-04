@@ -4,7 +4,7 @@ import {apply as applyStylize} from "./stylize";
 import {apply as applyAdjustment} from './adjustment'
 import sharp, {Sharp} from "sharp";
 import {ParsedEdits, ParsedSchemaItem} from "../types/common";
-import InvalidDimensionsException from "../errors/InvalidDimensionsException";
+import createHttpError from "http-errors";
 
 const operationsByCategory: { [category: string]: ((imagePipeline: sharp.Sharp, edits: ParsedEdits) => Promise<sharp.Sharp>) } = {
   adjustment: applyAdjustment,
@@ -54,7 +54,7 @@ export function restrictSize(editsPipeline: sharp.Sharp, metadata: sharp.Metadat
   let width = metadata.width ?? null
   let height = metadata.height ?? null
   if (!width || !height) {
-    throw new InvalidDimensionsException("Either width or height on input object metadata could not be determined");
+    throw new createHttpError.BadRequest(`Either width or height on input object metadata could not be determined`)
   }
 
   if ((maxImgWidth && width > maxImgWidth) || (maxImgHeight && height > maxImgHeight)) {

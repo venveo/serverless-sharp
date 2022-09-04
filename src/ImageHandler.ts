@@ -2,18 +2,20 @@ import {getSetting} from "./utils/settings";
 
 import ImageRequest from "./ImageRequest";
 import * as imageOps from "./image-ops";
-import RequestNotProcessedException from "./errors/RequestNotProcessedException";
 import {ImageExtensions, ProcessedImageRequest} from "./types/common";
 import {FormatEnum, Metadata, Sharp} from "sharp";
 import {getMimeTypeForExtension, normalizeExtension} from "./utils/formats";
 import {AutoMode} from "./types/imgix";
+import createHttpError from "http-errors";
 
 export default class ImageHandler {
   private readonly request: ImageRequest;
 
   constructor(request: ImageRequest) {
     if (!request.originalImageObject) {
-      throw new Error('Image not found or request not fully processed!')
+      throw createHttpError(404, 'Image not found or request not fully processed!', {
+        expose: false
+      })
     }
     this.request = request
   }
@@ -26,12 +28,12 @@ export default class ImageHandler {
     const originalImageObject = this.request.originalImageObject
     const originalImageBody = this.request.inputObjectStream
     if (!originalImageBody || !originalImageObject || !this.request.sharpPipeline) {
-      throw new RequestNotProcessedException('Original image body or image object not available prior to processing.')
+      throw createHttpError(500, 'Original image body or image object not available prior to processing.')
     }
 
     let contentType = originalImageObject.ContentType ?? null
     if (!contentType) {
-      throw new RequestNotProcessedException('Original image content type unknown.')
+      throw createHttpError(500, 'Original image content type unknown.', {expose: true})
     }
     // TODO: Add typechecking here
     let format = 'input'
@@ -58,7 +60,7 @@ export default class ImageHandler {
     if (format !== 'input') {
       contentType = getMimeTypeForExtension(format)
       if (!contentType) {
-        throw new RequestNotProcessedException('Output image content type unknown.')
+        throw new createHttpError.InternalServerError('Original image content type unknown.')
       }
     }
 
@@ -73,12 +75,12 @@ export default class ImageHandler {
   /**
    * Applies image modifications to the original image based on edits specified in the ImageRequest. A promise is returned
    * with a Sharp pipeline, which may or may not differ from the input.
-   * @param {sharp} editsPipeline the input image pipeline
+   * @param editsPipeline - the input image pipeline
    */
   async applyEditsToPipeline(editsPipeline: Sharp): Promise<Sharp> {
     imageOps.restrictSize(editsPipeline, <Metadata>this.request.originalMetadata)
     if (!this.request.edits) {
-      throw new Error('Edits is not processed')
+      throw new createHttpError.InternalServerError('Edits is not processed')
     }
     return await imageOps.apply(editsPipeline, this.request.edits)
   }
@@ -116,7 +118,7 @@ export default class ImageHandler {
 
     let fm = edits?.fm?.processedValue ?? this.request.getAutoFormat();
     if (!fm) {
-      throw new RequestNotProcessedException('Unable to determine output format for image')
+      throw new createHttpError.InternalServerError('Unable to determine output format for image')
     }
     fm = normalizeExtension(<string>fm)
 
@@ -164,7 +166,7 @@ export default class ImageHandler {
     } else if (fm !== null) {
       editsPipeline.toFormat(fm as keyof FormatEnum)
     } else {
-      throw new RequestNotProcessedException('Unable to determine output format for image')
+      throw new createHttpError.InternalServerError('Unable to determine output format for image')
     }
   }
 }

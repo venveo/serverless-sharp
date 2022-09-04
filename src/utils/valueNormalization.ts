@@ -1,7 +1,5 @@
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 import {Color} from "sharp";
-import ColorException from "../errors/ColorException";
+import createHttpError from "http-errors";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const schema = require('../../data/schema.json')
@@ -63,5 +61,5 @@ export function normalizeColorForSharp(color: string): Color {
     const b = parseInt(color[7] + color[8], 16)
     return {alpha, r, g, b}
   }
-  throw new ColorException(color)
+  throw new createHttpError.BadRequest('Invalid color value')
 }

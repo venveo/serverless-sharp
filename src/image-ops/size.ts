@@ -2,11 +2,10 @@
  * This file should be restricted to dimensional size alterations to the image
  */
 import sharp, {ResizeOptions, Sharp} from 'sharp'
-import NotImplementedException from "../errors/NotImplementedException";
 import {CropMode, FillMode, ResizeFitMode} from "../types/imgix";
 import {InputCropPosition, InputDimension, ParsedEdits} from "../types/common";
-import InvalidDimensionsException from "../errors/InvalidDimensionsException";
 import {normalizeColorForSharp} from "../utils/valueNormalization";
+import createHttpError from "http-errors";
 
 /**
  * Apply all supported size operations
@@ -24,7 +23,7 @@ export async function apply(imagePipeline: Sharp, edits: ParsedEdits): Promise<S
     case ResizeFitMode.CLAMP:
       // https://github.com/venveo/serverless-sharp/issues/26
       // Should extend the edge pixels outwards to match the given dimensions.
-      throw new NotImplementedException()
+      throw new createHttpError.NotImplemented(`Received request for unimplemented operation: CLAMP`)
     case ResizeFitMode.FILL:
       if (edits.fill.processedValue) {
         imagePipeline = await fill(imagePipeline, edits.fill.processedValue, w.processedValue, h.processedValue, edits['fill-color'].processedValue ?? null, false)
@@ -190,7 +189,7 @@ export async function scaleCrop(editsPipeline: sharp.Sharp, width: InputDimensio
     width = height * ratio
   }
   if (!width || !height) {
-    throw new InvalidDimensionsException()
+    throw new createHttpError.BadRequest(`Output width or height could not be determined`)
   }
   // compute new width & height
   const factor = Math.max(width / originalWidth, height / originalHeight)

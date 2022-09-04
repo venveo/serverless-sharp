@@ -1,6 +1,5 @@
 /* eslint-env jest */
 import * as schemaParser from './schemaParser'
-import ExpectationTypeException from "../errors/ExpectationTypeException";
 
 test('replaceAliases - compare objects', () => {
   const replaced = schemaParser.replaceAliases({
@@ -29,7 +28,7 @@ describe('Tests for schema validation', () => {
 
     expect(() => {
       schemaParser.normalizeAndValidateSchema(schema, request)
-    }).not.toThrow(ExpectationTypeException)
+    }).not.toThrowError()
   })
 
   test('Valid with jpg', () => {
@@ -55,7 +54,7 @@ describe('Tests for schema validation', () => {
     }
     const schema = schemaParser.getSchemaForQueryParams(request)
 
-    expect(() => schemaParser.normalizeAndValidateSchema(schema, request)).not.toThrow(ExpectationTypeException)
+    expect(() => schemaParser.normalizeAndValidateSchema(schema, request)).not.toThrowError()
   })
 
   // Two mode test
@@ -65,7 +64,7 @@ describe('Tests for schema validation', () => {
     }
     const schema = schemaParser.getSchemaForQueryParams(request)
 
-    expect(() => schemaParser.normalizeAndValidateSchema(schema, request)).not.toThrow(ExpectationTypeException)
+    expect(() => schemaParser.normalizeAndValidateSchema(schema, request)).not.toThrowError()
   })
 
   test('Double mode -  int', () => {
@@ -74,7 +73,7 @@ describe('Tests for schema validation', () => {
     }
     const schema = schemaParser.getSchemaForQueryParams(request)
 
-    expect(() => schemaParser.normalizeAndValidateSchema(schema, request)).not.toThrow(ExpectationTypeException)
+    expect(() => schemaParser.normalizeAndValidateSchema(schema, request)).not.toThrowError()
   })
 
   test('Max range normalization', () => {

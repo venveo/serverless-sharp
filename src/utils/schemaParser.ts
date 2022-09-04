@@ -2,6 +2,7 @@ import ExpectationTypeException from "../errors/ExpectationTypeException";
 import {ParsedSchemaItem, QueryStringParameters, ParameterTypesSchema} from "../types/common";
 import {ExpectedValueDefinition, Imgix, ParameterType} from "../types/imgix";
 import {processInputValue} from "./inputValueProcessor";
+import createHttpError from "http-errors";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const schema: Imgix = require('../../data/schema.json')
@@ -81,7 +82,7 @@ export function normalizeAndValidateSchema(schema: ParameterTypesSchema, values:
         }
       }
       if (!passedExpectation || !result) {
-        throw new ExpectationTypeException('Did not pass expectations')
+        throw new createHttpError.BadRequest(`Did not pass schema expectations`)
       }
       expectationValues[parameterIndex] = {
         processedValue: result.processedValue,
@@ -172,7 +173,7 @@ export function processDependencies(dependencies: { [key: string]: string[] }, e
 
         // Required key not set - this should not happen
         if (expectationValues[key] === undefined) {
-          throw new ExpectationTypeException('Important dependency not met: ' + dependency)
+          throw new createHttpError.BadRequest(`Important dependency not met: ${dependency}`)
 
           // Our processed value is an array and it includes the value we're looking for! Winner!
         } else if (Array.isArray(expectationValues[key].processedValue) && (expectationValues[key].processedValue as Array<string | number>).includes(val)) {

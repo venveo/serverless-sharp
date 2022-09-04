@@ -1,4 +1,4 @@
-import ImageRequest, {createS3ImageTransformRequest} from "../ImageRequest";
+import ImageRequest from "../ImageRequest";
 import ImageHandler from "../ImageHandler";
 
 import {Handler} from "aws-lambda";

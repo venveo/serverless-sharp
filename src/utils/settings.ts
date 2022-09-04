@@ -1,4 +1,4 @@
-import SettingsException from "../errors/SettingsException";
+import createHttpError from "http-errors";
 
 const TYPE_INTEGER = 'integer'
 const TYPE_ARRAY_STRING = 'arraystring'
@@ -59,7 +59,7 @@ const settings: { [index: string]: { default: string | number, type: string } } 
  */
 export function getSetting(key: string) {
   if (!(key in settings)) {
-    throw new SettingsException()
+    throw new createHttpError.InternalServerError('Unable to locate settings key: '+ key)
   }
   let value = null
   if (key in process.env) {
@@ -68,7 +68,7 @@ export function getSetting(key: string) {
     value = settings[key].default
   }
   if (value === undefined) {
-    throw new TypeError()
+    throw new createHttpError.InternalServerError(`Value for settings key '${key}' is undefined`)
   }
 
   return processValue(key, value)
@@ -82,16 +82,16 @@ const processValue = function (setting: string, value: string | number) {
     return processInteger(value)
   case TYPE_ARRAY_STRING:
     if (typeof value !== "string") {
-      throw new TypeError("Expected string for settings value")
+      throw new createHttpError.InternalServerError(`Expected string for settings value for ${setting}`)
     }
     return processStringArray(value)
   case TYPE_REGEX:
     if (typeof value !== "string") {
-      throw new TypeError("Expected string for settings value")
+      throw new createHttpError.InternalServerError(`Expected string for settings value for ${setting}`)
     }
     return processRegExValue(value)
   default:
-    throw new SettingsException()
+    throw new createHttpError.InternalServerError(`Encountered unknown type for settings key ${setting}`)
   }
 }
 
