@@ -29,7 +29,7 @@ layers:
       artifact: lambdaLayers/SharpLayer/out/sharp-0.30.7-aws-lambda-linux-x64-node-16.zip
     description: sharp@0.30.7
     compatibleRuntimes:
-      - nodejs14.x
+      - nodejs16.x
     licenseInfo: Apache License 2.0
     retain: false
 
