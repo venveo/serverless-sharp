@@ -2,7 +2,7 @@ import {ImageExtensions} from "../types/common";
 
 /**
  * Normalizes an input extension, setting a preference for capitalization & extension aliases (e.g. jpg vs jpeg)
- * @param extension
+ * @param extension - the extension (without a period)
  */
 export function normalizeExtension(extension: string): ImageExtensions|string {
   extension = extension.toLowerCase();
@@ -20,7 +20,7 @@ export function normalizeExtension(extension: string): ImageExtensions|string {
 
 /**
  *
- * @param extension
+ * @param extension - the extension (without a period)
  */
 export function getMimeTypeForExtension(extension: string): string|null {
   extension = normalizeExtension(extension)

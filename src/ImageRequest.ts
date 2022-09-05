@@ -17,7 +17,6 @@ import {
   BucketDetails,
   GenericInvocationEvent,
   ImageExtensions,
-  ParameterTypesSchema,
   ParsedEdits,
   QueryStringParameters
 } from "./types/common";
@@ -74,7 +73,7 @@ export default class ImageRequest {
   /**
    * Determines the best compatible output format for the input request, taking into account "Accept" headers, image
    * transparency, and typical format sizes.
-   * @return Returns the new extension of the image or null if no changes should be made
+   * @returns Returns the new extension of the image or null if no changes should be made
    */
   getAutoFormat(): ImageExtensions | null {
     if (!this.originalMetadata || this.originalMetadata.format === undefined) {

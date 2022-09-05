@@ -10,8 +10,8 @@ import {getSetting} from "./settings";
 /**
  * Extracts the name of the appropriate Amazon S3 object
  *
- * @param uri The URI from the request. Starting slashes will be removed automatically
- * @param requiredPrefix A prefix to prepend to the key. A trailing slash will be added automatically
+ * @param uri - The URI from the request. Starting slashes will be removed automatically
+ * @param requiredPrefix - A prefix to prepend to the key. A trailing slash will be added automatically
  */
 export function extractObjectKeyFromUri(uri: string, requiredPrefix: string | null = null): string {
   // Decode the image request and return the image key
@@ -32,7 +32,7 @@ export function extractObjectKeyFromUri(uri: string, requiredPrefix: string | nu
 /**
  * Assembles an object of query params into a string for hashing. Removes `s` query param automatically
  *
- * @param queryStringParameters An object containing each of the query parameters and its value
+ * @param queryStringParameters - An object containing each of the query parameters and its value
  */
 export function buildQueryStringFromObject(queryStringParameters: QueryStringParameters): string {
   let string = ''
@@ -51,9 +51,11 @@ export function buildQueryStringFromObject(queryStringParameters: QueryStringPar
 /**
  * Extracts the name of a bucket and a path prefix, if defined
  *
- * Example:,
+ * Example:
+ * ```
  *  bucket/some-path/to-objects
- * {name: 'bucket', prefix: 'some-path/to-objects'}
+ * \{name: 'bucket', prefix: 'some-path/to-objects'\}
+ * ```
  */
 export function extractBucketNameAndPrefix(fullPath: string): BucketDetails {
 
@@ -68,7 +70,6 @@ export function extractBucketNameAndPrefix(fullPath: string): BucketDetails {
 
 /**
  * Parses headers from an event and retrieves special compatibility cases for modern image types
- * @return {string[]}
  */
 export function getAcceptedImageFormatsFromHeaders(headers: GenericHeaders): string[] {
   if (!headers?.Accept) {
@@ -89,12 +90,10 @@ export function getAcceptedImageFormatsFromHeaders(headers: GenericHeaders): str
 
 
 /**
- * Generates the appropriate set of response headers based on a success
- * or error condition.
- * @param processedRequest
- * @param {boolean} isErr - has an error been thrown?
+ * Generates the appropriate set of response headers based on a successful optimization
+ * @param processedRequest - A processed request object
  */
-export function getResponseHeaders(processedRequest: ProcessedImageRequest | null, isErr = false): GenericHeaders {
+export function getResponseHeaders(processedRequest: ProcessedImageRequest): GenericHeaders {
   const timeNow = new Date()
   const headers: GenericHeaders = {
     'Access-Control-Allow-Methods': 'GET',
@@ -103,16 +102,12 @@ export function getResponseHeaders(processedRequest: ProcessedImageRequest | nul
     'Last-Modified': timeNow.toUTCString()
   }
   const cacheControlDefault = <string>getSetting('DEFAULT_CACHE_CONTROL')
-  if (processedRequest) {
-    if (processedRequest.CacheControl) {
-      headers['Cache-Control'] = processedRequest.CacheControl
-    } else if (cacheControlDefault) {
-      headers['Cache-Control'] = cacheControlDefault
-    }
-    headers['Content-Type'] = processedRequest.ContentType
+  if (processedRequest.CacheControl) {
+    headers['Cache-Control'] = processedRequest.CacheControl
+  } else if (cacheControlDefault) {
+    headers['Cache-Control'] = cacheControlDefault
   }
-  if (isErr) {
-    headers['Content-Type'] = 'text/plain'
-  }
+  headers['Content-Type'] = processedRequest.ContentType
+
   return headers
 }
