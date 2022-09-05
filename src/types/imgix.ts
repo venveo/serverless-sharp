@@ -1,6 +1,6 @@
 export interface Imgix {
     readonly aliases:            { [key: string]: string };
-    readonly categoryValues:     string[];
+    readonly categoryValues:     Category[];
     readonly colorKeywordValues: string[];
     readonly fontValues:         string[];
     readonly parameters:         Parameters;
@@ -11,12 +11,36 @@ export interface ParameterType {
     default?:          boolean | number | string;
     aliases?:          string[];
     available_in:      AvailableIn[];
-    category:          string;
+    category:          Category;
     depends?:          string[];
     display_name:      string;
     expects:           ExpectedValueDefinition[];
     short_description: string;
     url?:               string;
+}
+
+export enum Category {
+    SIZE = 'size',
+    AUTO = 'auto',
+    FILL = 'fill',
+    BLENDING = 'blending',
+    STYLIZE = 'stylize',
+    BORDER_AND_PADDING = 'border-and-padding',
+    ADJUSTMENT = 'adjustment',
+    FORMAT = 'format',
+    COLOR_PALETTE = 'color-palette',
+    MASK = 'mask',
+    PIXEL_DENSITY = 'pixel-density',
+    EXPIRATION = 'expiration',
+    FACE_DETECTION = 'face-detection',
+    ROTATION = 'rotation',
+    FOCALPOINT_CROP = 'focalpoint-crop',
+    WATERMARK = 'watermark',
+    NOISE_REDUCTION = 'noise-reduction',
+    PDF = 'pdf',
+    TRIM = 'trim',
+    TEXT = 'text',
+    TYPESETTING = 'typesetting',
 }
 
 export enum CropMode {
