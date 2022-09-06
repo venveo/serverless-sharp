@@ -2343,7 +2343,8 @@
         "fm=jpg",
         "fm=pjpg",
         "fm=webp",
-        "fm=jxr"
+        "fm=jxr",
+        "fm=avif"
       ],
       "url": "https://docs.imgix.com/apis/url/format/q",
       "short_description": "Adjusts the quality of an output image."

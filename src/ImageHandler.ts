@@ -3,7 +3,7 @@ import {getSetting} from "./utils/settings";
 import ImageRequest from "./ImageRequest";
 import * as imageOps from "./image-ops";
 import {ImageExtension, ParsedEdits, ProcessedImageRequest} from "./types/common";
-import {FormatEnum, Metadata, Sharp} from "sharp";
+import {AvifOptions, FormatEnum, Metadata, Sharp, WebpOptions} from "sharp";
 import {getMimeTypeForExtension} from "./utils/formats";
 import {AutoMode} from "./types/imgix";
 import createHttpError from "http-errors";
@@ -140,7 +140,7 @@ export default class ImageHandler {
         palette: true
       })
     } else if (fm === ImageExtension.WEBP) {
-      const options = {
+      const options: WebpOptions = {
         quality: quality,
         lossless: false
       }
@@ -149,13 +149,16 @@ export default class ImageHandler {
       }
       editsPipeline.webp(options)
     } else if (fm === ImageExtension.AVIF) {
-      const options = {
+      const options: AvifOptions = {
         quality: quality,
-        lossless: false
+        lossless: false,
+        effort: 4,
+        chromaSubsampling: '4:2:0'
       }
       if (edits.lossless.processedValue) {
         options.lossless = true
       }
+
       editsPipeline.avif(options)
     } else if (fm !== null) {
       editsPipeline.toFormat(<keyof FormatEnum>fm)
