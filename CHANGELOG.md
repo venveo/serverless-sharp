@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.2.0] - Unreleased
+## [3.0.0] - Unreleased
 ### Added
 - Added support for AVIF output with `auto=format`
 - Added esbuild for bundling build
@@ -24,7 +24,7 @@
 - Fix potential error with undefined multiValueQueryStringParameters
 - Updated Imgix schema
 - Updated to Serverless framework 3
-- Updated Sharp to 0.30.7
+- Updated Sharp to 0.31.0
 - Added Makefile for building Sharp Lambda layer
 - checkHash has become ensureHash
 - The default Cache-Control header now includes 'public'

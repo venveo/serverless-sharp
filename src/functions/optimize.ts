@@ -19,6 +19,12 @@ import convertApiGwToGeneric from "../middleware/convertApiGwToGeneric";
 import pathCheckMiddleware from "../middleware/pathCheckMiddleware";
 import hashCheckMiddleware from "../middleware/hashCheckMiddleware";
 
+import { Logger, injectLambdaContext } from '@aws-lambda-powertools/logger';
+
+const logger = new Logger({
+  serviceName: 'serverlessSharp.optimize'
+});
+
 /**
  * Entrypoint for the Lambda function to process images
  * @param event - The event object from our proxy
@@ -28,6 +34,7 @@ const lambdaFunction: Handler = async function (event: GenericInvocationEvent, c
   // The purpose of the ImageRequest object is to handle downloading the image and
   // interpreting its metadata
   const imageRequest = new ImageRequest(event)
+
 
   // This is important! We need to load the metadata off the image and check the format
   // In the future, we should probably ditch the image request object in favor of a
@@ -43,7 +50,7 @@ const lambdaFunction: Handler = async function (event: GenericInvocationEvent, c
   const sizeDifference = newImageSize - originalImageSize
 
   if (sizeDifference > 0) {
-    console.warn('Output size was larger than input size', {newImageSize, originalImageSize, sizeDifference})
+    logger.warn('Output size was larger than input size', {newImageSize, originalImageSize, sizeDifference})
   }
   const response = {
     statusCode: 200,
@@ -58,6 +65,7 @@ const lambdaFunction: Handler = async function (event: GenericInvocationEvent, c
 }
 
 export const handler = middy()
+  .use(injectLambdaContext(logger))
   // Normalize potential AWS event sources
   .use(httpEventNormalizer())
   // Normalize potential differences in header formatting (e.g. all headers will be converted to lower-case)
