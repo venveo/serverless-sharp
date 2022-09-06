@@ -1,31 +1,32 @@
-import {ImageExtensions} from "../types/common";
+import {ImageExtension} from "../types/common";
 
 /**
  * Normalizes an input extension, setting a preference for capitalization & extension aliases (e.g. jpg vs jpeg)
  * @param extension - the extension (without a period)
  */
-export function normalizeExtension(extension: string): ImageExtensions|string {
+export function normalizeExtension(extension: string): ImageExtension {
   extension = extension.toLowerCase();
-  if (extension === ImageExtensions.JPG) {
-    return ImageExtensions.JPEG
+  if (extension === ImageExtension.JPEG) {
+    return ImageExtension.JPG
   }
-  if (extension === ImageExtensions.TIF) {
-    return ImageExtensions.TIFF
+  if (extension === ImageExtension.TIF) {
+    return ImageExtension.TIFF
   }
-  if (extension === ImageExtensions.HEIC) {
-    return ImageExtensions.HEIF
+  if (extension === ImageExtension.HEIC) {
+    return ImageExtension.HEIF
   }
-  return extension
+  return <ImageExtension>extension
 }
 
 /**
  *
  * @param extension - the extension (without a period)
  */
-export function getMimeTypeForExtension(extension: string): string|null {
+export function getMimeTypeForExtension(extension: string): string | null {
   extension = normalizeExtension(extension)
-  const mimeMap: {[extension: string]: string} = {
+  const mimeMap: { [extension: string]: string } = {
     jpeg: 'image/jpeg',
+    jpg: 'image/jpeg',
     avif: 'image/avif',
     png: 'image/png',
     webp: 'image/webp',

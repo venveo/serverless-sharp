@@ -2,7 +2,7 @@ import {
   QueryStringParameters,
   BucketDetails,
   GenericHeaders,
-  ImageExtensions,
+  ImageExtension,
   ProcessedImageRequest
 } from "../types/common";
 import {getSetting} from "./settings";
@@ -76,9 +76,9 @@ export function getAcceptedImageFormatsFromHeaders(headers: GenericHeaders): str
     return [];
   }
   const specialFormats: { [mimeType: string]: string } = {
-    'image/avif': ImageExtensions.AVIF,
+    'image/avif': ImageExtension.AVIF,
     // 'image/apng': 'apng', // apng is not supported by Sharp yet
-    'image/webp': ImageExtensions.WEBP
+    'image/webp': ImageExtension.WEBP
   }
   return headers.Accept.toString().toLowerCase()
     .split(',')

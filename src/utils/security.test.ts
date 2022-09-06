@@ -127,13 +127,13 @@ describe('Testing shouldSkipRequest', () => {
 
   test('RegEx Pattern - Skip', () => {
     process.env.SLS_IGNORE = 'favicon.ico'
-    process.env.SLS_VALID_PATH_REGEX = '^\/images\/.+'
+    process.env.SLS_VALID_PATH_REGEX = '^/images/.+'
     expect(security.shouldSkipRequest(path)).toBeFalsy()
   })
 
   test('RegEx Pattern - Dont Skip', () => {
     process.env.SLS_IGNORE = 'favicon.ico'
-    process.env.SLS_VALID_PATH_REGEX = '^\/public-images\/.+'
+    process.env.SLS_VALID_PATH_REGEX = '^/public-images/.+'
     expect(security.shouldSkipRequest(path)).toBeTruthy()
   })
 })

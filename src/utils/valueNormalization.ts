@@ -6,13 +6,13 @@ const schema = require('../../data/schema.json')
 
 /**
  * Remaps a number to a given range
- * e.g. 0-100 => -1000-0
- * @param originalMin
- * @param originalMax
- * @param newMin
- * @param newMax
- * @param input
- * @param multiplier the result will be multiplied by this value before being clamped to the range. Defaults to 1
+ * e.g. 0-100 mapped to -1000-0
+ * @param originalMin - original minimum value of the range
+ * @param originalMax - original maximum value of the range
+ * @param newMin - new minimum value of the range
+ * @param newMax - new maximum value of the range
+ * @param input - the number to apply to the new scale
+ * @param multiplier - the result will be multiplied by this value before being clamped to the range. Defaults to 1
  */
 export function remapNumberInRange(originalMin: number, originalMax: number, newMin: number, newMax: number, input: number, multiplier = 1): number {
   let result = ((input - originalMin) / (originalMax - originalMin)) * (newMax - newMin) + newMin
@@ -23,10 +23,10 @@ export function remapNumberInRange(originalMin: number, originalMax: number, new
 
 /**
  *
- * @param color
+ * @param color - a color value, such a color keyword or 3- (RGB), 4- (ARGB) 6- (RRGGBB) or 8-digit (AARRGGBB)
+ *   hexadecimal values
  */
 export function normalizeColorForSharp(color: string): Color {
-  // either a color keyword or 3- (RGB), 4- (ARGB) 6- (RRGGBB) or 8-digit (AARRGGBB) hexadecimal values
   if (schema.colorKeywordValues.includes(color)) {
     // is a color keyword
     return color

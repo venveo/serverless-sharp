@@ -1,24 +1,15 @@
 import {ExpectedValueDefinition, ExpectedValueType, Imgix} from "../types/imgix";
-import {ProcessedInputValueType} from "../types/common";
+import {ProcessedInputValueDetails} from "../types/common";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const schema: Imgix = require('../../data/schema.json')
-
-type ValueProcessorTypeMap = {
-  [key in ExpectedValueType]: CallableFunction;
-}
-
-type ProcessedInputValueDetails = {
-  passed: boolean,
-  processedValue?: ProcessedInputValueType,
-  message: string | null
-}
+type ValueProcessorTypeMap = Record<ExpectedValueType, CallableFunction>
 
 /**
  *
- * @param type
- * @param value
- * @param expects
+ * @param type - expected value type to validate against
+ * @param value - input value from query params
+ * @param expects - ExpectedValueDefinition
  */
 export function processInputValue(type: ExpectedValueType, value: string, expects: ExpectedValueDefinition | null = null): ProcessedInputValueDetails {
   const processorMap: ValueProcessorTypeMap = {
@@ -51,7 +42,8 @@ export function processString(value: string): ProcessedInputValueDetails {
 export function processList(value: string, expects: ExpectedValueDefinition | null = null): ProcessedInputValueDetails {
   const result: ProcessedInputValueDetails = {
     passed: false,
-    message: null
+    message: null,
+    processedValue: undefined
   }
 
   const items = value.split(',')
@@ -75,7 +67,8 @@ export function processList(value: string, expects: ExpectedValueDefinition | nu
 export function processBoolean(value: string): ProcessedInputValueDetails {
   const result: ProcessedInputValueDetails = {
     passed: false,
-    message: null
+    message: null,
+    processedValue: undefined
   }
 
   if (value === 'true' || value === '1') {
@@ -93,7 +86,8 @@ export function processBoolean(value: string): ProcessedInputValueDetails {
 export function processRatio(value: string): ProcessedInputValueDetails {
   const result: ProcessedInputValueDetails = {
     passed: false,
-    message: null
+    message: null,
+    processedValue: undefined
   }
   const match = value.match(/([0-9]*[.]?[0-9]+):+(([0-9]*[.])?[0-9]+)$/)
   if (!match || match.length < 3) {
@@ -114,7 +108,8 @@ export function processRatio(value: string): ProcessedInputValueDetails {
 export function processInteger(value: string, expects: ExpectedValueDefinition | null = null): ProcessedInputValueDetails {
   const result: ProcessedInputValueDetails = {
     passed: false,
-    message: null
+    message: null,
+    processedValue: undefined
   }
 
   const valueAsInt = parseInt(value)
@@ -147,7 +142,8 @@ export function processInteger(value: string, expects: ExpectedValueDefinition |
 export function processNumber(value: string, expects: ExpectedValueDefinition | null = null): ProcessedInputValueDetails {
   const result: ProcessedInputValueDetails = {
     passed: false,
-    message: null
+    message: null,
+    processedValue: undefined
   }
   let valueAsFloat = parseFloat(value);
   if (isNaN(valueAsFloat)) {
@@ -171,7 +167,8 @@ export function processNumber(value: string, expects: ExpectedValueDefinition | 
 export function processUnitScalar(value: string, expects: ExpectedValueDefinition | null = null): ProcessedInputValueDetails {
   const result: ProcessedInputValueDetails = {
     passed: false,
-    message: null
+    message: null,
+    processedValue: undefined
   }
 
   const valueAsFloat = parseFloat(value)
@@ -198,7 +195,8 @@ export function processUnitScalar(value: string, expects: ExpectedValueDefinitio
 export function processTimestamp(value: string): ProcessedInputValueDetails {
   const result: ProcessedInputValueDetails = {
     passed: false,
-    message: null
+    message: null,
+    processedValue: undefined
   }
 
   if (!((new Date(value)).getTime() > 0)) {
@@ -214,7 +212,8 @@ export function processTimestamp(value: string): ProcessedInputValueDetails {
 export function processUrl(value: string): ProcessedInputValueDetails {
   const result: ProcessedInputValueDetails = {
     passed: false,
-    message: null
+    message: null,
+    processedValue: undefined
   }
 
   if (!value.match(/^(http|https):\/\/[^ "]+$/)) {
@@ -229,7 +228,8 @@ export function processUrl(value: string): ProcessedInputValueDetails {
 export function processPath(value: string): ProcessedInputValueDetails {
   const result: ProcessedInputValueDetails = {
     passed: false,
-    message: null
+    message: null,
+    processedValue: undefined
   }
   // TODO: How can we verify a valid path, and what is it even used for?
   result.processedValue = value
@@ -241,7 +241,8 @@ export function processPath(value: string): ProcessedInputValueDetails {
 export function processFont(value: string): ProcessedInputValueDetails {
   const result: ProcessedInputValueDetails = {
     passed: false,
-    message: null
+    message: null,
+    processedValue: undefined
   }
   // TODO: Check our list of valid fonts.
   result.processedValue = value
@@ -253,10 +254,11 @@ export function processFont(value: string): ProcessedInputValueDetails {
 export function processHexColor(value: string): ProcessedInputValueDetails {
   const result: ProcessedInputValueDetails = {
     passed: false,
-    message: null
+    message: null,
+    processedValue: undefined
   }
 
-  if (!value.match(/^(?:(?:[0-9a-fA-F]{4}){1,2})|(?:(?:[0-9a-fA-F]{3}){1,2})$/)) {
+  if (!value.match(/^(?:[0-9a-fA-F]{4}){1,2}|(?:[0-9a-fA-F]{3}){1,2}$/)) {
     result.message = 'Expected hex color code like: fff'
     return result
   }
@@ -269,7 +271,8 @@ export function processHexColor(value: string): ProcessedInputValueDetails {
 export function processColorKeyword(value: string): ProcessedInputValueDetails {
   const result: ProcessedInputValueDetails = {
     passed: false,
-    message: null
+    message: null,
+    processedValue: undefined
   }
 
   if (!schema.colorKeywordValues.includes(value)) {

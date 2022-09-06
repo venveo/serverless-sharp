@@ -16,7 +16,7 @@ import {getSetting} from "./utils/settings";
 import {
   BucketDetails,
   GenericInvocationEvent,
-  ImageExtensions,
+  ImageExtension,
   ParsedEdits,
   QueryStringParameters
 } from "./types/common";
@@ -75,14 +75,14 @@ export default class ImageRequest {
    * transparency, and typical format sizes.
    * @returns Returns the new extension of the image or null if no changes should be made
    */
-  getAutoFormat(): ImageExtensions | null {
+  getAutoFormat(): ImageExtension | null {
     if (!this.originalMetadata || this.originalMetadata.format === undefined) {
       return null;
     }
-    const originalFormat = <ImageExtensions>normalizeExtension(this.originalMetadata.format)
+    const originalFormat = <ImageExtension>normalizeExtension(this.originalMetadata.format)
 
     const headers = this.event.headers ?? {}
-    const coercibleFormats = [ImageExtensions.JPEG, ImageExtensions.PNG, ImageExtensions.WEBP, ImageExtensions.AVIF, ImageExtensions.JPG, ImageExtensions.TIFF]
+    const coercibleFormats = [ImageExtension.JPEG, ImageExtension.PNG, ImageExtension.WEBP, ImageExtension.AVIF, ImageExtension.JPG, ImageExtension.TIFF]
     let autoParam: string[] = []
     if (this.event.queryParams.auto) {
       autoParam = this.event.queryParams.auto.split(',')
@@ -97,16 +97,16 @@ export default class ImageRequest {
       return null
     }
 
-    if (specialOutputFormats.includes(ImageExtensions.AVIF)) {
-      return ImageExtensions.AVIF
+    if (specialOutputFormats.includes(ImageExtension.AVIF)) {
+      return ImageExtension.AVIF
     }
     // If avif isn't available, try to use webp
-    else if (specialOutputFormats.includes(ImageExtensions.WEBP)) {
-      return ImageExtensions.WEBP
+    else if (specialOutputFormats.includes(ImageExtension.WEBP)) {
+      return ImageExtension.WEBP
     }
     // Coerce pngs and tiffs without alpha channels to jpg
-    else if (!this.originalMetadata.hasAlpha && ([ImageExtensions.PNG, ImageExtensions.TIFF].includes(originalFormat))) {
-      return ImageExtensions.JPEG
+    else if (!this.originalMetadata.hasAlpha && ([ImageExtension.PNG, ImageExtension.TIFF].includes(originalFormat))) {
+      return ImageExtension.JPG
     }
 
     return null
@@ -129,7 +129,11 @@ export default class ImageRequest {
    */
   normalizeQueryParams(params: QueryStringParameters = {}): QueryStringParameters {
     const normalizedParams = replaceAliases(params)
-    normalizedParams.fm = this.getAutoFormat() ?? normalizedParams.fm ?? this.originalMetadata?.format ?? null
+    let finalOutputFormat = this.getAutoFormat() ?? normalizedParams.fm ?? this.originalMetadata?.format ?? null
+    if (finalOutputFormat) {
+      finalOutputFormat = normalizeExtension(finalOutputFormat)
+    }
+    normalizedParams.fm = finalOutputFormat
 
     return normalizedParams
   }

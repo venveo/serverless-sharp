@@ -9,11 +9,14 @@ export type ParsedSchemaItem<T = ProcessedInputValueType> = {
   message?: string | null
 }
 
-export type ParsedSchemaExpectation = {
+export type ProcessedInputValueDetails = {
   passed: boolean,
-  implicit: boolean,
   processedValue: ProcessedInputValueType,
   message: string | null
+}
+
+export interface ParsedSchemaExpectation extends ProcessedInputValueDetails {
+  implicit: boolean
 }
 
 export type UnparsedEdits = {
@@ -48,7 +51,13 @@ export interface ParsedEdits extends UnparsedEdits {
   // Blur, defaults to 0
   blur: ParsedSchemaItem<number>,
   // Resize fit mode, defaults to "clip"
-  fit: ParsedSchemaItem<ResizeFitMode>
+  fit: ParsedSchemaItem<ResizeFitMode>,
+  // Output format
+  fm: ParsedSchemaItem<ImageExtension>,
+  // Quality, defaults to 75 (in Imgix schema at least)
+  q: ParsedSchemaItem<number>,
+  // Lossless mode, defaults to false
+  lossless: ParsedSchemaItem<boolean>
 }
 
 /**
@@ -107,7 +116,7 @@ export interface GenericHeaders {
 
 export type ParameterTypesSchema = { [key: string]: ParameterType }
 
-export enum ImageExtensions {
+export enum ImageExtension {
   JPG = 'jpg',
   JPEG = 'jpeg',
   PNG = 'png',

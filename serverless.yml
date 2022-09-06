@@ -116,7 +116,7 @@ custom:
   esbuild:
     bundle: true
     minify: false
-    sourcemap: true
+    sourcemap: linked
     keepNames: true
     exclude:
       - sharp

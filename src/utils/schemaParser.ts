@@ -70,11 +70,7 @@ export function normalizeAndValidateSchema(schema: ParameterTypesSchema, values:
     const dependencies = schemaItem.depends
     // Keep track of dependencies we need to verify later
     if (dependencies !== undefined) {
-      const possibleValues = []
-      for (const rawDependency of dependencies) {
-        possibleValues.push(rawDependency)
-      }
-      dependenciesByParameterIndex[parameterIndex] = possibleValues
+      dependenciesByParameterIndex[parameterIndex] = dependencies
     }
 
     /**
@@ -90,9 +86,9 @@ export function normalizeAndValidateSchema(schema: ParameterTypesSchema, values:
       let passedExpectationResult: ParsedSchemaExpectation | null = null
       // Evaluate each of the expectations until we get a passing result.
       for (const expectation of valueExpectations) {
-        const result = processInputValueExpectation(expectation, values[parameterIndex])
-        if (result.passed) {
-          passedExpectationResult = result
+        const inputValueDetails = processInputValue(expectation.type, values[parameterIndex], expectation)
+        if (inputValueDetails.passed) {
+          passedExpectationResult = {...inputValueDetails, implicit: false}
           passedExpectation = expectation
           break;
         }
@@ -115,7 +111,6 @@ export function normalizeAndValidateSchema(schema: ParameterTypesSchema, values:
   expectationValues = processDefaults(expectationValues)
   // Go back and validate our dependencies now that we've looked at each item
   expectationValues = processDependencies(dependenciesByParameterIndex, <ParsedEdits>expectationValues)
-
   // Now we'll merge the rest of the schema's defaults
   return <ParsedEdits>expectationValues
 }
@@ -189,7 +184,7 @@ export function processDependencies(dependencies: { [key: string]: string[] }, e
       if (dependency.indexOf('=') !== -1) {
         const split = dependency.split('=')
         const key = <keyof ParsedEdits>split[0] // i.e. fm
-        const val = split[1] // i.e. png
+        const val = <string>split[1] // i.e. png
 
         const processedValue = expectationValues[key].processedValue
         if (Array.isArray(processedValue) && (processedValue as Array<string | number>).includes(val)) {
@@ -212,26 +207,11 @@ export function processDependencies(dependencies: { [key: string]: string[] }, e
   // Moment of truth, did we satisfy our dependencies?
   Object.keys(passedDependencies).forEach((dep) => {
     if (passedDependencies[dep] !== true) {
-      // If we don't meet a dependency, we'll remove the option so we can proceed semi-safely
+      // If we don't meet a dependency, we'll remove the option we can proceed semi-safely
       expectationValues[dep].implicit = true
       expectationValues[dep].passed = false
     }
   })
 
   return expectationValues
-}
-
-/**
- * Processes the expectations for certain parameters
- * @param expects - expected value definition
- * @param value - input value to process
- */
-export function processInputValueExpectation(expects: ExpectedValueDefinition, value: string): ParsedSchemaExpectation {
-  const processedValue = processInputValue(expects.type, value, expects)
-  return {
-    passed: processedValue.passed,
-    implicit: false,
-    processedValue: processedValue.processedValue,
-    message: processedValue.message
-  }
 }

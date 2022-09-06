@@ -2,9 +2,9 @@ import {getSetting} from "./utils/settings";
 
 import ImageRequest from "./ImageRequest";
 import * as imageOps from "./image-ops";
-import {ImageExtensions, ProcessedImageRequest} from "./types/common";
+import {ImageExtension, ParsedEdits, ProcessedImageRequest} from "./types/common";
 import {FormatEnum, Metadata, Sharp} from "sharp";
-import {getMimeTypeForExtension, normalizeExtension} from "./utils/formats";
+import {getMimeTypeForExtension} from "./utils/formats";
 import {AutoMode} from "./types/imgix";
 import createHttpError from "http-errors";
 
@@ -73,8 +73,8 @@ export default class ImageHandler {
   }
 
   /**
-   * Applies image modifications to the original image based on edits specified in the ImageRequest. A promise is returned
-   * with a Sharp pipeline, which may or may not differ from the input.
+   * Applies image modifications to the original image based on edits specified in the ImageRequest. A promise is
+   * returned with a Sharp pipeline, which may or may not differ from the input.
    * @param editsPipeline - the input image pipeline
    */
   async applyEditsToPipeline(editsPipeline: Sharp): Promise<Sharp> {
@@ -87,40 +87,27 @@ export default class ImageHandler {
 
   /**
    * TODO: Move me out of here
-   * @param editsPipeline
    */
   applyOptimizations(editsPipeline: Sharp): void {
-    // const minColors = 128 // arbitrary number
-    // const maxColors = 256 * 256 * 256 // max colors in RGB color space
-    let {edits}: ImageRequest = this.request ?? null
+    const edits = <ParsedEdits>this.request?.edits ?? {}
+    const autoVals = edits.auto.processedValue ?? []
 
-    const auto = edits?.auto
-
-    let autoVals = auto?.processedValue
-    if (!autoVals || !Array.isArray(autoVals)) {
-      autoVals = []
-    }
-
-    // Determine our quality - if it was implicitly determined, we'll use the environment setting rather than the schemaForQueryParams
+    // Determine our quality - if it was implicitly determined, we'll use the environment setting rather than the
+    // schemaForQueryParams
     let quality = <number>getSetting('DEFAULT_QUALITY')
-    if (edits) {
-      if (!edits.q.implicit) {
-        quality = parseInt(edits.q.processedValue as string)
-        if (quality < 1) {
-          quality = 1
-        } else if (quality > 100) {
-          quality = 100
-        }
+    if (!edits.q.implicit) {
+      quality = edits.q.processedValue
+      if (quality < 1) {
+        quality = 1
+      } else if (quality > 100) {
+        quality = 100
       }
     }
-    // Ensure edits is an object before we start processing.
-    edits = edits ?? {}
 
-    let fm = edits?.fm?.processedValue ?? this.request.getAutoFormat();
+    const fm = edits.fm.processedValue
     if (!fm) {
       throw new createHttpError.InternalServerError('Unable to determine output format for image')
     }
-    fm = normalizeExtension(<string>fm)
 
     if (autoVals.includes(AutoMode.COMPRESS)) {
       quality = <number>getSetting('DEFAULT_COMPRESS_QUALITY')
@@ -128,8 +115,9 @@ export default class ImageHandler {
 
 
     // adjust quality based on file type
-    if (fm === ImageExtensions.JPG || fm === ImageExtensions.JPEG) {
-      if (autoVals.includes(AutoMode.COMPRESS) && quality < 100 && edits.q !== undefined) {
+    // NOTE: JPEG is coerced to JPG early in the program lifecycle
+    if (fm === ImageExtension.JPG) {
+      if (autoVals.includes(AutoMode.COMPRESS) && quality < 100) {
         editsPipeline.jpeg({
           quality: quality,
           mozjpeg: true
@@ -140,31 +128,31 @@ export default class ImageHandler {
           trellisQuantisation: true
         })
       }
-    } else if (fm === ImageExtensions.PNG) {
+    } else if (fm === ImageExtension.PNG) {
       editsPipeline.png({
         quality: quality,
         palette: true
       })
-    } else if (fm === ImageExtensions.WEBP) {
+    } else if (fm === ImageExtension.WEBP) {
       const options = {
         quality: quality,
         lossless: false
       }
-      if ('lossless' in edits && edits.lossless.processedValue === true) {
+      if (edits.lossless.processedValue) {
         options.lossless = true
       }
       editsPipeline.webp(options)
-    } else if (fm === ImageExtensions.AVIF) {
+    } else if (fm === ImageExtension.AVIF) {
       const options = {
         quality: quality,
         lossless: false
       }
-      if ('lossless' in edits && edits.lossless.processedValue === true) {
+      if (edits.lossless.processedValue) {
         options.lossless = true
       }
       editsPipeline.avif(options)
     } else if (fm !== null) {
-      editsPipeline.toFormat(fm as keyof FormatEnum)
+      editsPipeline.toFormat(<keyof FormatEnum>fm)
     } else {
       throw new createHttpError.InternalServerError('Unable to determine output format for image')
     }
