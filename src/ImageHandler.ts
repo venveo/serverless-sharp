@@ -57,6 +57,12 @@ export default class ImageHandler {
       console.error('Unhandlable image encountered', err)
       bufferImage = Buffer.from(originalImageBody.toString(), 'binary')
     }
+
+    // Sharp considers the output format for avif to be heic, which won't display properly in the browser.
+    if (this.request?.edits?.fm.processedValue === 'avif') {
+      format = 'avif'
+    }
+
     if (format !== 'input') {
       contentType = getMimeTypeForExtension(format)
       if (!contentType) {

@@ -72,7 +72,7 @@ export function extractBucketNameAndPrefix(fullPath: string): BucketDetails {
  * Parses headers from an event and retrieves special compatibility cases for modern image types
  */
 export function getAcceptedImageFormatsFromHeaders(headers: GenericHeaders): string[] {
-  if (!headers?.Accept) {
+  if (!headers?.accept) {
     return [];
   }
   const specialFormats: { [mimeType: string]: string } = {
@@ -80,7 +80,7 @@ export function getAcceptedImageFormatsFromHeaders(headers: GenericHeaders): str
     // 'image/apng': 'apng', // apng is not supported by Sharp yet
     'image/webp': ImageExtension.WEBP
   }
-  return headers.Accept.toString().toLowerCase()
+  return headers.accept.toString()
     .split(',')
     .map((mime: string) => {
       return specialFormats[mime] ?? null
