@@ -5,7 +5,8 @@ service: serverless-sharp
 provider:
   name: aws
   runtime: nodejs16.x
-  timeout: 10
+  timeout: 30
+  memorySize: 2048
   stage: ${opt:stage,'dev'}
   region: ${self:custom.settings.region}
   iam:

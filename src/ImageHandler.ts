@@ -3,7 +3,7 @@ import {getSetting} from "./utils/settings";
 import ImageRequest from "./ImageRequest";
 import * as imageOps from "./image-ops";
 import {ImageExtension, ParsedEdits, ProcessedImageRequest} from "./types/common";
-import {AvifOptions, FormatEnum, Metadata, Sharp, WebpOptions} from "sharp";
+import {AvifOptions, FormatEnum, Metadata, PngOptions, Sharp, WebpOptions} from "sharp";
 import {getMimeTypeForExtension} from "./utils/formats";
 import {AutoMode} from "./types/imgix";
 import createHttpError from "http-errors";
@@ -135,10 +135,11 @@ export default class ImageHandler {
         })
       }
     } else if (fm === ImageExtension.PNG) {
-      editsPipeline.png({
+      const options: PngOptions = {
         quality: quality,
         palette: true
-      })
+      }
+      editsPipeline.png(options)
     } else if (fm === ImageExtension.WEBP) {
       const options: WebpOptions = {
         quality: quality,

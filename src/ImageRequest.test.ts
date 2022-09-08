@@ -111,7 +111,7 @@ describe('Testing ImageRequest', () => {
         auto: 'format'
       },
       headers: {
-        'Accept': 'image/webp'
+        'accept': 'image/webp'
       }
     }
     const request = await processRequest(event)
@@ -128,7 +128,7 @@ describe('Testing ImageRequest', () => {
         auto: 'format'
       },
       headers: {
-        'Accept': 'image/webp,image/avif'
+        'accept': 'image/webp,image/avif'
       }
     }
     const request = await processRequest(event)
@@ -147,6 +147,6 @@ describe('Testing ImageRequest', () => {
     }
     const request = await processRequest(event, '../data/tests/PNG_demonstration_1_no_alpha.png', 'image/png')
     // Ensure input image matches known values
-    expect(request.getAutoFormat()).toEqual('jpeg');
+    expect(request.getAutoFormat()).toEqual('jpg');
   })
 })

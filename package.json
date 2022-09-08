@@ -13,9 +13,12 @@
     "deploy": "sls deploy",
     "offline": "sls offline --reloadHandler"
   },
-  "version": "2.2.0",
+  "version": "3.0.0",
   "private": false,
   "license": "MIT",
+  "engines": {
+    "node": ">=16"
+  },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.95.0",
     "@types/aws-lambda": "^8.10.102",
