@@ -52,9 +52,13 @@ const lambdaFunction: Handler = async function (event: GenericInvocationEvent, c
   if (sizeDifference > 0) {
     logger.warn('Output size was larger than input size', {newImageSize, originalImageSize, sizeDifference})
   }
+  const percentChange = ((newImageSize - originalImageSize) / originalImageSize) * 100
   const response = {
     statusCode: 200,
-    headers: getResponseHeaders(processedRequest),
+    headers: {
+      ...getResponseHeaders(processedRequest),
+      'x-ss-delta': percentChange
+    },
     body: processedRequest.Body,
     isBase64Encoded: true
   }

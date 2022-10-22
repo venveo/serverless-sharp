@@ -138,6 +138,11 @@ export default class ImageHandler {
       const options: PngOptions = {
         quality: quality,
         palette: true
+        /*
+         https://github.com/lovell/sharp/issues/872#issuecomment-317202412
+         The most common use of PNG is for line art, diagrams and logos for which adaptiveFiltering: false usually produces the smallest file. Perhaps simply making it the default (rather than true) would offer the simplest approach here?
+         */
+        // adaptiveFiltering: true
       }
       editsPipeline.png(options)
     } else if (fm === ImageExtension.WEBP) {
