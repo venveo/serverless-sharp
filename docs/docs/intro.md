@@ -1,3 +1,6 @@
+---
+sidebar_position: 1
+---
 # Quick Start
 
 We'll go over installation, basic configuration, and deployment
@@ -6,7 +9,7 @@ We'll go over installation, basic configuration, and deployment
 
 - AWS Account
 - Serverless
-- NodeJs 12.x
+- NodeJs 18.x
 
 Once you have installed Serverless for your environment, follow this guide to connect your Serverless installation to
  your AWS account:
@@ -20,7 +23,7 @@ Once you have installed Serverless for your environment, follow this guide to co
 Clone the latest version of the project into a directory of your choice:
 
 ```git
-git clone -b 'v2.0.6' --single-branch --depth 1 https://github.com/venveo/serverless-sharp.git 
+git clone -b 'v3.0.0' --single-branch --depth 1 https://github.com/venveo/serverless-sharp.git 
 ```
 
 <Note type="tip">

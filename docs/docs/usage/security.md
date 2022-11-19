@@ -1,4 +1,5 @@
 # Security
+This guide explains how abuse is prevented using query hashes.
 
 ## Request Query Hashing
 To prevent abuse of your Lambda function, you can set a security key. When the security key environment variable is set,
