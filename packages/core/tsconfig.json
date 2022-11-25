@@ -19,7 +19,7 @@
     "node_modules"
   ],
   "include": [
-    "packages/core/src"
+    "src"
   ],
   "types": [
     "node",

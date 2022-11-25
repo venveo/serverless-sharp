@@ -9,7 +9,7 @@ import {processInputValue} from "./inputValueProcessor";
 import createHttpError from "http-errors";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const schema: Imgix = require('../../data/schema.json')
+const schema: Imgix = require('../../../../data/schema.json')
 
 /**
  * Creates a new QueryStringParameters object with any alias keys replaced with canonical parameters.

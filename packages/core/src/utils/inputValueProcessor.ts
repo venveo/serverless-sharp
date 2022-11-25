@@ -2,7 +2,7 @@ import {ExpectedValueDefinition, ExpectedValueType, Imgix} from "../types/imgix"
 import {ProcessedInputValueDetails} from "../types/common";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const schema: Imgix = require('../../data/schema.json')
+const schema: Imgix = require('../../../../data/schema.json')
 type ValueProcessorTypeMap = Record<ExpectedValueType, CallableFunction>
 
 /**
