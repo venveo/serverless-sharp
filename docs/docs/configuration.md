@@ -1,3 +1,6 @@
+---
+sidebar_position: 2
+---
 # Configuration
 Serverless Sharp stores its settings in YAML files. When deploying the application, you specify the YAML file and the
 stage (your environment). For example:

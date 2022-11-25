@@ -1,0 +1,1 @@
+# Updating Imgix Schema

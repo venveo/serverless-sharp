@@ -1,4 +1,5 @@
 # Parameters
+Image transformations are supported by these query parameters.
 
 We chose to base our API around the [Imgix service](https://docs.imgix.com/apis/url) to allow for backwards compatibility
 with the already popular service. The idea is that all CMS plugins should be able to seamlessly use this service in-place of
@@ -26,11 +27,11 @@ Scales image to supplied width while maintaining aspect ratio
 
 Scales image to supplied height while maintaining aspect ratio
 
-<Note type="tip">
+:::info
 
 *If both width and height are supplied, the aspect ratio will be preserved and scaled to minimum of either width/height*
 
-</Note>
+:::
 
 ## `q` - quality 
 
