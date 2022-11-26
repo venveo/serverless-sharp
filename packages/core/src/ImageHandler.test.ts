@@ -16,7 +16,7 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
   const OLD_ENV = process.env
   const s3Mock = mockClient(S3Client);
 
-  const testJpegPath = path.resolve(__dirname, '../data/tests/SampleJPGImage_500kbmb.jpg');
+  const testJpegPath = path.resolve(__dirname, '../../../data/tests/SampleJPGImage_500kbmb.jpg');
   const testJpegWidth = 1792;
   const testJpegHeight = 1792;
   const testJpegSize = 512017;
@@ -226,7 +226,7 @@ describe('Testing ImageHandler Processing with Transparent PNG Input', () => {
   const OLD_ENV = process.env
   const s3Mock = mockClient(S3Client);
 
-  const testPngPath = path.resolve(__dirname, '../data/tests/PNG_transparency_demonstration_1.png');
+  const testPngPath = path.resolve(__dirname, '../../../data/tests/PNG_transparency_demonstration_1.png');
   const testPngWidth = 800;
   const testPngHeight = 600;
   const testPngSize = 226933;

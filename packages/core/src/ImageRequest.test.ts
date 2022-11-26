@@ -12,7 +12,7 @@ describe('Testing ImageRequest', () => {
   const OLD_ENV = process.env
   const s3Mock = mockClient(S3Client);
 
-  const testJpegPath = '../data/tests/SampleJPGImage_500kbmb.jpg';
+  const testJpegPath = '../../../data/tests/SampleJPGImage_500kbmb.jpg';
   const testJpegWidth = 1792;
   const testJpegHeight = 1792;
   const testJpegSize = 512017;
@@ -147,7 +147,7 @@ describe('Testing ImageRequest', () => {
       },
       headers: {}
     }
-    const request = await processRequest(event, '../data/tests/PNG_demonstration_1_no_alpha.png', 'image/png')
+    const request = await processRequest(event, '../../../data/tests/PNG_demonstration_1_no_alpha.png', 'image/png')
     // Ensure input image matches known values
     expect(request.getAutoFormat()).toEqual('jpg');
   })
