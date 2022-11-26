@@ -6,7 +6,10 @@
     "url": "https://www.venveo.com",
     "email": "development@venveo.com"
   },
-  "scripts": {},
+  "scripts": {
+    "test": "lerna run test",
+    "build": "lerna run build"
+  },
   "workspaces": [
     "packages/*",
     "deployments/*",
