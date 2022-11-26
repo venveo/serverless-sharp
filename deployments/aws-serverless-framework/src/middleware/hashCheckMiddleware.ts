@@ -1,8 +1,8 @@
 import middy from "@middy/core";
-import {GenericInvocationEvent} from "../types/common";
-import {verifyHash} from "../utils/security";
-import {getSetting} from "../utils/settings";
 import createHttpError from "http-errors";
+import {getSetting} from "@serverless-sharp/core/src/utils/settings";
+import {GenericInvocationEvent} from "@serverless-sharp/core/src/types/common";
+import {verifyHash} from "@serverless-sharp/core/src/utils/security";
 
 const hashCheckMiddleware = (): middy.MiddlewareObj => {
   const before: middy.MiddlewareFn = async (request) => {

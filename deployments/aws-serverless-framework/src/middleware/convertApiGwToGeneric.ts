@@ -1,5 +1,5 @@
 import middy from "@middy/core";
-import {GenericHeaders, QueryStringParameters} from "../types/common";
+import {GenericHeaders, QueryStringParameters} from "@serverless-sharp/core/src/types/common";
 
 /**
  * Converts an APIGatewayRequest to a GenericInvocationEvent

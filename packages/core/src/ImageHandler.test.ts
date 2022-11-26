@@ -43,6 +43,8 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
 
     const testJpegStream = fs.createReadStream(imagePath)
     const response: GetObjectCommandOutput = {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       Body: testJpegStream,
       ContentType: 'image/jpg',
       $metadata: {}
@@ -251,6 +253,8 @@ describe('Testing ImageHandler Processing with Transparent PNG Input', () => {
 
     const testPngStream = fs.createReadStream(imagePath)
     const response: GetObjectCommandOutput = {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
       Body: testPngStream,
       ContentType: 'image/png',
       $metadata: {}

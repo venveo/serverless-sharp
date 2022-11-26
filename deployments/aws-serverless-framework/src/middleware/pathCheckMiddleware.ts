@@ -1,7 +1,7 @@
 import middy from "@middy/core";
-import {GenericInvocationEvent} from "../types/common";
-import {shouldSkipRequest} from "../utils/security";
 import createHttpError from "http-errors";
+import {GenericInvocationEvent} from "@serverless-sharp/core/src/types/common";
+import {shouldSkipRequest} from "@serverless-sharp/core/src/utils/security";
 
 const pathCheckMiddleware = (): middy.MiddlewareObj => {
 

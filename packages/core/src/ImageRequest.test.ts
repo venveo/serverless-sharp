@@ -24,6 +24,8 @@ describe('Testing ImageRequest', () => {
 
     const testJpegStream = fs.createReadStream(imagePath)
     const response: GetObjectCommandOutput = {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       Body: testJpegStream,
       ContentType: contentType,
       $metadata: {}

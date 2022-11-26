@@ -142,7 +142,7 @@ The speed value to pass to the `pngquant` optimization program. From the [pngqua
 - Type: `string`
 - Default: *empty*
 
-If set, a hash must be provided as the `s` parameter in all requests. See [Security](/usage/security) for more.
+If set, a hash must be provided as the `s` parameter in all requests. See [Security](./usage/security.md) for more.
 
 ### `SOURCE_BUCKET`
 

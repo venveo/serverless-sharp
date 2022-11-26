@@ -3,6 +3,8 @@
     "target": "es6",
     "module": "commonjs",
     "allowJs": true,
+    "declaration": true,
+    "sourceMap": true,
     "skipLibCheck": false,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -13,10 +15,15 @@
     "noEmit": false,
     "jsx": "preserve",
     "noUnusedLocals": true,
+    "composite": true,
+    "rootDir": "./src",
+    "outDir": "./dist",
     "noUnusedParameters": true
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts"
   ],
   "include": [
     "src"

@@ -1,15 +1,6 @@
-import ImageRequest from "../ImageRequest";
-import ImageHandler from "../ImageHandler";
-
-import {Handler} from "aws-lambda";
-
 import {
-  APIGatewayProxyResult
+  APIGatewayProxyResult, Handler
 } from "aws-lambda";
-import {
-  GenericInvocationEvent,
-} from "../types/common";
-import {getResponseHeaders} from "../utils/httpRequestProcessor";
 
 import middy from '@middy/core';
 import httpEventNormalizer from '@middy/http-event-normalizer'
@@ -20,6 +11,10 @@ import pathCheckMiddleware from "../middleware/pathCheckMiddleware";
 import hashCheckMiddleware from "../middleware/hashCheckMiddleware";
 
 import { Logger, injectLambdaContext } from '@aws-lambda-powertools/logger';
+import ImageRequest from "@serverless-sharp/core/src/ImageRequest";
+import ImageHandler from "@serverless-sharp/core/src/ImageHandler";
+import {GenericInvocationEvent} from "@serverless-sharp/core/src/types/common";
+import {getResponseHeaders} from "@serverless-sharp/core/src/utils/httpRequestProcessor";
 
 const logger = new Logger({
   serviceName: 'serverlessSharp.optimize'

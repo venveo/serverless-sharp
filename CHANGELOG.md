@@ -21,6 +21,9 @@
 - Fixed Last-Modified date not being the correct format (Thanks, @bs-thomas)
 
 ### Changed
+- Added Lerna & convert to monorepo
+- Move core code into packages/core as @serverless-sharp/core
+- Migrate docs to Docusaurus
 - Fix potential error with undefined multiValueQueryStringParameters
 - Updated Imgix schema
 - Updated to Serverless framework 3
