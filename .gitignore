@@ -17,4 +17,5 @@ settings.*.yml
 .esbuild
 
 dist
+lib
 *.tsbuildinfo

@@ -7,10 +7,19 @@
     "email": "development@venveo.com"
   },
   "scripts": {
+    "tsc": "tsc",
     "test": "jest",
     "build": "tsc -b",
     "eslint": "eslint ./src",
     "eslint:fix": "eslint ./src --fix"
+  },
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "files": ["lib"],
+  "publishConfig": {
+    "access": "public"
   },
   "private": false,
   "license": "MIT",

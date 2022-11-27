@@ -1,4 +1,4 @@
-FROM amazon/aws-lambda-nodejs:16 as builder
+FROM amazon/aws-lambda-nodejs:18 as builder
 RUN yum -y install make gcc* zip
 #RUN yum -y install make gcc* zip automake build-essential curl tar gzip \
 #   gobject-introspection gtk-doc-tools libglib2.0-dev libpng-dev \

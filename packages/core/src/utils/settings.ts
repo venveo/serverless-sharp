@@ -61,7 +61,7 @@ export function getSetting(key: string) {
   if (!(key in settings)) {
     throw new createHttpError.InternalServerError('Unable to locate settings key: '+ key)
   }
-  let value = null
+  let value: undefined|null|string|number;
   if (key in process.env) {
     value = process.env[key]
   } else {

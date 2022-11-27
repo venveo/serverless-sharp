@@ -11,10 +11,10 @@ import pathCheckMiddleware from "../middleware/pathCheckMiddleware";
 import hashCheckMiddleware from "../middleware/hashCheckMiddleware";
 
 import { Logger, injectLambdaContext } from '@aws-lambda-powertools/logger';
-import ImageRequest from "@serverless-sharp/core/src/ImageRequest";
-import ImageHandler from "@serverless-sharp/core/src/ImageHandler";
-import {GenericInvocationEvent} from "@serverless-sharp/core/src/types/common";
-import {getResponseHeaders} from "@serverless-sharp/core/src/utils/httpRequestProcessor";
+import ImageRequest from "@serverless-sharp/core/lib/ImageRequest";
+import ImageHandler from "@serverless-sharp/core/lib/ImageHandler";
+import {GenericInvocationEvent} from "@serverless-sharp/core/lib/types/common";
+import {getResponseHeaders} from "@serverless-sharp/core/lib/utils/httpRequestProcessor";
 
 const logger = new Logger({
   serviceName: 'serverlessSharp.optimize'

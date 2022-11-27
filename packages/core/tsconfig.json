@@ -1,35 +1,12 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "allowJs": true,
-    "declaration": true,
-    "sourceMap": true,
-    "skipLibCheck": false,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "noEmit": false,
-    "jsx": "preserve",
-    "noUnusedLocals": true,
-    "composite": true,
-    "rootDir": "./src",
-    "outDir": "./dist",
-    "noUnusedParameters": true
+    "outDir": "./lib"
   },
-  "exclude": [
-    "node_modules",
-    "src/**/*.spec.ts",
-    "src/**/*.test.ts"
-  ],
   "include": [
-    "src"
+    "./src"
   ],
   "types": [
-    "node",
     "aws-sdk"
   ]
 }

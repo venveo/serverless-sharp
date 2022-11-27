@@ -4,7 +4,7 @@ service: serverless-sharp
 
 provider:
   name: aws
-  runtime: nodejs16.x
+  runtime: nodejs18.x
   timeout: 30
   memorySize: 2048
   stage: ${opt:stage,'dev'}
@@ -27,10 +27,10 @@ layers:
     path: ../../lambdaLayers/SharpLayer
     name: ${self:provider.stage}-sharp
     package:
-      artifact: ../../lambdaLayers/SharpLayer/out/sharp-0.31.2-aws-lambda-linux-x64-node-16.zip
+      artifact: ../../lambdaLayers/SharpLayer/out/sharp-0.31.2-aws-lambda-linux-x64-node-18.zip
     description: sharp@0.31.2
     compatibleRuntimes:
-      - nodejs16.x
+      - nodejs18.x
     licenseInfo: Apache License 2.0
     retain: false
 
