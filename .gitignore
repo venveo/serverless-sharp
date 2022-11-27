@@ -12,5 +12,9 @@ jspm_packages
 .serverless
 settings.yml
 settings.*.yml
+!settings.example.yml
 
 .esbuild
+
+dist
+*.tsbuildinfo

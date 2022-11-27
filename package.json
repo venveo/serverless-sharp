@@ -1,5 +1,5 @@
 {
-  "name": "serverless-sharp",
+  "name": "@serverless-sharp/root",
   "description": "A Lambda function for performing on-demand image edits and manipulations.",
   "author": {
     "name": "Venveo",
@@ -7,48 +7,32 @@
     "email": "development@venveo.com"
   },
   "scripts": {
-    "test": "jest",
-    "docs": "serve ./docs",
-    "build": "sls package",
-    "deploy": "sls deploy",
-    "offline": "sls offline --reloadHandler"
+    "test": "lerna run test",
+    "build": "lerna run build"
   },
+  "workspaces": [
+    "packages/*",
+    "deployments/*",
+    "docs"
+  ],
   "version": "3.0.0",
-  "private": false,
+  "private": true,
   "license": "MIT",
   "engines": {
     "node": ">=16"
   },
   "devDependencies": {
-    "@aws-sdk/client-s3": "^3.194.0",
-    "@types/aws-lambda": "^8.10.108",
-    "@types/http-errors": "^1.8.2",
-    "@types/jest": "^29.2.0",
     "@types/node": "^16.0.0",
-    "@types/sharp": "^0.31.0",
-    "@typescript-eslint/eslint-plugin": "^5.40.1",
-    "@typescript-eslint/parser": "^5.40.1",
-    "aws-sdk-client-mock": "^2.0.0",
-    "eslint": "^8.26.0",
+    "@typescript-eslint/eslint-plugin": "^5.44.0",
+    "@typescript-eslint/parser": "^5.44.0",
+    "eslint": "^8.28.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-jest": "^27.1.3",
     "eslint-plugin-tsdoc": "^0.2.17",
-    "jest": "^29.2.1",
+    "lerna": "^6.0.3",
+    "nx": "^15.2.1",
     "prettier": "^2.7.1",
-    "serverless": "^3.23.0",
-    "serverless-esbuild": "^1.33.0",
-    "serverless-offline": "^11.1.3",
-    "sharp": "0.31.1",
-    "ts-jest": "^29.0.3",
     "ts-node": "^10.9.1",
-    "typescript": "^4.8.4"
-  },
-  "dependencies": {
-    "@aws-lambda-powertools/logger": "^1.3.0",
-    "@middy/core": "^3.6.2",
-    "@middy/http-error-handler": "^3.6.2",
-    "@middy/http-event-normalizer": "^3.6.2",
-    "@middy/http-header-normalizer": "^3.6.2",
-    "http-errors": "^2.0.0"
+    "typescript": "^4.9.3"
   }
 }
