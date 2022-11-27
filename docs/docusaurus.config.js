@@ -8,6 +8,8 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 const config = {
   title: 'Serverless Sharp | Lambda powered image processor',
   tagline: '',
+  deploymentBranch: 'gh-pages',
+  trailingSlash: false,
   url: 'https://venveo.github.io',
   baseUrl: '/serverless-sharp',
   onBrokenLinks: 'throw',
@@ -81,7 +83,7 @@ const config = {
             title: 'Docs',
             items: [
               {
-                label: 'Tutorial',
+                label: 'Intro',
                 to: '/docs/intro',
               },
             ],
@@ -100,7 +102,7 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} Venveo Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} Venveo | Built with Docusaurus.`,
       },
       prism: {
         theme: lightCodeTheme,
