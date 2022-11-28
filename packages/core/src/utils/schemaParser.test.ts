@@ -28,7 +28,7 @@ describe('Tests for schema validation', () => {
 
     expect(() => {
       schemaParser.normalizeAndValidateSchema(schema, request)
-    }).not.toThrowError()
+    }).not.toThrow()
   })
 
   test('Valid with jpg', () => {
@@ -54,7 +54,7 @@ describe('Tests for schema validation', () => {
     }
     const schema = schemaParser.getSchemaForQueryParams(request)
 
-    expect(() => schemaParser.normalizeAndValidateSchema(schema, request)).not.toThrowError()
+    expect(() => schemaParser.normalizeAndValidateSchema(schema, request)).not.toThrow()
   })
 
   // Two mode test
@@ -64,7 +64,7 @@ describe('Tests for schema validation', () => {
     }
     const schema = schemaParser.getSchemaForQueryParams(request)
 
-    expect(() => schemaParser.normalizeAndValidateSchema(schema, request)).not.toThrowError()
+    expect(() => schemaParser.normalizeAndValidateSchema(schema, request)).not.toThrow()
   })
 
   test('Double mode -  int', () => {
@@ -73,7 +73,7 @@ describe('Tests for schema validation', () => {
     }
     const schema = schemaParser.getSchemaForQueryParams(request)
 
-    expect(() => schemaParser.normalizeAndValidateSchema(schema, request)).not.toThrowError()
+    expect(() => schemaParser.normalizeAndValidateSchema(schema, request)).not.toThrow()
   })
 
   test('Max range normalization', () => {

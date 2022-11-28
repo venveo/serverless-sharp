@@ -6,12 +6,11 @@ const jestConfig: JestConfigWithTsJest = {
   roots: ['<rootDir>/src'],
   testTimeout: 30000,
   transform: {
-    // '^.+\\.[tj]sx?$' to process js/ts with `ts-jest`
-    // '^.+\\.m?[tj]sx?$' to process js/ts/mjs/mts with `ts-jest`
     '^.+\\.tsx?$': [
       'ts-jest',
       {
         diagnostics: false,
+        tsconfig: 'tsconfig.test.json'
       },
     ],
   },

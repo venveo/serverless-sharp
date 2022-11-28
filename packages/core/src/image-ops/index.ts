@@ -14,11 +14,10 @@ const operationsByCategory: { [category: string]: ((imagePipeline: sharp.Sharp, 
 
 /**
  * Applies all supported image operations to the supplied image
- * @param editsPipeline
- * @param edits
- * @return {Promise<void>}
+ * @param editsPipeline - input Sharp pipeline
+ * @param edits - edits object
  */
-export async function apply(editsPipeline: sharp.Sharp, edits: ParsedEdits) {
+export async function apply(editsPipeline: sharp.Sharp, edits: ParsedEdits): Promise<sharp.Sharp> {
   // @see https://docs.imgix.com/setup/serving-assets#order-of-operations
   const editsByCategory: { [category: string]: { [edit: string]: ParsedSchemaItem } } = {
     adjustment: {},
@@ -45,8 +44,8 @@ export async function apply(editsPipeline: sharp.Sharp, edits: ParsedEdits) {
 
 /**
  * Scales down an image to a maximum dimensional size
- * @param editsPipeline
- * @param metadata
+ * @param editsPipeline - input Sharp pipeline
+ * @param metadata - resolved sharp metadata
  */
 export function restrictSize(editsPipeline: sharp.Sharp, metadata: sharp.Metadata): Sharp {
   const maxImgWidth: number = <number>getSetting('MAX_IMAGE_WIDTH')

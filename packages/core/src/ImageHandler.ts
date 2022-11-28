@@ -95,7 +95,7 @@ export default class ImageHandler {
    * TODO: Move me out of here
    */
   applyOptimizations(editsPipeline: Sharp): void {
-    const edits = <ParsedEdits>this.request?.edits ?? {}
+    const edits: ParsedEdits = <ParsedEdits>this.request?.edits ?? <ParsedEdits>{}
     const autoVals = edits.auto.processedValue ?? []
 
     // Determine our quality - if it was implicitly determined, we'll use the environment setting rather than the
