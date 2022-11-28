@@ -42,7 +42,7 @@
     "targets": {
       "build": {
         "outputs": [
-          "{projectRoot}/dist"
+          "{projectRoot}/lib"
         ]
       }
     }
