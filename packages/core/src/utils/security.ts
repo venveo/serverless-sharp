@@ -22,7 +22,7 @@ export function calculateHash(path: string, queryStringParameters: QueryStringPa
  * RFC 3986 encodeURIComponent
  */
 function fixedEncodeURIComponent(str: string): string {
-  return str.replace(/([^\w\-\/\:@])/gi, function (match) {
+  return str.replace(/([^\w\-/:@])/gi, function (match) {
     return encodeURIComponent(match)
       .replace(/!/g, '%21')
       .replace(/'/g, '%27')
