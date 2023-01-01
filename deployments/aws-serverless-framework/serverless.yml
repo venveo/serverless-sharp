@@ -27,8 +27,8 @@ layers:
     path: ../../lambdaLayers/SharpLayer
     name: ${self:provider.stage}-sharp
     package:
-      artifact: ../../lambdaLayers/SharpLayer/out/sharp-0.31.2-aws-lambda-linux-x64-node-18.zip
-    description: sharp@0.31.2
+      artifact: ../../lambdaLayers/SharpLayer/out/sharp-0.31.3-aws-lambda-linux-x64-node-18.zip
+    description: sharp@0.31.3
     compatibleRuntimes:
       - nodejs18.x
     licenseInfo: Apache License 2.0
