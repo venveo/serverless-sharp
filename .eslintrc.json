@@ -13,7 +13,8 @@
   ],
   "plugins": [
     "@typescript-eslint",
-    "eslint-plugin-tsdoc"
+    "eslint-plugin-tsdoc",
+    "eslint-plugin-neverthrow"
   ],
   "overrides": [
     {
