@@ -1,21 +1,34 @@
 import { ImageExtension } from '../types/common';
 
+const mimeMap = new Map<string, string>([
+  ['jpeg', 'image/jpeg'],
+  ['jpg', 'image/jpeg'],
+  ['avif', 'image/avif'],
+  ['png', 'image/png'],
+  ['webp', 'image/webp'],
+  ['gif', 'image/gif'],
+  ['pdf', 'application/pdf'],
+  ['tiff', 'image/tiff'],
+  ['svg', 'image/svg+xml'],
+  ['heif', 'image/heic']
+]);
+
 /**
  * Normalizes an input extension, setting a preference for capitalization & extension aliases (e.g. jpg vs jpeg)
  * @param extension - the extension (without a period)
  */
-export function normalizeExtension(extension: string): ImageExtension {
+export function normalizeExtension(extension: string): ImageExtension | string {
   extension = extension.toLowerCase();
-  if (extension === ImageExtension.JPEG) {
+  switch (extension) {
+  case ImageExtension.JPEG:
     return ImageExtension.JPG;
-  }
-  if (extension === ImageExtension.TIF) {
+  case ImageExtension.TIF:
     return ImageExtension.TIFF;
-  }
-  if (extension === ImageExtension.HEIC) {
+  case ImageExtension.HEIC:
     return ImageExtension.HEIF;
+  default:
+    return extension;
   }
-  return <ImageExtension>extension;
 }
 
 /**
@@ -24,18 +37,5 @@ export function normalizeExtension(extension: string): ImageExtension {
  */
 export function getMimeTypeForExtension(extension: string): string | null {
   extension = normalizeExtension(extension);
-  const mimeMap: { [extension: string]: string } = {
-    jpeg: 'image/jpeg',
-    jpg: 'image/jpeg',
-    avif: 'image/avif',
-    png: 'image/png',
-    webp: 'image/webp',
-    gif: 'image/gif',
-    pdf: 'application/pdf',
-    tiff: 'image/tiff',
-    svg: 'image/svg+xml',
-    heif: 'image/heic'
-  };
-
-  return mimeMap[extension] ?? null;
+  return mimeMap.get(extension) ?? null;
 }
