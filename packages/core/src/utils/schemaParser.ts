@@ -18,35 +18,36 @@ const schema: Imgix = require('../../../../data/schema.json')
 export function replaceAliases(queryParameters: QueryStringParameters = {}): QueryStringParameters {
   const aliases = schema.aliases
   // Make a copy of the original query parameters
-  const noAliasQueryParams = Object.assign({}, queryParameters)
+  const noAliasQueryParams = { ...queryParameters }
   // Iterate over aliases
-  Object.keys(aliases).forEach((alias) => {
+  for (const [alias, canonical] of Object.entries(aliases)) {
     // If the alias is used...
-    if (noAliasQueryParams[alias] !== undefined) {
+    if (alias in noAliasQueryParams) {
       // Set the canonical name for the alias as the alias' value
       // NOTE: This means an alias takes precedence over the canonical. Do we want that? idk.
-      noAliasQueryParams[aliases[alias]] = noAliasQueryParams[alias]
+      noAliasQueryParams[canonical] = noAliasQueryParams[alias]
       // Delete the alias key
       delete noAliasQueryParams[alias]
     }
-  })
+  }
   return noAliasQueryParams
 }
 
 /**
  * Gets all the valid schema parameters from an object, indexed by the parameter name (e.g. "w")
- * @param queryParameters - input query paremters object
+ * @param queryParameters - input query parameters object
  */
 export function getSchemaForQueryParams(queryParameters: QueryStringParameters = {}): ParameterTypesSchema {
   const params = schema.parameters
   const result: ParameterTypesSchema = {}
 
-  Object.keys(queryParameters).forEach((qp: string) => {
+
+  for (const qp in queryParameters) {
     // Note: we're skipping over query params without a value - we'll assume these just use default values.
     if (queryParameters[qp] && params[qp] !== undefined) {
       result[qp] = params[qp]
     }
-  })
+  }
   return result
 }
 
