@@ -4,15 +4,12 @@ export type ParsedSchemaItem<T = ProcessedInputValueType> = {
   passed: boolean,
   processedValue: T,
   implicit: boolean,
-  parameterDefinition: ParameterDefinition,
-  // If there's an error message for this particular schema item, it will be stored here
-  message?: string | null
+  parameterDefinition: ParameterDefinition
 }
 
 export type ProcessedInputValueDetails = {
   passed: boolean,
-  processedValue: ProcessedInputValueType,
-  message: string | null
+  processedValue: ProcessedInputValueType
 }
 
 export interface ParsedSchemaExpectation extends ProcessedInputValueDetails {
