@@ -1,10 +1,10 @@
-import {AutoMode, CropMode, FillMode, ParameterType, ResizeFitMode} from "./imgix";
+import {AutoMode, CropMode, FillMode, ParameterDefinition, ResizeFitMode} from "./imgix";
 
 export type ParsedSchemaItem<T = ProcessedInputValueType> = {
   passed: boolean,
   processedValue: T,
   implicit: boolean,
-  schema: ParameterType,
+  parameterDefinition: ParameterDefinition,
   // If there's an error message for this particular schema item, it will be stored here
   message?: string | null
 }
@@ -114,7 +114,7 @@ export interface GenericHeaders {
   [header: string]: boolean | number | string;
 }
 
-export type ParameterTypesSchema = { [key: string]: ParameterType }
+export type ParameterTypesSchema = { [key: string]: ParameterDefinition }
 
 export enum ImageExtension {
   JPG = 'jpg',

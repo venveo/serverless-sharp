@@ -25,10 +25,10 @@ export async function apply(editsPipeline: sharp.Sharp, edits: ParsedEdits): Pro
     stylize: {},
   }
   for (const edit in edits) {
-    if (editsByCategory[edits[edit].schema.category] === undefined) {
-      editsByCategory[edits[edit].schema.category] = {}
+    if (editsByCategory[edits[edit].parameterDefinition.category] === undefined) {
+      editsByCategory[edits[edit].parameterDefinition.category] = {}
     }
-    editsByCategory[edits[edit].schema.category][edit] = edits[edit]
+    editsByCategory[edits[edit].parameterDefinition.category][edit] = edits[edit]
   }
 
   for (const category in editsByCategory) {

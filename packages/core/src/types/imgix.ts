@@ -7,15 +7,27 @@ export interface Imgix {
     readonly version:            string;
 }
 
-export interface ParameterType {
+/**
+ * The format that parameters from the Imgix schema are defined
+ */
+export interface ParameterDefinition {
+    /** An optional default value */
     default?:          boolean | number | string;
+    /** Some parameters have aliases (e.g. width and "w") */
     aliases?:          string[];
+    /** Defines where a parameter may be supplied. We don't use this. */
     available_in:      AvailableIn[];
+    /** Defines the operation category */
     category:          Category;
+    /** Parameters required by this parameter */
     depends?:          string[];
+    /** A human-readable name */
     display_name:      string;
-    expects:           ExpectedValueDefinition[];
+    /** Rules for the value supplied to this parameter */
+    expects:           ParameterValueRule[];
+    /** Human readable description */
     short_description: string;
+    /** A reference URL. We don't use this */
     url?:               string;
 }
 
@@ -88,7 +100,7 @@ export interface ExpectedValueDefinition {
 }
 
 export interface Parameters {
-    [index: string]:       ParameterType;
+    // [index: string]:       ParameterDefinition;
     ar:                    Ar;
     auto:                  Auto;
     bg:                    Bg;
@@ -221,7 +233,7 @@ export interface Parameters {
     w:                     BlendAlpha;
 }
 
-export interface Ar extends ParameterType {
+export interface Ar extends ParameterDefinition {
     expects:           The2_Element[];
 }
 
@@ -231,7 +243,7 @@ export enum AvailableIn {
     URL = "url",
 }
 
-export interface The2_Element extends ExpectedValueDefinition {
+export interface The2_Element extends ParameterValueRule {
     strict_range: MinimumNumberRange;
     type:         ExpectedValueType.Ratio | ExpectedValueType.Integer;
 }
@@ -266,7 +278,7 @@ export enum ExpectedValueType {
     Timestamp = "timestamp"
 }
 
-export interface Auto extends ParameterType {
+export interface Auto extends ParameterDefinition {
     default?:          string;
     expects:           AutoExpect[];
 }
@@ -277,7 +289,7 @@ export interface AutoExpect extends ExpectedValueDefinition {
     type:             ExpectedValueType.List | ExpectedValueType.Path | ExpectedValueType.String | ExpectedValueType.URL;
 }
 
-export interface Bg extends ParameterType {
+export interface Bg extends ParameterDefinition {
     default?:          boolean | number | string;
     expects:           StringExpectation[];
 }
@@ -286,7 +298,7 @@ export interface StringExpectation extends ExpectedValueDefinition{
     type: ExpectedValueType.String;
 }
 
-export interface BlendAlpha extends ParameterType {
+export interface BlendAlpha extends ParameterDefinition {
     default?:          number;
     expects:           BlendAlphaExpect[];
 }
@@ -301,7 +313,7 @@ export interface MinMaxRange {
     min:  number;
 }
 
-export interface BlendPad extends ParameterType {
+export interface BlendPad extends ParameterDefinition {
     default?:          number;
     expects:           BlendPadExpect[];
 }
@@ -311,7 +323,7 @@ export interface BlendPadExpect extends ExpectedValueDefinition {
     type:            ExpectedValueType.Integer | ExpectedValueType.Number;
 }
 
-export interface Blur extends ParameterType {
+export interface Blur extends ParameterDefinition {
     default?:          number;
     expects:           BlurExpect[];
 }
@@ -321,7 +333,7 @@ export interface BlurExpect extends ExpectedValueDefinition {
     type:            ExpectedValueType.Integer | ExpectedValueType.Number;
 }
 
-export interface Border extends ParameterType {
+export interface Border extends ParameterDefinition {
     expects:           BorderExpect[];
 }
 
@@ -332,7 +344,7 @@ export interface BorderExpect extends ExpectedValueDefinition {
     type:   ExpectedValueType.List | ExpectedValueType.Path | ExpectedValueType.String | ExpectedValueType.URL;
 }
 
-export interface BorderRadius extends ParameterType {
+export interface BorderRadius extends ParameterDefinition {
     expects:           BorderRadiusExpect[];
 }
 
@@ -346,7 +358,7 @@ export interface BorderRadiusExpect extends ExpectedValueDefinition {
     type:          ExpectedValueType.String;
 }
 
-export interface Chromasub extends ParameterType {
+export interface Chromasub extends ParameterDefinition {
     default?:          number;
     expects:           ChromasubExpect[];
 }
@@ -356,11 +368,11 @@ export interface ChromasubExpect extends ExpectedValueDefinition {
     type:            ExpectedValueType.Ratio | ExpectedValueType.Integer;
 }
 
-export interface DPI extends ParameterType {
+export interface DPI extends ParameterDefinition {
     expects:           BlendPadExpect[];
 }
 
-export interface Dpr extends ParameterType {
+export interface Dpr extends ParameterDefinition {
     default:           number;
     expects:           DprExpect[];
 }
@@ -372,7 +384,7 @@ export interface DprExpect extends ExpectedValueDefinition {
     type:            ExpectedValueType.Integer | ExpectedValueType.Number;
 }
 
-export interface Duotone extends ParameterType {
+export interface Duotone extends ParameterDefinition {
     expects:           DuotoneExpect[];
 }
 
@@ -384,7 +396,7 @@ export interface DuotoneExpect extends ExpectedValueDefinition {
     type:     ExpectedValueType.List | ExpectedValueType.Path | ExpectedValueType.String | ExpectedValueType.URL;
 }
 
-export interface FP extends ParameterType {
+export interface FP extends ParameterDefinition {
     expects:           FPXExpect[];
 }
 
@@ -394,15 +406,15 @@ export interface FPXExpect extends ExpectedValueDefinition {
     type:         ExpectedValueType.Integer | ExpectedValueType.UnitScalar;
 }
 
-export interface Fpz extends ParameterType {
+export interface Fpz extends ParameterDefinition {
     expects:           DprExpect[];
 }
 
-export interface GridColors extends ParameterType {
+export interface GridColors extends ParameterDefinition {
     expects:           DuotoneExpect[];
 }
 
-export interface GridSize extends ParameterType {
+export interface GridSize extends ParameterDefinition {
     expects:           GridSizeExpect[];
 }
 
@@ -412,11 +424,11 @@ export interface GridSizeExpect extends ExpectedValueDefinition {
     type:         ExpectedValueType.Ratio | ExpectedValueType.Integer;
 }
 
-export interface Mask extends ParameterType {
+export interface Mask extends ParameterDefinition {
     expects:           AutoExpect[];
 }
 
-export interface PadBottom extends ParameterType {
+export interface PadBottom extends ParameterDefinition {
     expects:           PadBottomExpect[];
 }
 
@@ -426,7 +438,7 @@ export interface PadBottomExpect extends ExpectedValueDefinition {
     type:            ExpectedValueType.Ratio | ExpectedValueType.Integer;
 }
 
-export interface Rect extends ParameterType {
+export interface Rect extends ParameterDefinition {
     expects:           RectExpect[];
 }
 
