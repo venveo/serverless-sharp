@@ -4,7 +4,7 @@ import {
   ParsedSchemaExpectation,
   ParsedEdits, UnparsedEdits
 } from "../types/common";
-import {ExpectedValueDefinition, Imgix} from "../types/imgix";
+import { ParameterValueRule, Imgix } from '../types/imgix';
 import {processInputValue} from "./inputValueProcessor";
 import createHttpError from "http-errors";
 
@@ -38,14 +38,14 @@ export function replaceAliases(queryParameters: QueryStringParameters = {}): Que
  * @param queryParameters - input query parameters object
  */
 export function getSchemaForQueryParams(queryParameters: QueryStringParameters = {}): ParameterTypesSchema {
-  const params = schema.parameters
+  const allValidParameters = schema.parameters
   const result: ParameterTypesSchema = {}
 
 
   for (const qp in queryParameters) {
     // Note: we're skipping over query params without a value - we'll assume these just use default values.
-    if (queryParameters[qp] && params[qp] !== undefined) {
-      result[qp] = params[qp]
+    if (queryParameters[qp] && allValidParameters[qp] !== undefined) {
+      result[qp] = allValidParameters[qp]
     }
   }
   return result
@@ -83,7 +83,7 @@ export function normalizeAndValidateSchema(schema: ParameterTypesSchema, values:
     // Check the expectations for each item. Note, each item can have multiple valid expectations; however, only a
     // single valid option is required in order to pass.
     if (valueExpectations !== undefined) {
-      let passedExpectation: ExpectedValueDefinition | null = null
+      let passedExpectation: ParameterValueRule | null = null
       let passedExpectationResult: ParsedSchemaExpectation | null = null
       // Evaluate each of the expectations until we get a passing result.
       for (const expectation of valueExpectations) {
@@ -136,7 +136,7 @@ export function processDefaults(expectationValues: UnparsedEdits): ParsedEdits {
         processedValue: parameterSchema.default,
         passed: true,
         implicit: true,
-        schema: parameterSchema,
+        parameterDefinition: parameterSchema,
       }
       // Apparently, expectations can have defaults as well?? (See fp-x) We'll handle that here
     } else if (parameterSchema.expects !== undefined) {
@@ -146,7 +146,7 @@ export function processDefaults(expectationValues: UnparsedEdits): ParsedEdits {
             processedValue: expectation.default,
             passed: true,
             implicit: true,
-            schema: parameterSchema,
+            parameterDefinition: parameterSchema,
           }
           break;
         }
@@ -157,7 +157,7 @@ export function processDefaults(expectationValues: UnparsedEdits): ParsedEdits {
           processedValue: undefined,
           passed: true,
           implicit: true,
-          schema: parameterSchema,
+          parameterDefinition: parameterSchema,
         }
       }
     } else {
@@ -166,7 +166,7 @@ export function processDefaults(expectationValues: UnparsedEdits): ParsedEdits {
         processedValue: undefined,
         passed: true,
         implicit: true,
-        schema: parameterSchema,
+        parameterDefinition: parameterSchema,
       }
     }
   }

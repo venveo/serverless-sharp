@@ -1,18 +1,21 @@
-import {ExpectedValueDefinition, ExpectedValueType, Imgix} from "../types/imgix";
-import {ProcessedInputValueDetails} from "../types/common";
+import { ParameterValueRule, ExpectedValueType, Imgix, ParameterValueRulePossibleValueTypes } from '../types/imgix';
+import { err, ok, Result } from 'neverthrow';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const schema: Imgix = require('../../../../data/schema.json')
-type ValueProcessorTypeMap = Record<ExpectedValueType, CallableFunction>
+const schema: Imgix = require('../../../../data/schema.json');
+
+type ValidResponseType = string | number | Array<string | number> | boolean
+type ValueProcessorResult = Result<ValidResponseType, string>
+type ValueProcessorSignature = (value: string, expects?: ParameterValueRule | null) => ValueProcessorResult
 
 /**
  *
  * @param type - expected value type to validate against
  * @param value - input value from query params
- * @param expects - ExpectedValueDefinition
+ * @param expects - ParameterValueRule
  */
-export function processInputValue(type: ExpectedValueType, value: string, expects: ExpectedValueDefinition | null = null): ProcessedInputValueDetails {
-  const processorMap: ValueProcessorTypeMap = {
+export function processInputValue(type: ExpectedValueType, value: string, expects: ParameterValueRule | null = null): ValueProcessorResult {
+  const processorMap: Record<ExpectedValueType, ValueProcessorSignature> = {
     [ExpectedValueType.String]: processString,
     [ExpectedValueType.List]: processList,
     [ExpectedValueType.Boolean]: processBoolean,
@@ -25,262 +28,148 @@ export function processInputValue(type: ExpectedValueType, value: string, expect
     [ExpectedValueType.Path]: processPath,
     [ExpectedValueType.Font]: processFont,
     [ExpectedValueType.HexColor]: processHexColor,
-    [ExpectedValueType.ColorKeyword]: processColorKeyword,
-  }
+    [ExpectedValueType.ColorKeyword]: processColorKeyword
+  };
 
-  return processorMap[type](value, expects)
+  return processorMap[type](value, expects);
 }
 
-export function processString(value: string): ProcessedInputValueDetails {
-  return {
-    processedValue: value,
-    passed: value.length > 0,
-    message: !value.length ? 'String value was empty' : null
+export function processString(value: string): Result<string, string> {
+  if (!value.length) {
+    return err('String value was empty');
   }
+  return ok(value);
 }
 
-export function processList(value: string, expects: ExpectedValueDefinition | null = null): ProcessedInputValueDetails {
-  const result: ProcessedInputValueDetails = {
-    passed: false,
-    message: null,
-    processedValue: undefined
-  }
-
-  const items = value.split(',')
+export function processList(value: string, expects: ParameterValueRule | null = null): Result<Array<ParameterValueRulePossibleValueTypes>, string> {
+  const items = value.split(',');
   if (!items.length) {
-    result.message = 'At least one item expected'
-    return result
+    return err('At least one item is expected');
   }
   if (expects && expects.possible_values !== undefined) {
-    const difference = items.filter(x => !(expects.possible_values as Array<string | number>).includes(x))
+    const difference = items.filter(x => !(expects.possible_values as Array<ParameterValueRulePossibleValueTypes>).includes(x));
     if (difference.length > 0) {
       // Unexpected value encountered
-      result.message = 'Invalid value encountered. Expected one of: ' + expects.possible_values.join(',')
-      return result
+      const message = 'Invalid value encountered. Expected one of: ' + expects.possible_values.join(',');
+      return err(message);
     }
   }
-  result.processedValue = items
-  result.passed = true
-  return result
+  return ok(items);
 }
 
-export function processBoolean(value: string): ProcessedInputValueDetails {
-  const result: ProcessedInputValueDetails = {
-    passed: false,
-    message: null,
-    processedValue: undefined
+export function processBoolean(value: string): Result<boolean, string> {
+  if (value === 'true' || value === '1' || value === 'yes') {
+    return ok(true);
+  } else if (value === 'false' || value === '0' || value === 'no') {
+    return ok(false);
   }
-
-  if (value === 'true' || value === '1') {
-    result.passed = true
-    result.processedValue = true
-  } else if (value === 'false' || value === '0') {
-    result.passed = true
-    result.processedValue = false
-  } else {
-    result.message = 'Expected a boolean-like value'
-  }
-  return result
+  return err('Expected a boolean-like value');
 }
 
-export function processRatio(value: string): ProcessedInputValueDetails {
-  const result: ProcessedInputValueDetails = {
-    passed: false,
-    message: null,
-    processedValue: undefined
-  }
-  const match = value.match(/([0-9]*[.]?[0-9]+):+(([0-9]*[.])?[0-9]+)$/)
+export function processRatio(value: string): Result<number, string> {
+  const match = value.match(/([0-9]*[.]?[0-9]+):+(([0-9]*[.])?[0-9]+)$/);
   if (!match || match.length < 3) {
-    result.message = 'Expected ratio format: 1.0:1.0'
-    return result
+    return err('Expected ratio format: 1.0:1.0');
   }
-  if (parseFloat(match[1]) === 0) {
-    result.message = 'Cannot divide by zero'
-    return result
+  if (parseFloat(match[2]) === 0) {
+    return err('Cannot divide by zero');
   }
-  // For example: 16:9 = 9/16 = .5625
-  result.processedValue = parseFloat(match[2]) / parseFloat(match[1])
-  result.passed = true
-
-  return result
+  // For example: 16:9 = 16/9 = 1.777777777777778
+  return ok(parseFloat(match[1]) / parseFloat(match[2]));
 }
 
-export function processInteger(value: string, expects: ExpectedValueDefinition | null = null): ProcessedInputValueDetails {
-  const result: ProcessedInputValueDetails = {
-    passed: false,
-    message: null,
-    processedValue: undefined
-  }
+export function processInteger(value: string, expects: ParameterValueRule | null = null): Result<number, string> {
 
-  const valueAsInt = parseInt(value)
+  const valueAsInt = parseInt(value);
   if (isNaN(valueAsInt)) {
-    result.message = 'NaN'
-    return result
+    return err('Not a number');
   }
-  result.processedValue = valueAsInt
 
   if (expects && expects.strict_range !== undefined) {
     if (expects.strict_range.max !== undefined && valueAsInt > expects.strict_range.max) {
-      result.message = 'Value out of range (too large)'
-      return result
+      return err('Value out of range (too large)');
     }
     if (expects.strict_range.min !== undefined && valueAsInt < expects.strict_range.min) {
-      result.message = 'Value out of range (too small)'
-      return result
+      return err('Value out of range (too small)');
     }
   } else if (expects && expects.possible_values !== undefined) {
-    if (!expects.possible_values.includes(value)) {
-      result.message = 'Invalid value encountered. Expected one of: ' + expects.possible_values.join(',')
-      return result
+    if (!expects.possible_values.includes(valueAsInt)) {
+      const message = 'Invalid value encountered. Expected one of: ' + expects.possible_values.join(',');
+      return err(message);
     }
   }
-  result.passed = true
-
-  return result
+  return ok(valueAsInt);
 }
 
-export function processNumber(value: string, expects: ExpectedValueDefinition | null = null): ProcessedInputValueDetails {
-  const result: ProcessedInputValueDetails = {
-    passed: false,
-    message: null,
-    processedValue: undefined
-  }
+export function processNumber(value: string, expects: ParameterValueRule | null = null): Result<number, string> {
   let valueAsFloat = parseFloat(value);
   if (isNaN(valueAsFloat)) {
-    result.message = 'NaN'
-    return result
+    return err('Not a number');
   }
   // Clamp the value between any defined min and max
   if (expects && expects.strict_range !== undefined) {
     if (expects.strict_range.min !== undefined && valueAsFloat < expects.strict_range.min) {
-      valueAsFloat = expects.strict_range.min
+      valueAsFloat = expects.strict_range.min;
     } else if (expects.strict_range.max && valueAsFloat > expects.strict_range.max) {
-      valueAsFloat = expects.strict_range.max
+      valueAsFloat = expects.strict_range.max;
     }
   }
-  result.processedValue = valueAsFloat
-  result.passed = true
 
-  return result
+  return ok(valueAsFloat);
 }
 
-export function processUnitScalar(value: string, expects: ExpectedValueDefinition | null = null): ProcessedInputValueDetails {
-  const result: ProcessedInputValueDetails = {
-    passed: false,
-    message: null,
-    processedValue: undefined
-  }
-
-  const valueAsFloat = parseFloat(value)
+export function processUnitScalar(value: string, expects: ParameterValueRule | null = null): Result<number, string> {
+  const valueAsFloat = parseFloat(value);
   if (isNaN(valueAsFloat)) {
-    result.message = 'NaN'
-    return result
+    return err('Not a number');
   }
-  result.processedValue = valueAsFloat
   if (expects && expects.strict_range !== undefined) {
     if (expects.strict_range.min !== undefined && valueAsFloat < expects.strict_range.min) {
-      result.message = 'Value out of range'
-      return result
+      return err('Value out of range (too small)');
     }
     if (expects.strict_range.max !== undefined && valueAsFloat > expects.strict_range.max) {
-      result.message = 'Value out of range'
-      return result
+      return err('Value out of range (too big)');
     }
   }
-  result.passed = true
-
-  return result
+  return ok(valueAsFloat);
 }
 
-export function processTimestamp(value: string): ProcessedInputValueDetails {
-  const result: ProcessedInputValueDetails = {
-    passed: false,
-    message: null,
-    processedValue: undefined
+export function processTimestamp(value: string): Result<number, string> {
+  const valueAsTimestamp = (new Date(value)).getTime();
+  if (!(valueAsTimestamp > 0)) {
+    return err('Expected valid unix timestamp');
   }
-
-  if (!((new Date(value)).getTime() > 0)) {
-    result.message = 'Expected valid unix timestamp'
-    return result
-  }
-  result.processedValue = value
-  result.passed = true
-
-  return result
+  return ok(valueAsTimestamp);
 }
 
-export function processUrl(value: string): ProcessedInputValueDetails {
-  const result: ProcessedInputValueDetails = {
-    passed: false,
-    message: null,
-    processedValue: undefined
-  }
-
+export function processUrl(value: string): Result<string, string> {
   if (!value.match(/^(http|https):\/\/[^ "]+$/)) {
-    result.message = 'Expected valid URL'
-    return result
+    return err('Expected valid URL');
   }
-  result.processedValue = value
-  result.passed = true
-  return result
+  return ok(value);
 }
 
-export function processPath(value: string): ProcessedInputValueDetails {
-  const result: ProcessedInputValueDetails = {
-    passed: false,
-    message: null,
-    processedValue: undefined
-  }
+export function processPath(value: string): Result<string, string> {
+
   // TODO: How can we verify a valid path, and what is it even used for?
-  result.processedValue = value
-  result.passed = true
-
-  return result
+  return ok(value);
 }
 
-export function processFont(value: string): ProcessedInputValueDetails {
-  const result: ProcessedInputValueDetails = {
-    passed: false,
-    message: null,
-    processedValue: undefined
-  }
+export function processFont(value: string): Result<string, string> {
   // TODO: Check our list of valid fonts.
-  result.processedValue = value
-  result.passed = true
-
-  return result
+  return ok(value);
 }
 
-export function processHexColor(value: string): ProcessedInputValueDetails {
-  const result: ProcessedInputValueDetails = {
-    passed: false,
-    message: null,
-    processedValue: undefined
-  }
-
+export function processHexColor(value: string): Result<string, string> {
   if (!value.match(/^(?:[0-9a-fA-F]{4}){1,2}|(?:[0-9a-fA-F]{3}){1,2}$/)) {
-    result.message = 'Expected hex color code like: fff'
-    return result
+    return err('Expected hex color code like: fff');
   }
-  result.passed = true
-  result.processedValue = '#' + value
-
-  return result
+  return ok('#' + value);
 }
 
-export function processColorKeyword(value: string): ProcessedInputValueDetails {
-  const result: ProcessedInputValueDetails = {
-    passed: false,
-    message: null,
-    processedValue: undefined
-  }
-
+export function processColorKeyword(value: string): Result<string, string> {
   if (!schema.colorKeywordValues.includes(value)) {
-    result.message = 'Expected valid color name'
-    return result
+    return err('Expected valid color name');
   }
-
-  result.passed = true
-  result.processedValue = value
-  return result
+  return ok(value);
 }
