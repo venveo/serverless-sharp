@@ -1,22 +1,36 @@
 /* eslint-env jest */
 import * as schemaParser from './schemaParser'
+describe('replaceAliases', () => {
+  it('should not break invalid parameters', () => {
+    const replaced = schemaParser.replaceAliases({
+      f: 'asdf',
+      m: 'asdff',
+      'no-touch': 'foo',
+      fit: 'hello' // This will get over-written
+    })
 
-test('replaceAliases - compare objects', () => {
-  const replaced = schemaParser.replaceAliases({
-    f: 'asdf',
-    m: 'asdff',
-    'no-touch': 'foo',
-    fit: 'hello' // This will get over-written
-  })
-
-  expect(replaced).toMatchObject({
-    fit: 'asdf',
-    mark: 'asdff',
-    'no-touch': 'foo'
+    expect(replaced).toMatchObject({
+      fit: 'asdf',
+      mark: 'asdff',
+      'no-touch': 'foo'
+    })
   })
 })
 
-describe('Tests for schema validation', () => {
+describe('getSchemaForQueryParams', () => {
+  it('should return only valid parameter definitions', () => {
+    const properties = schemaParser.getSchemaForQueryParams({
+      fm: 'jpg',
+      w: '1920',
+      foo: 'invalid'
+    })
+    expect(Object.keys(properties)).toEqual(["fm", "w"]);
+    expect(properties.fm.display_name).toEqual("output format");
+    expect(properties.w.display_name).toEqual("image width");
+  })
+})
+
+describe('normalizeAndValidateSchema', () => {
   test('Invalid combination: png & q', () => {
     const request = {
       fm: 'png',
@@ -97,7 +111,7 @@ describe('Tests for schema validation', () => {
   })
 
   test('Null value normalization', () => {
-    // This is to handle a url like this: image.jpg?sharp
+    // This is to handle urls like this: image.jpg?sharp
     // Should use default value if one exists
     const request = {
       sharp: ''
