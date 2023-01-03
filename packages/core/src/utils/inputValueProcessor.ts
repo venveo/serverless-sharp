@@ -143,6 +143,8 @@ export function processTimestamp(value: string): Result<number, string> {
 }
 
 export function processUrl(value: string): Result<string, string> {
+  // We don't support any URL based operations yet
+  console.warn('Unexpected call to processUrl')
   if (!value.match(/^(http|https):\/\/[^ "]+$/)) {
     return err('Expected valid URL');
   }
@@ -150,13 +152,16 @@ export function processUrl(value: string): Result<string, string> {
 }
 
 export function processPath(value: string): Result<string, string> {
-
-  // TODO: How can we verify a valid path, and what is it even used for?
+  console.warn('Unexpected call to processPath')
+  // How can we verify a valid path, and what is it even used for?
+  // We don't support any path operations yet
   return ok(value);
 }
 
 export function processFont(value: string): Result<string, string> {
-  // TODO: Check our list of valid fonts.
+  console.warn('Unexpected call to processFont')
+  // We don't support any text operations yet.
+  // @see https://sharp.pixelplumbing.com/install#fonts
   return ok(value);
 }
 
