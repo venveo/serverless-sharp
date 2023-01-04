@@ -9,7 +9,6 @@ type ValueProcessorSignature = (value: string, expects?: ParameterValueRule | nu
 
 /**
  *
- * @param type - expected value type to validate against
  * @param value - input value from query params
  * @param expects - ParameterValueRule
  */
