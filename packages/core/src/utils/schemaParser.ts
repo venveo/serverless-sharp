@@ -76,7 +76,7 @@ type ParameterDependencies = Map<string, string[]>;
  * @param values - query parameters object to validate
  * @param referenceParameters - input schema parameters
  */
-export function normalizeAndValidateSchema(inputSchema: ImgixParameters, values: QueryStringParameters = {}, referenceParameters: ImgixParameters): ParsedEdits {
+export function normalizeAndValidateSchema(inputSchema: ImgixParameters, values: QueryStringParameters = {}, referenceParameters: ImgixParameters): Result<ParsedEdits,string> {
   // Keeps a list of dependencies for each schema item
   const dependenciesByParameterIndex: ParameterDependencies = new Map<string, string[]>();
   let parsedEdits: EditsSubset = {};
@@ -107,8 +107,7 @@ export function normalizeAndValidateSchema(inputSchema: ImgixParameters, values:
       const passedExpectationResult = determineSuccessfulValue(values[parameterIndex], schemaItem);
       // There was no passing result - bail out!
       if (passedExpectationResult.isErr()) {
-        // TODO: Return an err instead
-        throw new createHttpError.BadRequest(`Expected parameter "${parameterIndex}" to satisfy one of: ${JSON.stringify(schemaItem.expects)}`);
+        return err(new createHttpError.BadRequest(`Expected parameter "${parameterIndex}" to satisfy one of: ${JSON.stringify(schemaItem.expects)}`))
       }
 
       parsedEdits[parameterIndex] = passedExpectationResult.value;
@@ -120,7 +119,7 @@ export function normalizeAndValidateSchema(inputSchema: ImgixParameters, values:
   // Go back and validate our dependencies now that we've looked at each item
   parsedEdits = processDependencies(dependenciesByParameterIndex, parsedEdits as ParsedEdits);
   // Now we'll merge the rest of the schema's defaults
-  return parsedEdits as ParsedEdits;
+  return ok(parsedEdits as ParsedEdits);
 }
 
 /**
@@ -185,6 +184,8 @@ export function processDependencies(dependencies: ParameterDependencies, origina
           dependenciesSatisfied = true
           break;
         }
+        // NOTE: I couldn't come up with a real-world case for this, but I'm too scared to remove it.
+        // Add a test case if you figure it out!
         if (Array.isArray(processedValue) && (processedValue as Array<string | number>).includes(val)) {
           dependenciesSatisfied = true
           break;

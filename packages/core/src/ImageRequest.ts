@@ -25,6 +25,7 @@ import {GetObjectCommand, GetObjectCommandInput, GetObjectCommandOutput, S3Clien
 import {Stream} from "stream";
 import {normalizeExtension} from "./utils/formats";
 import { schema } from './utils/schema';
+import createHttpError from 'http-errors';
 
 export default class ImageRequest {
   readonly bucketDetails: BucketDetails
@@ -67,8 +68,12 @@ export default class ImageRequest {
     // Extracts the relevant parameters from the schema.json file
     const schemaForQueryParams = getSchemaForQueryParams(queryParams)
 
-    this.edits = normalizeAndValidateSchema(schemaForQueryParams, queryParams, schema.parameters)
-
+    const editsResult = normalizeAndValidateSchema(schemaForQueryParams, queryParams, schema.parameters)
+    if (editsResult.isOk()) {
+      this.edits = editsResult.value
+    } else {
+      throw createHttpError.BadRequest(editsResult.error)
+    }
   }
 
   /**

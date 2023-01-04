@@ -50,7 +50,7 @@ describe('normalizeAndValidateSchema', () => {
       q: '75' // q can't be used with png - this should be dropped
     };
     const schema = getSchemaForQueryParams(request);
-    const normalizedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters);
+    const normalizedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters)._unsafeUnwrap();
 
     expect(normalizedSchema.fm.processedValue).toEqual('png');
     expect(normalizedSchema.fm.implicit).toEqual(false);
@@ -68,7 +68,7 @@ describe('normalizeAndValidateSchema', () => {
       fm: 'jpg'
     };
     const schema = getSchemaForQueryParams(request);
-    const validatedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters);
+    const validatedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters)._unsafeUnwrap();
 
     expect(validatedSchema.q.processedValue).toEqual(75);
     expect(validatedSchema.q.implicit).toEqual(false);
@@ -82,7 +82,7 @@ describe('normalizeAndValidateSchema', () => {
       'trim': 'auto',
     };
     const schema = getSchemaForQueryParams(request);
-    const validatedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters);
+    const validatedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters)._unsafeUnwrap();
 
     expect(validatedSchema['trim-pad'].processedValue).toEqual(100);
     expect(validatedSchema['trim'].processedValue).toEqual('auto');
@@ -93,7 +93,7 @@ describe('normalizeAndValidateSchema', () => {
       'trim-pad': '100',
     };
     const schema = getSchemaForQueryParams(request);
-    const validatedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters);
+    const validatedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters)._unsafeUnwrap();
 
     expect(validatedSchema['trim-pad'].processedValue).toBeUndefined();
   });
@@ -103,7 +103,7 @@ describe('normalizeAndValidateSchema', () => {
       lossless: ''
     };
     const schema = getSchemaForQueryParams(request);
-    const validatedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters);
+    const validatedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters)._unsafeUnwrap();
 
     expect(validatedSchema.lossless.processedValue).toEqual(false)
   });
@@ -116,7 +116,7 @@ describe('normalizeAndValidateSchema', () => {
       fit: 'crop',
       crop: 'focalpoint,top,left'
     };
-    const validatedSchema = normalizeAndValidateSchema(getSchemaForQueryParams(request), request, imgixSchema.parameters);
+    const validatedSchema = normalizeAndValidateSchema(getSchemaForQueryParams(request), request, imgixSchema.parameters)._unsafeUnwrap();
     expect(validatedSchema['fp-x'].processedValue).toEqual(0.5);
     expect(validatedSchema['fp-y'].processedValue).toEqual(0.5);
     expect(validatedSchema['fit'].processedValue).toEqual('crop');
@@ -135,58 +135,59 @@ describe('normalizeAndValidateSchema', () => {
     const request2: QueryStringParameters = {
       w: '500'
     }
-    // This should not be allowed
+    // This should simply be ignored
     const request3: QueryStringParameters = {
       w: 'foo'
     }
-    const validatedSchema1 = normalizeAndValidateSchema(getSchemaForQueryParams(request1), request1, imgixSchema.parameters)
-    const validatedSchema2 = normalizeAndValidateSchema(getSchemaForQueryParams(request2), request2, imgixSchema.parameters)
+
+    const validatedSchema1 = normalizeAndValidateSchema(getSchemaForQueryParams(request1), request1, imgixSchema.parameters)._unsafeUnwrap();
+    const validatedSchema2 = normalizeAndValidateSchema(getSchemaForQueryParams(request2), request2, imgixSchema.parameters)._unsafeUnwrap();
+    const validatedSchema3 = normalizeAndValidateSchema(getSchemaForQueryParams(request3), request3, imgixSchema.parameters)._unsafeUnwrap();
     expect(validatedSchema1.w.processedValue).toEqual(0.5);
     expect(validatedSchema2.w.processedValue).toEqual(500);
-    expect(() => {
-      normalizeAndValidateSchema(getSchemaForQueryParams(request3), request3, imgixSchema.parameters)
-    }).toThrow();
+    expect(validatedSchema3.w.processedValue).toBeUndefined();
   });
 
-  test('Double mode -  int', () => {
-    const request = {
-      w: '100'
-    };
-    const schema = getSchemaForQueryParams(request);
-
-    expect(() => normalizeAndValidateSchema(schema, request, imgixSchema.parameters)).not.toThrow();
-  });
-
-  test('Max range normalization', () => {
+  it('should normalize values to clamped results (max)', () => {
     const request = {
       dpr: '100'
     };
     const schema = getSchemaForQueryParams(request);
-    const validatedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters);
+    const validatedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters)._unsafeUnwrap();
 
     expect(validatedSchema.dpr.processedValue).toEqual(5);
   });
 
-  test('Min range normalization', () => {
+  it('should normalize values to clamped results (min)', () => {
     const request = {
       dpr: '-1'
     };
     const schema = getSchemaForQueryParams(request);
-    const validatedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters);
+    const validatedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters)._unsafeUnwrap();
 
     expect(validatedSchema.dpr.processedValue).toEqual(0);
   });
 
-  test('Null value normalization', () => {
+  it('should normalize and accept valueless parameters', () => {
     // This is to handle urls like this: image.jpg?sharp
     // Should use default value if one exists
     const request = {
       sharp: ''
     };
     const schema = getSchemaForQueryParams(request);
-    const validatedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters);
+    const validatedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters)._unsafeUnwrap();
 
     expect(validatedSchema.sharp.processedValue).toEqual(0);
+  });
+
+  it('should ignore erroneous values', () => {
+    const request = {
+      w: '-100'
+    };
+    const schema = getSchemaForQueryParams(request);
+    const validatedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters)._unsafeUnwrap();
+
+    expect(validatedSchema.w.processedValue).toBeUndefined();
   });
 });
 
