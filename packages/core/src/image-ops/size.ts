@@ -128,7 +128,7 @@ export async function fill(pipeline: sharp.Sharp, mode: FillMode, width: InputDi
   }
 
   if (mode === FillMode.SOLID && color) {
-    resizeParams.background = normalizeColorForSharp(color)
+    resizeParams.background = normalizeColorForSharp(color) ?? undefined
     return pipeline.resize(resizeParams)
   }
   return pipeline
