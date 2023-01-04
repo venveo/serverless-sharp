@@ -1,15 +1,15 @@
 import {
   QueryStringParameters,
-  ParameterTypesSchema,
-  ParsedSchemaExpectation,
-  ParsedEdits, UnparsedEdits
-} from "../types/common";
-import { ParameterValueRule, Imgix } from '../types/imgix';
+  ParsedEdits, ParsedSchemaItem
+} from '../types/common';
+import { ImgixParameters, ParameterDefinition } from '../types/imgix';
 import {processInputValue} from "./inputValueProcessor";
 import createHttpError from "http-errors";
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const schema: Imgix = require('../../../../data/schema.json')
+import { err, ok, Result } from 'neverthrow';
+import { getSchema } from './schema';
+
+const schema = getSchema();
 
 /**
  * Creates a new QueryStringParameters object with any alias keys replaced with canonical parameters.
@@ -37,10 +37,9 @@ export function replaceAliases(queryParameters: QueryStringParameters = {}): Que
  * Gets all the valid schema parameters from an object, indexed by the parameter name (e.g. "w")
  * @param queryParameters - input query parameters object
  */
-export function getSchemaForQueryParams(queryParameters: QueryStringParameters = {}): ParameterTypesSchema {
+export function getSchemaForQueryParams(queryParameters: QueryStringParameters = {}): ImgixParameters {
   const allValidParameters = schema.parameters
-  const result: ParameterTypesSchema = {}
-
+  const result: ImgixParameters = {}
 
   for (const qp in queryParameters) {
     // Note: we're skipping over query params without a value - we'll assume these just use default values.
@@ -52,13 +51,33 @@ export function getSchemaForQueryParams(queryParameters: QueryStringParameters =
 }
 
 /**
- * @param schema - input schema to validate against
+ * Determine what rule, if any, can be applied to the input value.
+ * @param value - string input value
+ * @param schemaItem - schema we're validating against
+ */
+export function determineSuccessfulValue(value: string, schemaItem: ParameterDefinition): Result<ParsedSchemaItem,string> {
+  // Evaluate each of the expectations until we get a passing result.
+  for (const expectation of schemaItem.expects) {
+    const processedValue = processInputValue(value, expectation);
+    if (processedValue.isOk()) {
+      return ok({
+        parameterDefinition: schemaItem,
+        implicit: false,
+        processedValue: processedValue.value
+      });
+    }
+  }
+  return err('Value does not satisfy expectations.');
+}
+
+/**
+ * @param inputSchema - schema containing only the items needed
  * @param values - query parameters object to validate
  */
-export function normalizeAndValidateSchema(schema: ParameterTypesSchema, values: QueryStringParameters = {}): ParsedEdits {
+export function normalizeAndValidateSchema(inputSchema: ImgixParameters, values: QueryStringParameters = {}): ParsedEdits {
   // Keeps a list of dependencies for each schema item
-  const dependenciesByParameterIndex: { [key: string]: string[] } = {}
-  let expectationValues: UnparsedEdits | ParsedEdits = {}
+  const dependenciesByParameterIndex = new Map<string, string[]>();
+  let parsedEdits: ParsedEdits = {}
 
   /**
    * This process collects operation dependencies into dependenciesByParameterIndex for evaluation later. For example,
@@ -66,12 +85,12 @@ export function normalizeAndValidateSchema(schema: ParameterTypesSchema, values:
    * in the query string, as they can be set as a default. Later on, we'll use these dependencies to see if defaults
    * are necessary and valid.
    */
-  Object.keys(schema).forEach((parameterIndex) => {
-    const schemaItem = schema[parameterIndex]
+  Object.keys(inputSchema).forEach((parameterIndex) => {
+    const schemaItem = inputSchema[parameterIndex]
     const dependencies = schemaItem.depends
     // Keep track of dependencies we need to verify later
     if (dependencies !== undefined) {
-      dependenciesByParameterIndex[parameterIndex] = dependencies
+      dependenciesByParameterIndex.set(parameterIndex, dependencies)
     }
 
     /**
@@ -79,62 +98,47 @@ export function normalizeAndValidateSchema(schema: ParameterTypesSchema, values:
      * operations can expect lists of values or a number in a range. If at least one of these expectations isn't
      * satisfied, we need to throw an error.
      */
-    const valueExpectations = schemaItem.expects
+    const valueExpectations = schemaItem.expects ?? []
     // Check the expectations for each item. Note, each item can have multiple valid expectations; however, only a
     // single valid option is required in order to pass.
-    if (valueExpectations !== undefined) {
-      let passedExpectation: ParameterValueRule | null = null
-      let passedExpectationResult: ParsedSchemaExpectation | null = null
-      // Evaluate each of the expectations until we get a passing result.
-      for (const expectation of valueExpectations) {
-        const inputValueDetails = processInputValue(expectation.type, values[parameterIndex], expectation)
-        if (inputValueDetails.passed) {
-          passedExpectationResult = {...inputValueDetails, implicit: false}
-          passedExpectation = expectation
-          break;
-        }
-      }
+    if (valueExpectations.length) {
+      const passedExpectationResult = determineSuccessfulValue(values[parameterIndex], schemaItem)
       // There was no passing result - bail out!
-      if (!passedExpectation || !passedExpectationResult) {
-        throw new createHttpError.BadRequest(`Expected parameter "${parameterIndex}" to satisfy: ${JSON.stringify(schemaItem.expects)}`)
+      if (passedExpectationResult.isErr()) {
+        // TODO: Return an err instead
+        throw new createHttpError.BadRequest(`Expected parameter "${parameterIndex}" to satisfy one of: ${JSON.stringify(schemaItem.expects)}`)
       }
 
-      expectationValues[parameterIndex] = {
-        processedValue: passedExpectationResult.processedValue,
-        passed: passedExpectationResult.passed,
-        implicit: passedExpectationResult.implicit,
-        schema: schemaItem
-      }
+      parsedEdits[parameterIndex] = passedExpectationResult.value
     }
   })
 
   // Add in our default values
-  expectationValues = processDefaults(expectationValues)
+  parsedEdits = processDefaults(parsedEdits)
   // Go back and validate our dependencies now that we've looked at each item
-  expectationValues = processDependencies(dependenciesByParameterIndex, <ParsedEdits>expectationValues)
+  parsedEdits = processDependencies(dependenciesByParameterIndex, parsedEdits)
   // Now we'll merge the rest of the schema's defaults
-  return <ParsedEdits>expectationValues
+  return parsedEdits
 }
 
 /**
  * Propagates any available default values from the schema to our edits.
- * @param expectationValues - input UnparsedEdits object
+ * @param original - input UnparsedEdits object
  */
-export function processDefaults(expectationValues: UnparsedEdits): ParsedEdits {
+export function processDefaults(original: ParsedEdits): ParsedEdits {
+  const expectationValues: ParsedEdits = {... original}
   const fullSchemaParameters = schema.parameters
   // Iterate over each of the valid parameters from the full schema
-  for (const parameterKey of Object.keys(fullSchemaParameters)) {
+  for (const [parameterKey, parameterSchema] of Object.entries(fullSchemaParameters)) {
     // The parameter was already present in the input, so we can skip it.
     if (expectationValues[parameterKey] !== undefined) {
       continue;
     }
-    const parameterSchema = fullSchemaParameters[parameterKey];
 
     // Handle when a default value is available on a schema
     if (parameterSchema.default !== undefined) {
       expectationValues[parameterKey] = {
         processedValue: parameterSchema.default,
-        passed: true,
         implicit: true,
         parameterDefinition: parameterSchema,
       }
@@ -144,7 +148,6 @@ export function processDefaults(expectationValues: UnparsedEdits): ParsedEdits {
         if (expectation.default !== undefined) {
           expectationValues[parameterKey] = {
             processedValue: expectation.default,
-            passed: true,
             implicit: true,
             parameterDefinition: parameterSchema,
           }
@@ -155,7 +158,6 @@ export function processDefaults(expectationValues: UnparsedEdits): ParsedEdits {
       if (expectationValues[parameterKey] === undefined) {
         expectationValues[parameterKey] = {
           processedValue: undefined,
-          passed: true,
           implicit: true,
           parameterDefinition: parameterSchema,
         }
@@ -164,19 +166,18 @@ export function processDefaults(expectationValues: UnparsedEdits): ParsedEdits {
       // Otherwise, there's no value!
       expectationValues[parameterKey] = {
         processedValue: undefined,
-        passed: true,
         implicit: true,
         parameterDefinition: parameterSchema,
       }
     }
   }
-  return <ParsedEdits>expectationValues
+  return expectationValues
 }
 
 /**
  * Processes an array of dependencies. A dependency can be like "sharp" or "crop=fit"
  */
-export function processDependencies(dependencies: { [key: string]: string[] }, expectationValues: ParsedEdits): ParsedEdits {
+export function processDependencies(dependencies: Map<string,string[]>, expectationValues: ParsedEdits): ParsedEdits {
   const passedDependencies: { [key: string]: string[] | boolean } = {}
   Object.keys(dependencies).forEach((paramDependency) => {
     passedDependencies[paramDependency] = dependencies[paramDependency]

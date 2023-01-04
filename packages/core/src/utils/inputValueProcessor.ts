@@ -1,8 +1,9 @@
-import { ParameterValueRule, ExpectedValueType, Imgix, ParameterValueRulePossibleValueTypes } from '../types/imgix';
+import { ParameterValueRule, ExpectedValueType, ParameterValueRulePossibleValueTypes } from '../types/imgix';
 import { err, ok, Result } from 'neverthrow';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const schema: Imgix = require('../../../../data/schema.json');
+import { getSchema } from './schema';
+
+const schema = getSchema();
 
 type ValidResponseType = string | number | Array<string | number> | boolean
 type ValueProcessorResult = Result<ValidResponseType, string>
@@ -14,7 +15,7 @@ type ValueProcessorSignature = (value: string, expects?: ParameterValueRule | nu
  * @param value - input value from query params
  * @param expects - ParameterValueRule
  */
-export function processInputValue(type: ExpectedValueType, value: string, expects: ParameterValueRule | null = null): ValueProcessorResult {
+export function processInputValue(value: string, expects: ParameterValueRule): ValueProcessorResult {
   const processorMap: Record<ExpectedValueType, ValueProcessorSignature> = {
     [ExpectedValueType.String]: processString,
     [ExpectedValueType.List]: processList,
@@ -31,7 +32,7 @@ export function processInputValue(type: ExpectedValueType, value: string, expect
     [ExpectedValueType.ColorKeyword]: processColorKeyword
   };
 
-  return processorMap[type](value, expects);
+  return processorMap[expects.type](value, expects);
 }
 
 export function processString(value: string): Result<string, string> {

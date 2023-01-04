@@ -1,8 +1,8 @@
 import {Color} from "sharp";
 import createHttpError from "http-errors";
+import { getSchema } from './schema';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const schema = require('../../../../data/schema.json')
+const schema = getSchema();
 
 /**
  * Remaps a number to a given range

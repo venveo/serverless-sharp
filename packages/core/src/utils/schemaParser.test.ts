@@ -1,5 +1,9 @@
 /* eslint-env jest */
-import * as schemaParser from './schemaParser'
+import * as schemaParser from './schemaParser';
+import { AvailableIn, Category, ExpectedValueType, ParameterDefinition } from '../types/imgix';
+import { ok } from 'neverthrow';
+import { ParsedSchemaItem } from '../types/common';
+
 describe('replaceAliases', () => {
   it('should not break invalid parameters', () => {
     const replaced = schemaParser.replaceAliases({
@@ -55,7 +59,6 @@ describe('normalizeAndValidateSchema', () => {
 
     expect(validatedSchema.q.processedValue).toEqual(75)
     expect(validatedSchema.q.implicit).toEqual(false)
-    expect(validatedSchema.q.passed).toEqual(true)
   })
 
   test('Valid', () => {
@@ -122,3 +125,72 @@ describe('normalizeAndValidateSchema', () => {
     expect(validatedSchema.sharp.processedValue).toEqual(0)
   })
 })
+
+describe('determineSuccessfulValue', () => {
+  describe('test with single rule', () => {
+    const testSchemaItem: ParameterDefinition = {
+      expects: [
+        {
+          type: ExpectedValueType.Number,
+        }
+      ],
+      depends: [],
+      display_name: "Test",
+      available_in: [AvailableIn.URL],
+      category: Category.ADJUSTMENT,
+      short_description: "Just a test item"
+    }
+
+    it('should produce expected number', () => {
+      const successfulResult: ParsedSchemaItem = {
+        processedValue: 10,
+        implicit: false,
+        parameterDefinition: testSchemaItem
+      }
+      expect(schemaParser.determineSuccessfulValue('10', testSchemaItem)).toEqual(ok(successfulResult));
+      expect(schemaParser.determineSuccessfulValue('10', testSchemaItem)).toHaveProperty('value');
+      expect(schemaParser.determineSuccessfulValue('notanumber', testSchemaItem)).not.toHaveProperty('value');
+    });
+  });
+
+  describe('test with multiple rules', () => {
+    const testSchemaItem: ParameterDefinition = {
+      expects: [
+        {
+          type: ExpectedValueType.Number,
+        },
+        {
+          type: ExpectedValueType.Boolean
+        }
+      ],
+      depends: [],
+      display_name: "Test",
+      available_in: [AvailableIn.URL],
+      category: Category.ADJUSTMENT,
+      short_description: "Just a test item"
+    }
+
+    it('should produce expected number or respect boolean', () => {
+      const successfulResultNumeric: ParsedSchemaItem = {
+        processedValue: 10,
+        implicit: false,
+        parameterDefinition: testSchemaItem
+      }
+      const successfulResultBooleanTrue: ParsedSchemaItem = {
+        processedValue: true,
+        implicit: false,
+        parameterDefinition: testSchemaItem
+      }
+      const successfulResultBooleanFalse: ParsedSchemaItem = {
+        processedValue: false,
+        implicit: false,
+        parameterDefinition: testSchemaItem
+      }
+      expect(schemaParser.determineSuccessfulValue('10', testSchemaItem)).toEqual(ok(successfulResultNumeric));
+      expect(schemaParser.determineSuccessfulValue('true', testSchemaItem)).toEqual(ok(successfulResultBooleanTrue));
+      expect(schemaParser.determineSuccessfulValue('false', testSchemaItem)).toEqual(ok(successfulResultBooleanFalse));
+      expect(schemaParser.determineSuccessfulValue('notanumberorboolean', testSchemaItem)).not.toHaveProperty('value');
+    });
+  });
+
+});
