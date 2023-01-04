@@ -8,8 +8,8 @@ import {
 } from './schemaParser';
 import { AvailableIn, Category, ExpectedValueType, ImgixParameters, ParameterDefinition } from '../types/imgix';
 import { ok } from 'neverthrow';
-import { ParsedEdits, ParsedSchemaItem } from '../types/common';
-import { schema } from './schema';
+import { ParsedSchemaItem, QueryStringParameters, EditsSubset } from '../types/common';
+import { schema as imgixSchema } from './schema';
 
 describe('replaceAliases', () => {
   it('should not break invalid parameters', () => {
@@ -42,7 +42,7 @@ describe('getSchemaForQueryParams', () => {
 });
 
 describe('normalizeAndValidateSchema', () => {
-  test('Invalid combination: png & q', () => {
+  it('should drop invalid parameter combinations: png & q', () => {
     const request = {
       fm: 'png',
       'fp-x': '0.5',
@@ -50,45 +50,102 @@ describe('normalizeAndValidateSchema', () => {
       q: '75' // q can't be used with png - this should be dropped
     };
     const schema = getSchemaForQueryParams(request);
+    const normalizedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters);
 
-    expect(() => {
-      normalizeAndValidateSchema(schema, request);
-    }).not.toThrow();
+    expect(normalizedSchema.fm.processedValue).toEqual('png');
+    expect(normalizedSchema.fm.implicit).toEqual(false);
+    expect(normalizedSchema['fp-x'].processedValue).toEqual(0.5);
+    expect(normalizedSchema['fp-x'].implicit).toEqual(false);
+    expect(normalizedSchema.fit.processedValue).toEqual('crop');
+    expect(normalizedSchema.fit.implicit).toEqual(false);
+    expect(normalizedSchema.q.processedValue).toBeUndefined();
+    expect(normalizedSchema.q.implicit).toEqual(true);
   });
 
-  test('Valid with jpg', () => {
+  it('should allow quality with jpg', () => {
     const request = {
       q: '75',
       fm: 'jpg'
     };
     const schema = getSchemaForQueryParams(request);
-    const validatedSchema = normalizeAndValidateSchema(schema, request);
+    const validatedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters);
 
     expect(validatedSchema.q.processedValue).toEqual(75);
     expect(validatedSchema.q.implicit).toEqual(false);
+    expect(validatedSchema.fm.processedValue).toEqual('jpg');
+    expect(validatedSchema.fm.implicit).toEqual(false);
   });
 
-  test('Valid', () => {
+  it('should work with dependencies that need only be present (valid)', () => {
     const request = {
-      f: 'png',
+      'trim-pad': '100',
+      'trim': 'auto',
+    };
+    const schema = getSchemaForQueryParams(request);
+    const validatedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters);
+
+    expect(validatedSchema['trim-pad'].processedValue).toEqual(100);
+    expect(validatedSchema['trim'].processedValue).toEqual('auto');
+  });
+
+  it('should work with dependencies that need only be present (invalid item removed)', () => {
+    const request = {
+      'trim-pad': '100',
+    };
+    const schema = getSchemaForQueryParams(request);
+    const validatedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters);
+
+    expect(validatedSchema['trim-pad'].processedValue).toBeUndefined();
+  });
+
+  it('should remove parameters without values', () => {
+    const request = {
+      lossless: ''
+    };
+    const schema = getSchemaForQueryParams(request);
+    const validatedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters);
+
+    expect(validatedSchema.lossless.processedValue).toEqual(false)
+  });
+
+  it('should pass additional complex test', () => {
+    const request = {
+      f: 'png', // Note: the correct key would be "fm"
       'fp-x': '0.5',
       'fp-y': '0.5',
       fit: 'crop',
-      crop: 'focalpoint'
+      crop: 'focalpoint,top,left'
     };
-    const schema = getSchemaForQueryParams(request);
+    const validatedSchema = normalizeAndValidateSchema(getSchemaForQueryParams(request), request, imgixSchema.parameters);
+    expect(validatedSchema['fp-x'].processedValue).toEqual(0.5);
+    expect(validatedSchema['fp-y'].processedValue).toEqual(0.5);
+    expect(validatedSchema['fit'].processedValue).toEqual('crop');
+    expect(validatedSchema['crop'].processedValue).toEqual(['focalpoint', 'top', 'left']);
 
-    expect(() => normalizeAndValidateSchema(schema, request)).not.toThrow();
+    expect(validatedSchema['fm'].processedValue).toBeUndefined();
+    expect(validatedSchema['w'].processedValue).toBeUndefined();
+    expect(validatedSchema['h'].processedValue).toBeUndefined();
   });
 
-  // Two mode test
-  test('Double mode - ratio', () => {
-    const request = {
-      w: '0.4'
-    };
-    const schema = getSchemaForQueryParams(request);
-
-    expect(() => normalizeAndValidateSchema(schema, request)).not.toThrow();
+  it('should accept inputs for parameters with multiple modes', () => {
+    // Width can be represented as a percentage or as a pixel value
+    const request1: QueryStringParameters = {
+      w: '0.5'
+    }
+    const request2: QueryStringParameters = {
+      w: '500'
+    }
+    // This should not be allowed
+    const request3: QueryStringParameters = {
+      w: 'foo'
+    }
+    const validatedSchema1 = normalizeAndValidateSchema(getSchemaForQueryParams(request1), request1, imgixSchema.parameters)
+    const validatedSchema2 = normalizeAndValidateSchema(getSchemaForQueryParams(request2), request2, imgixSchema.parameters)
+    expect(validatedSchema1.w.processedValue).toEqual(0.5);
+    expect(validatedSchema2.w.processedValue).toEqual(500);
+    expect(() => {
+      normalizeAndValidateSchema(getSchemaForQueryParams(request3), request3, imgixSchema.parameters)
+    }).toThrow();
   });
 
   test('Double mode -  int', () => {
@@ -97,7 +154,7 @@ describe('normalizeAndValidateSchema', () => {
     };
     const schema = getSchemaForQueryParams(request);
 
-    expect(() => normalizeAndValidateSchema(schema, request)).not.toThrow();
+    expect(() => normalizeAndValidateSchema(schema, request, imgixSchema.parameters)).not.toThrow();
   });
 
   test('Max range normalization', () => {
@@ -105,7 +162,7 @@ describe('normalizeAndValidateSchema', () => {
       dpr: '100'
     };
     const schema = getSchemaForQueryParams(request);
-    const validatedSchema = normalizeAndValidateSchema(schema, request);
+    const validatedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters);
 
     expect(validatedSchema.dpr.processedValue).toEqual(5);
   });
@@ -115,7 +172,7 @@ describe('normalizeAndValidateSchema', () => {
       dpr: '-1'
     };
     const schema = getSchemaForQueryParams(request);
-    const validatedSchema = normalizeAndValidateSchema(schema, request);
+    const validatedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters);
 
     expect(validatedSchema.dpr.processedValue).toEqual(0);
   });
@@ -127,7 +184,7 @@ describe('normalizeAndValidateSchema', () => {
       sharp: ''
     };
     const schema = getSchemaForQueryParams(request);
-    const validatedSchema = normalizeAndValidateSchema(schema, request);
+    const validatedSchema = normalizeAndValidateSchema(schema, request, imgixSchema.parameters);
 
     expect(validatedSchema.sharp.processedValue).toEqual(0);
   });
@@ -204,13 +261,13 @@ describe('determineSuccessfulValue', () => {
 describe('processDefaults', () => {
   test('propagates default values from schema', () => {
     const testSchema: ImgixParameters = {
-      w: { ...schema.parameters.w, default: 100 },
+      w: { ...imgixSchema.parameters.w, default: 100 },
       'fp-x': {
-        ...schema.parameters['fp-x'],
+        ...imgixSchema.parameters['fp-x'],
         expects: [{ default: 0.5, type: ExpectedValueType.UnitScalar, strict_range: { min: 0, max: 1 } }]
       }
     };
-    const original: ParsedEdits = {};
+    const original: EditsSubset = {};
     const expected = {
       w: { processedValue: 100, implicit: true, parameterDefinition: testSchema.w },
       'fp-x': { processedValue: 0.5, implicit: true, parameterDefinition: testSchema['fp-x'] }
@@ -220,10 +277,10 @@ describe('processDefaults', () => {
 
   test('does not overwrite existing values', () => {
     const testSchema: ImgixParameters = {
-      w: { ...schema.parameters.w, default: 100 },
-      bg: { ...schema.parameters.bg, expects: [{ default: '#fff', type: ExpectedValueType.String }] }
+      w: { ...imgixSchema.parameters.w, default: 100 },
+      bg: { ...imgixSchema.parameters.bg, expects: [{ default: '#fff', type: ExpectedValueType.String }] }
     };
-    const original: ParsedEdits = {
+    const original: EditsSubset = {
       w: {
         parameterDefinition: testSchema.w,
         implicit: false,
@@ -237,3 +294,4 @@ describe('processDefaults', () => {
     expect(processDefaults(original, testSchema)).toEqual(expected);
   });
 });
+

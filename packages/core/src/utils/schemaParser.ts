@@ -1,6 +1,7 @@
 import {
   QueryStringParameters,
-  ParsedEdits, ParsedSchemaItem
+  ParsedEdits,
+  ParsedSchemaItem, EditsSubset
 } from '../types/common';
 import { ImgixParameters, ParameterDefinition } from '../types/imgix';
 import { processInputValue } from './inputValueProcessor';
@@ -73,11 +74,12 @@ type ParameterDependencies = Map<string, string[]>;
 /**
  * @param inputSchema - schema containing only the items needed
  * @param values - query parameters object to validate
+ * @param referenceParameters - input schema parameters
  */
-export function normalizeAndValidateSchema(inputSchema: ImgixParameters, values: QueryStringParameters = {}): ParsedEdits {
+export function normalizeAndValidateSchema(inputSchema: ImgixParameters, values: QueryStringParameters = {}, referenceParameters: ImgixParameters): ParsedEdits {
   // Keeps a list of dependencies for each schema item
   const dependenciesByParameterIndex: ParameterDependencies = new Map<string, string[]>();
-  let parsedEdits: ParsedEdits = {};
+  let parsedEdits: EditsSubset = {};
 
   /**
    * This process collects operation dependencies into dependenciesByParameterIndex for evaluation later. For example,
@@ -114,11 +116,11 @@ export function normalizeAndValidateSchema(inputSchema: ImgixParameters, values:
   });
 
   // Add in our default values
-  parsedEdits = processDefaults(parsedEdits, schema.parameters);
+  parsedEdits = processDefaults(parsedEdits as ParsedEdits, referenceParameters);
   // Go back and validate our dependencies now that we've looked at each item
-  parsedEdits = processDependencies(dependenciesByParameterIndex, parsedEdits);
+  parsedEdits = processDependencies(dependenciesByParameterIndex, parsedEdits as ParsedEdits);
   // Now we'll merge the rest of the schema's defaults
-  return parsedEdits;
+  return parsedEdits as ParsedEdits;
 }
 
 /**
@@ -126,9 +128,9 @@ export function normalizeAndValidateSchema(inputSchema: ImgixParameters, values:
  * @param original - input object
  * @param schemaParameters - full schema to process defaults from
  */
-export function processDefaults(original: ParsedEdits, schemaParameters: ImgixParameters): ParsedEdits {
+export function processDefaults(original: EditsSubset|ParsedEdits, schemaParameters: ImgixParameters): EditsSubset|ParsedEdits {
   // Clone the original object to avoid modifying it
-  const expectationValues: ParsedEdits = Object.assign({}, original);
+  const expectationValues: typeof original = Object.assign({}, original);
   // Iterate over each of the valid parameters from the full schema
   for (const [parameterKey, parameterSchema] of Object.entries(schemaParameters)) {
     // The parameter was already present in the input, so we can skip it.
@@ -163,43 +165,47 @@ export function processDefaults(original: ParsedEdits, schemaParameters: ImgixPa
 /**
  * Processes an array of dependencies. A dependency can be like "sharp" or "crop=fit"
  */
-export function processDependencies(dependencies: ParameterDependencies, expectationValues: ParsedEdits): ParsedEdits {
-  const passedDependencies: { [key: string]: string[] | boolean } = {};
-  Object.keys(dependencies).forEach((paramDependency) => {
-    passedDependencies[paramDependency] = dependencies[paramDependency];
-    for (const dependency of dependencies[paramDependency]) {
-      // We have a dependency likes fm=png
+export function processDependencies(dependencies: ParameterDependencies, original: ParsedEdits|EditsSubset): ParsedEdits|EditsSubset {
+  // Clone the original object to avoid modifying it
+  const expectationValues = { ...original };
+
+  const checkedDependencies = new Map<string, boolean>();
+
+  for (const [paramDependencyKey, paramDependencyValues] of dependencies) {
+    let dependenciesSatisfied = false;
+    // At least one dependency must be met to proceed
+    for (const dependency of paramDependencyValues) {
       if (dependency.indexOf('=') !== -1) {
         const split = dependency.split('=');
-        const key = <keyof ParsedEdits>split[0]; // i.e. fm
-        const val = <string>split[1]; // i.e. png
+        const key = split[0] as keyof EditsSubset; // e.g. fm
+        const val = split[1] as string; // e.g. png
 
-        const processedValue = expectationValues[key].processedValue;
-        if (Array.isArray(processedValue) && (processedValue as Array<string | number>).includes(val)) {
-          passedDependencies[paramDependency] = true;
+        const processedValue = expectationValues[key]?.processedValue;
+        if (processedValue === val) {
+          dependenciesSatisfied = true
           break;
         }
-        if (processedValue === val) {
-          passedDependencies[paramDependency] = true;
+        if (Array.isArray(processedValue) && (processedValue as Array<string | number>).includes(val)) {
+          dependenciesSatisfied = true
           break;
         }
       } else {
-        // We just need to make sure this key exists
-        if (expectationValues[dependency] !== undefined) {
-          passedDependencies[paramDependency] = true;
+        // We just need to make sure this key exists - the exact value doesn't matter
+        if (expectationValues[dependency]?.processedValue !== undefined) {
+          dependenciesSatisfied = true
         }
       }
     }
-  });
+    checkedDependencies.set(paramDependencyKey, dependenciesSatisfied)
+  }
 
   // Moment of truth, did we satisfy our dependencies?
-  Object.keys(passedDependencies).forEach((dep) => {
-    if (passedDependencies[dep] !== true) {
+  for (const [dependencyKey, dependencySatisfied] of checkedDependencies) {
+    if (!dependencySatisfied) {
       // If we don't meet a dependency, we'll remove the option we can proceed semi-safely
-      expectationValues[dep].implicit = true;
-      expectationValues[dep].passed = false;
+      expectationValues[dependencyKey].implicit = true;
+      expectationValues[dependencyKey].processedValue = undefined;
     }
-  });
-
+  }
   return expectationValues;
 }

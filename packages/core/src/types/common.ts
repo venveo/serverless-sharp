@@ -7,45 +7,45 @@ export type ParsedSchemaItem<T = ProcessedInputValueType> = {
   parameterDefinition: ParameterDefinition
 }
 
-export type AllPossibleEdits = {
+export type EditsSubset = {
   [Property in keyof ImgixParameters]?: ParsedSchemaItem;
 }
 
-export interface ParsedEdits extends AllPossibleEdits {
+export interface ParsedEdits extends EditsSubset {
   // Width
-  w?: ParsedSchemaItem<InputDimension | undefined>,
+  w: ParsedSchemaItem<InputDimension | undefined>,
   // Height
-  h?: ParsedSchemaItem<InputDimension | undefined>,
+  h: ParsedSchemaItem<InputDimension | undefined>,
   // Fill Mode
-  fill?: ParsedSchemaItem<FillMode | undefined>,
+  fill: ParsedSchemaItem<FillMode | undefined>,
   // Aspect ratio
-  ar?: ParsedSchemaItem<number | undefined>,
+  ar: ParsedSchemaItem<number | undefined>,
   // Device Pixel Ratio
-  dpr?: ParsedSchemaItem<number | undefined>,
+  dpr: ParsedSchemaItem<number | undefined>,
   // Crop mode
-  crop?: ParsedSchemaItem<InputCropPosition | undefined>,
+  crop: ParsedSchemaItem<InputCropPosition | undefined>,
   // Focalpoint X position
-  'fp-x'?: ParsedSchemaItem<number | undefined>,
+  'fp-x': ParsedSchemaItem<number | undefined>,
   // Focal point Y position
-  'fp-y'?: ParsedSchemaItem<number | undefined>,
+  'fp-y': ParsedSchemaItem<number | undefined>,
   // Fill color for when fill mode is solid
-  'fill-color'?: ParsedSchemaItem<string | undefined>,
+  'fill-color': ParsedSchemaItem<string | undefined>,
   // Brightness, defaults to 0
-  bri?: ParsedSchemaItem<number>,
+  bri: ParsedSchemaItem<number>,
   // Auto processing modes
-  auto?: ParsedSchemaItem<InputAutoMode | undefined>,
+  auto: ParsedSchemaItem<InputAutoMode | undefined>,
   // Pixelate, defaults to 0
-  px?: ParsedSchemaItem<number>,
+  px: ParsedSchemaItem<number>,
   // Blur, defaults to 0
-  blur?: ParsedSchemaItem<number>,
+  blur: ParsedSchemaItem<number>,
   // Resize fit mode, defaults to "clip"
-  fit?: ParsedSchemaItem<ResizeFitMode>,
+  fit: ParsedSchemaItem<ResizeFitMode>,
   // Output format
-  fm?: ParsedSchemaItem<ImageExtension>,
+  fm: ParsedSchemaItem<ImageExtension>,
   // Quality, defaults to 75 (in Imgix schema at least)
-  q?: ParsedSchemaItem<number>,
+  q: ParsedSchemaItem<number>,
   // Lossless mode, defaults to false
-  lossless?: ParsedSchemaItem<boolean>
+  lossless: ParsedSchemaItem<boolean>
 }
 
 /**

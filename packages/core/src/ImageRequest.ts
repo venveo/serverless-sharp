@@ -24,6 +24,7 @@ import {
 import {GetObjectCommand, GetObjectCommandInput, GetObjectCommandOutput, S3Client} from "@aws-sdk/client-s3"
 import {Stream} from "stream";
 import {normalizeExtension} from "./utils/formats";
+import { schema } from './utils/schema';
 
 export default class ImageRequest {
   readonly bucketDetails: BucketDetails
@@ -66,7 +67,7 @@ export default class ImageRequest {
     // Extracts the relevant parameters from the schema.json file
     const schemaForQueryParams = getSchemaForQueryParams(queryParams)
 
-    this.edits = normalizeAndValidateSchema(schemaForQueryParams, queryParams)
+    this.edits = normalizeAndValidateSchema(schemaForQueryParams, queryParams, schema.parameters)
 
   }
 
