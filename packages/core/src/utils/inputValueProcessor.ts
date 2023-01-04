@@ -1,9 +1,7 @@
 import { ParameterValueRule, ExpectedValueType, ParameterValueRulePossibleValueTypes } from '../types/imgix';
 import { err, ok, Result } from 'neverthrow';
 
-import { getSchema } from './schema';
-
-const schema = getSchema();
+import { schema } from './schema';
 
 type ValidResponseType = string | number | Array<string | number> | boolean
 type ValueProcessorResult = Result<ValidResponseType, string>

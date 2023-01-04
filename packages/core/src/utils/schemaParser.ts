@@ -7,9 +7,7 @@ import { processInputValue } from './inputValueProcessor';
 import createHttpError from 'http-errors';
 
 import { err, ok, Result } from 'neverthrow';
-import { getSchema } from './schema';
-
-const schema = getSchema();
+import { schema } from './schema';
 
 /**
  * Creates a new QueryStringParameters object with any alias keys replaced with canonical parameters.

@@ -1,6 +1,8 @@
-import schema from '../../../../data/schema.json'
+import schemaFile from '../../../../data/schema.json'
 import { Imgix } from '../types/imgix';
 
-export function getSchema(): Imgix {
-  return <Imgix>schema;
+function getSchema(): Imgix {
+  return <Imgix>schemaFile;
 }
+
+export const schema = getSchema();
