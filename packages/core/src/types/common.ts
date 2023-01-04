@@ -1,12 +1,17 @@
-import {AutoMode, CropMode, FillMode, ParameterDefinition, ResizeFitMode} from "./imgix";
+import { AutoMode, CropMode, FillMode, ImgixParameters, ParameterDefinition, ResizeFitMode } from './imgix';
 
 export type ParsedSchemaItem<T = ProcessedInputValueType> = {
   processedValue: T,
+  /** If the value was inferred instead of explicitly defined */
   implicit: boolean,
   parameterDefinition: ParameterDefinition
 }
 
-export interface ParsedEdits {
+export type AllPossibleEdits = {
+  [Property in keyof ImgixParameters]?: ParsedSchemaItem;
+}
+
+export interface ParsedEdits extends AllPossibleEdits {
   // Width
   w?: ParsedSchemaItem<InputDimension | undefined>,
   // Height
