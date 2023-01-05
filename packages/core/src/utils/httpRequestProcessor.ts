@@ -10,42 +10,31 @@ import {getSetting} from "./settings";
 /**
  * Extracts the name of the appropriate Amazon S3 object
  *
- * @param uri - The URI from the request. Starting slashes will be removed automatically
+ * @param uri - The URI from the request. Leading slashes will be removed automatically
  * @param requiredPrefix - A prefix to prepend to the key. A trailing slash will be added automatically
  */
 export function extractObjectKeyFromUri(uri: string, requiredPrefix: string | null = null): string {
   // Decode the image request and return the image key
   // Ensure the path starts with our prefix
-  let key = decodeURI(uri)
-  if (key.startsWith('/')) {
-    key = key.substring(1)
-  }
+  let key = decodeURIComponent(uri)
+  key = key.replace(/^\/+/, '')
 
-  if (requiredPrefix) {
-    if (!key.startsWith(requiredPrefix)) {
+  if (requiredPrefix !== null) {
+    if (key.indexOf(requiredPrefix) !== 0) {
       key = requiredPrefix + '/' + key
     }
   }
   return key
 }
 
-/**
- * Assembles an object of query params into a string for hashing. Removes `s` query param automatically
- *
- * @param queryStringParameters - An object containing each of the query parameters and its value
- */
 export function buildQueryStringFromObject(queryStringParameters: QueryStringParameters): string {
-  let string = ''
-  for (const [k, v] of Object.entries(queryStringParameters)) {
-    // Don't hash the security token
-    if (k !== 's') {
-      string += '&' + k + '=' + encodeURIComponent(v)
+  const parts: string[] = []
+  for (const key of Object.keys(queryStringParameters)) {
+    if (key !== 's') {
+      parts.push(`${key}=${encodeURIComponent(queryStringParameters[key])}`)
     }
   }
-  if (string.substring(1) === '') {
-    return ''
-  }
-  return '?' + string.substring(1)
+  return parts.length ? `?${parts.join('&')}` : ''
 }
 
 /**
@@ -75,18 +64,18 @@ export function getAcceptedImageFormatsFromHeaders(headers: GenericHeaders): str
   if (!headers?.accept) {
     return [];
   }
-  const specialFormats: { [mimeType: string]: string } = {
+  const specialFormats: Record<string, ImageExtension> = {
     'image/avif': ImageExtension.AVIF,
     // 'image/apng': 'apng', // apng is not supported by Sharp yet
     'image/webp': ImageExtension.WEBP
   }
   return headers.accept.toString()
     .split(',')
-    .map((mime: string) => {
+    .flatMap((mime: string) => {
       return specialFormats[mime] ?? null
     })
-    .filter((e: string) => e !== null)
 }
+
 
 
 /**

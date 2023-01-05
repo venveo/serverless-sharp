@@ -98,9 +98,7 @@ export interface QueryStringParameters {
   [parameter: string]: string;
 }
 
-export interface GenericHeaders {
-  [header: string]: boolean | number | string;
-}
+export type GenericHeaders = Record<string, boolean | number | string>;
 
 export enum ImageExtension {
   JPG = 'jpg',
@@ -125,7 +123,7 @@ export type GenericInvocationEvent = {
 
 export type ProcessedImageRequest = {
   CacheControl: string | null,
-  Body: string,
+  Body: string | Buffer,
   ContentType: string,
   ContentLength: number
 }
