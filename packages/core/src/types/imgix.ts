@@ -12,23 +12,23 @@ export interface Imgix {
  */
 export interface ParameterDefinition {
     /** An optional default value */
-    default?:          boolean | number | string;
+    readonly default?:          boolean | number | string;
     /** Some parameters have aliases (e.g. width and "w") */
-    aliases?:          string[];
+    readonly aliases?:          string[];
     /** Defines where a parameter may be supplied. We don't use this. */
-    available_in:      AvailableIn[];
+    readonly available_in:      AvailableIn[];
     /** Defines the operation category */
-    category:          Category;
+    readonly category:          Category;
     /** Parameters required by this parameter */
-    depends?:          string[];
+    readonly depends?:          string[];
     /** A human-readable name */
-    display_name:      string;
+    readonly display_name:      string;
     /** Rules for the value supplied to this parameter */
-    expects:           ParameterValueRule[];
+    readonly expects:           ParameterValueRule[];
     /** Human readable description */
-    short_description: string;
+    readonly short_description: string;
     /** A reference URL. We don't use this */
-    url?:               string;
+    readonly url?:               string;
 }
 
 export enum Category {
@@ -97,11 +97,11 @@ export type ParameterValueRulePossibleValueTypes = string|number;
  * Rules to be evaluated for supplied values to parameters
  */
 export interface ParameterValueRule {
-    default?: ParameterValueRulePossibleValueTypes;
-    possible_values?: Array<ParameterValueRulePossibleValueTypes>;
-    strict_range?: Range;
-    suggested_range?: Range;
-    type:         ExpectedValueType;
+    readonly default?: ParameterValueRulePossibleValueTypes;
+    readonly possible_values?: Array<ParameterValueRulePossibleValueTypes>;
+    readonly strict_range?: Range;
+    readonly suggested_range?: Range;
+    readonly type:         ExpectedValueType;
 }
 
 export interface ImgixParameters {
