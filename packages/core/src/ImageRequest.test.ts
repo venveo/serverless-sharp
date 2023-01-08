@@ -1,7 +1,7 @@
 /* eslint-env jest */
 import ImageRequest from "./ImageRequest";
 import {calculateHash} from "./utils/security";
-import {GenericInvocationEvent} from "./types/common";
+import {GenericHttpInvocationEvent} from "./types/common";
 
 import { mockClient } from "aws-sdk-client-mock";
 import {S3Client, GetObjectCommand, GetObjectCommandOutput} from "@aws-sdk/client-s3"
@@ -18,7 +18,7 @@ describe('Testing ImageRequest', () => {
   const testJpegSize = 512017;
 
 
-  const processRequest = async (event: GenericInvocationEvent, imagePath: string = testJpegPath, contentType = 'image/jpg'): Promise<ImageRequest> => {
+  const processRequest = async (event: GenericHttpInvocationEvent, imagePath: string = testJpegPath, contentType = 'image/jpg'): Promise<ImageRequest> => {
     imagePath = path.resolve(__dirname, imagePath);
     const imageRequest = new ImageRequest(event)
 
@@ -51,7 +51,7 @@ describe('Testing ImageRequest', () => {
   })
 
   test('Can CreateImageRequest', () => {
-    const event: GenericInvocationEvent = {
+    const event: GenericHttpInvocationEvent = {
       headers: {},
       path: '/some/prefix/images/my-object.png',
       queryParams: {}
@@ -89,7 +89,7 @@ describe('Testing ImageRequest', () => {
   })
 
   test('Process Request - Input JPG', async () => {
-    const event: GenericInvocationEvent = {
+    const event: GenericHttpInvocationEvent = {
       path: '/some/prefix/images/my-object.png',
       headers: {},
       queryParams: {}
@@ -107,7 +107,7 @@ describe('Testing ImageRequest', () => {
 
 
   test('GetAutoFormat - JPG to WEBP', async () => {
-    const event: GenericInvocationEvent = {
+    const event: GenericHttpInvocationEvent = {
       path: '/some/prefix/images/my-object.png',
       queryParams: {
         auto: 'format'
@@ -124,7 +124,7 @@ describe('Testing ImageRequest', () => {
 
   // We accept AVIF and WEBP - AVIF should be preferred
   test('GetAutoFormat - JPG to AVIF', async () => {
-    const event: GenericInvocationEvent = {
+    const event: GenericHttpInvocationEvent = {
       path: '/some/prefix/images/my-object.png',
       queryParams: {
         auto: 'format'
@@ -140,7 +140,7 @@ describe('Testing ImageRequest', () => {
 
 
   test('GetAutoFormat - PNG (no alpha) to JPG', async () => {
-    const event: GenericInvocationEvent = {
+    const event: GenericHttpInvocationEvent = {
       path: '/some/prefix/images/my-object.png',
       queryParams: {
         auto: 'format'

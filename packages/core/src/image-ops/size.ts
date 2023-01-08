@@ -4,7 +4,7 @@
 import sharp, {ResizeOptions, Sharp} from 'sharp'
 import {CropMode, FillMode, ResizeFitMode} from "../types/imgix";
 import {InputCropPosition, InputDimension, ParsedEdits} from "../types/common";
-import {normalizeColorForSharp} from "../utils/valueNormalization";
+import {normalizeColorForSharp} from "../utils/value-normalization";
 import createHttpError from "http-errors";
 
 /**

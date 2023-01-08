@@ -114,7 +114,7 @@ export enum ImageExtension {
 }
 
 
-export type GenericInvocationEvent = {
+export type GenericHttpInvocationEvent = {
   path: string,
   headers: GenericHeaders,
   queryParams: QueryStringParameters

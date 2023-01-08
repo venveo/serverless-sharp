@@ -1,10 +1,10 @@
-import * as httpRequestProcessor from './httpRequestProcessor';
+import * as httpRequestProcessor from './http-request-processor';
 import { ProcessedImageRequest } from '../types/common';
 import {
   buildQueryStringFromObject,
   extractBucketNameAndPrefix,
   extractObjectKeyFromUri, getAcceptedImageFormatsFromHeaders
-} from './httpRequestProcessor';
+} from './http-request-processor';
 
 describe('extractObjectKeyFromUri', () => {
   it('should extract the object key from the URI', () => {

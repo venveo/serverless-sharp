@@ -4,7 +4,7 @@ import {
   ParsedSchemaItem, EditsSubset
 } from '../types/common';
 import { ImgixParameters, ParameterDefinition } from '../types/imgix';
-import { processInputValue } from './inputValueProcessor';
+import { processInputValue } from './input-value-processor';
 import createHttpError from 'http-errors';
 
 import { err, ok, Result } from 'neverthrow';

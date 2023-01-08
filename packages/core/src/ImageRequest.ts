@@ -4,18 +4,18 @@ import {
   extractBucketNameAndPrefix,
   extractObjectKeyFromUri,
   getAcceptedImageFormatsFromHeaders
-} from "./utils/httpRequestProcessor";
+} from "./utils/http-request-processor";
 
 import {
   getSchemaForQueryParams,
   normalizeAndValidateSchema,
   replaceAliases
-} from "./utils/schemaParser";
+} from "./utils/schema-parser";
 
 import {getSetting} from "./utils/settings";
 import {
   BucketDetails,
-  GenericInvocationEvent,
+  GenericHttpInvocationEvent,
   ImageExtension,
   ParsedEdits,
   QueryStringParameters
@@ -27,10 +27,11 @@ import {normalizeExtension} from "./utils/formats";
 import { schema } from './utils/schema';
 import createHttpError from 'http-errors';
 
+
 export default class ImageRequest {
   readonly bucketDetails: BucketDetails
   readonly key: string
-  readonly event: GenericInvocationEvent
+  readonly event: GenericHttpInvocationEvent
   originalImageObject: GetObjectCommandOutput | null = null;
   inputObjectStream: Stream | null = null;
   inputObjectSize: number | null = null;
@@ -39,7 +40,7 @@ export default class ImageRequest {
   originalMetadata: sharp.Metadata | null = null;
   edits: ParsedEdits | null = null;
 
-  constructor(event: GenericInvocationEvent) {
+  constructor(event: GenericHttpInvocationEvent) {
     this.event = event
 
     this.bucketDetails = extractBucketNameAndPrefix(<string>getSetting('SOURCE_BUCKET'))
@@ -50,7 +51,7 @@ export default class ImageRequest {
   /**
    * This method does a number of async things, such as getting the image object and building a schema
    */
-  async process(): Promise<void> {
+  async process(): Promise<ImageRequest> {
     this.originalImageObject = await this.getInputObject()
 
     this.inputObjectStream = <Stream>this.originalImageObject?.Body
@@ -74,6 +75,7 @@ export default class ImageRequest {
     } else {
       throw createHttpError.BadRequest(editsResult.error)
     }
+    return this
   }
 
   /**

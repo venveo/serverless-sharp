@@ -1,5 +1,5 @@
 /* eslint-env jest */
-import { normalizeColorForSharp, remapNumberInRange } from './valueNormalization';
+import { normalizeColorForSharp, remapNumberInRange } from './value-normalization';
 
 describe('remapNumberInRange', () => {
   it('should map the input number to the new range', () => {

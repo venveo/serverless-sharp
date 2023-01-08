@@ -1,4 +1,4 @@
-import {buildQueryStringFromObject} from './httpRequestProcessor';
+import {buildQueryStringFromObject} from './http-request-processor';
 import {getSetting} from "./settings";
 
 import crypto from "crypto";

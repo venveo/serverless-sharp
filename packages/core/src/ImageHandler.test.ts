@@ -1,6 +1,6 @@
 /* eslint-env jest */
 import ImageRequest from "./ImageRequest";
-import {GenericInvocationEvent} from "./types/common";
+import {GenericHttpInvocationEvent} from "./types/common";
 
 import {mockClient} from "aws-sdk-client-mock";
 import {GetObjectCommand, GetObjectCommandOutput, S3Client} from "@aws-sdk/client-s3"
@@ -37,7 +37,7 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
     process.env = OLD_ENV
   })
 
-  const processRequestAndGetMetadata = async (event: GenericInvocationEvent, imagePath: PathLike = testJpegPath) => {
+  const processRequestAndGetMetadata = async (event: GenericHttpInvocationEvent, imagePath: PathLike = testJpegPath) => {
 
     const imageRequest = new ImageRequest(event)
 
@@ -60,7 +60,7 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
   }
 
   test('Original', async () => {
-    const event: GenericInvocationEvent = {
+    const event: GenericHttpInvocationEvent = {
       path: 'irrelevant.jpg',
       headers: {},
       queryParams: {}
@@ -78,7 +78,7 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
    * Inputting only a single dimension should maintain aspect ratio
    */
   test('Width Only', async () => {
-    const event: GenericInvocationEvent = {
+    const event: GenericHttpInvocationEvent = {
       path: 'irrelevant.jpg',
       queryParams: {
         width: '250'
@@ -98,7 +98,7 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
    * Inputting width and height should maintain the same aspect ratio, scaling to fit the smallest dimension
    */
   test('Width & Height Only', async () => {
-    const event: GenericInvocationEvent = {
+    const event: GenericHttpInvocationEvent = {
       path: 'irrelevant.jpg',
       queryParams: {
         width: '250',
@@ -120,7 +120,7 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
    * The image should be cropped to fit the input dimensions
    */
   test('Width & Height - Crop', async () => {
-    const event: GenericInvocationEvent = {
+    const event: GenericHttpInvocationEvent = {
       path: 'irrelevant.jpg',
       queryParams: {
         width: '250',
@@ -143,7 +143,7 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
    * Input jpg output png
    */
   test('Output PNG', async () => {
-    const event: GenericInvocationEvent = {
+    const event: GenericHttpInvocationEvent = {
       path: 'irrelevant.jpg',
       queryParams: {
         fm: 'png'
@@ -163,7 +163,7 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
    * Input jpg output webp
    */
   test('Output WEBP', async () => {
-    const event: GenericInvocationEvent = {
+    const event: GenericHttpInvocationEvent = {
       path: 'irrelevant.jpg',
       queryParams: {
         fm: 'webp'
@@ -184,7 +184,7 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
    */
   test('Output AVIF', async () => {
     jest.setTimeout(30*1000)
-    const event: GenericInvocationEvent = {
+    const event: GenericHttpInvocationEvent = {
       path: 'irrelevant.jpg',
       queryParams: {
         fm: 'avif'
@@ -204,7 +204,7 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
    * Input jpg output gif
    */
   test('Output GIF', async () => {
-    const event: GenericInvocationEvent = {
+    const event: GenericHttpInvocationEvent = {
       path: 'irrelevant.jpg',
       queryParams: {
         fm: 'gif'
@@ -247,7 +247,7 @@ describe('Testing ImageHandler Processing with Transparent PNG Input', () => {
     process.env = OLD_ENV
   })
 
-  const processRequestAndGetMetadata = async (event: GenericInvocationEvent, imagePath: PathLike = testPngPath) => {
+  const processRequestAndGetMetadata = async (event: GenericHttpInvocationEvent, imagePath: PathLike = testPngPath) => {
 
     const imageRequest = new ImageRequest(event)
 
@@ -275,7 +275,7 @@ describe('Testing ImageHandler Processing with Transparent PNG Input', () => {
   }
 
   test('Original', async () => {
-    const event: GenericInvocationEvent = {
+    const event: GenericHttpInvocationEvent = {
       path: 'irrelevant.png',
       headers: {},
       queryParams: {}
@@ -293,7 +293,7 @@ describe('Testing ImageHandler Processing with Transparent PNG Input', () => {
    * Inputting only a single dimension should maintain aspect ratio
    */
   test('Width Only', async () => {
-    const event: GenericInvocationEvent = {
+    const event: GenericHttpInvocationEvent = {
       path: 'irrelevant.png',
       queryParams: {
         width: '250'
@@ -313,7 +313,7 @@ describe('Testing ImageHandler Processing with Transparent PNG Input', () => {
    * Inputting width and height should maintain the same aspect ratio, scaling to fit the smallest dimension
    */
   test('Width & Height Only', async () => {
-    const event: GenericInvocationEvent = {
+    const event: GenericHttpInvocationEvent = {
       path: 'irrelevant.png',
       queryParams: {
         width: '250',
@@ -334,7 +334,7 @@ describe('Testing ImageHandler Processing with Transparent PNG Input', () => {
    * The image should be cropped to fit the input dimensions
    */
   test('Width & Height - Crop', async () => {
-    const event: GenericInvocationEvent = {
+    const event: GenericHttpInvocationEvent = {
       path: 'irrelevant.png',
       queryParams: {
         width: '250',
@@ -354,7 +354,7 @@ describe('Testing ImageHandler Processing with Transparent PNG Input', () => {
   })
 
   test('Output JPG', async () => {
-    const event: GenericInvocationEvent = {
+    const event: GenericHttpInvocationEvent = {
       path: 'irrelevant.png',
       queryParams: {
         fm: 'jpg'
@@ -374,7 +374,7 @@ describe('Testing ImageHandler Processing with Transparent PNG Input', () => {
    * Input jpg output webp
    */
   test('Output WEBP', async () => {
-    const event: GenericInvocationEvent = {
+    const event: GenericHttpInvocationEvent = {
       path: 'irrelevant.png',
       queryParams: {
         fm: 'webp'
@@ -394,7 +394,7 @@ describe('Testing ImageHandler Processing with Transparent PNG Input', () => {
    * Input jpg output avif
    */
   test('Output AVIF', async () => {
-    const event: GenericInvocationEvent = {
+    const event: GenericHttpInvocationEvent = {
       path: 'irrelevant.png',
       queryParams: {
         fm: 'avif'
@@ -414,7 +414,7 @@ describe('Testing ImageHandler Processing with Transparent PNG Input', () => {
    * Input jpg output gif
    */
   test('Output GIF', async () => {
-    const event: GenericInvocationEvent = {
+    const event: GenericHttpInvocationEvent = {
       path: 'irrelevant.png',
       queryParams: {
         fm: 'gif'

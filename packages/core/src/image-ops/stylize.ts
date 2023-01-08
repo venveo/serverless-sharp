@@ -1,6 +1,6 @@
 import sharp, {Sharp} from "sharp";
 import {ParsedEdits} from "../types/common";
-import {remapNumberInRange} from "../utils/valueNormalization";
+import {remapNumberInRange} from "../utils/value-normalization";
 
 /**
  *

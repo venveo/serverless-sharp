@@ -5,7 +5,7 @@ import {
   normalizeAndValidateSchema,
   processDefaults,
   replaceAliases
-} from './schemaParser';
+} from './schema-parser';
 import { AvailableIn, Category, ExpectedValueType, ImgixParameters, ParameterDefinition } from '../types/imgix';
 import { ok } from 'neverthrow';
 import { ParsedSchemaItem, QueryStringParameters, EditsSubset } from '../types/common';
