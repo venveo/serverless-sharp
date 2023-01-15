@@ -14,7 +14,10 @@
     "**/*.test.mjs",
     "**/*.spec.ts",
     "**/*.spec.js",
-    "**/*.spec.mjs"
+    "**/*.spec.mjs",
+    "**/*.bench.ts",
+    "**/*.bench.js",
+    "**/*.bench.mjs"
   ],
   "exclude": []
 }
