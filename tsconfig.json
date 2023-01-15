@@ -5,8 +5,8 @@
     "noImplicitAny": false,
     "removeComments": true,
     "noLib": false,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
+//    "emitDecoratorMetadata": true,
+//    "experimentalDecorators": true,
     "target": "es6",
     "sourceMap": true,
     "lib": [
@@ -25,6 +25,7 @@
   "exclude": [
     "node_modules",
     "**/lib/*",
+    "**/dist/*",
     "**/*.spec.ts",
     "**/*.test.ts",
   ]
