@@ -2,11 +2,11 @@ import {getSetting} from "../utils/settings";
 import {apply as applySize, scaleMax} from "./size";
 import {apply as applyStylize} from "./stylize";
 import {apply as applyAdjustment} from './adjustment'
-import sharp, {Sharp} from "sharp";
-import {ParsedEdits, ParsedSchemaItem} from "../types/common";
+import type { Metadata, Sharp } from 'sharp';
+import type {ParsedEdits, ParsedSchemaItem} from "../types/common";
 import createHttpError from "http-errors";
 
-const operationsByCategory: { [category: string]: ((imagePipeline: sharp.Sharp, edits: ParsedEdits) => Promise<sharp.Sharp>) } = {
+const operationsByCategory: { [category: string]: ((imagePipeline: Sharp, edits: ParsedEdits) => Promise<Sharp>) } = {
   adjustment: applyAdjustment,
   size: applySize,
   stylize: applyStylize
@@ -17,7 +17,7 @@ const operationsByCategory: { [category: string]: ((imagePipeline: sharp.Sharp, 
  * @param editsPipeline - input Sharp pipeline
  * @param edits - edits object
  */
-export async function apply(editsPipeline: sharp.Sharp, edits: ParsedEdits): Promise<sharp.Sharp> {
+export async function apply(editsPipeline: Sharp, edits: ParsedEdits): Promise<Sharp> {
   // @see https://docs.imgix.com/setup/serving-assets#order-of-operations
   const editsByCategory: { [category: string]: { [edit: string]: ParsedSchemaItem } } = {
     adjustment: {},
@@ -47,7 +47,7 @@ export async function apply(editsPipeline: sharp.Sharp, edits: ParsedEdits): Pro
  * @param editsPipeline - input Sharp pipeline
  * @param metadata - resolved sharp metadata
  */
-export function restrictSize(editsPipeline: sharp.Sharp, metadata: sharp.Metadata): Sharp {
+export function restrictSize(editsPipeline: Sharp, metadata: Metadata): Sharp {
   const maxImgWidth: number = <number>getSetting('MAX_IMAGE_WIDTH')
   const maxImgHeight: number = <number>getSetting('MAX_IMAGE_HEIGHT')
   let width = metadata.width ?? null

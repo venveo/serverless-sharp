@@ -1,9 +1,10 @@
 /**
  * This file should be restricted to dimensional size alterations to the image
  */
-import sharp, {ResizeOptions, Sharp} from 'sharp'
+import sharp from 'sharp'
 import {CropMode, FillMode, ResizeFitMode} from "../types/imgix";
-import {InputCropPosition, InputDimension, ParsedEdits} from "../types/common";
+import type {ResizeOptions, Sharp} from 'sharp'
+import type {InputCropPosition, InputDimension, ParsedEdits} from "../types/common";
 import {normalizeColorForSharp} from "../utils/value-normalization";
 import createHttpError from "http-errors";
 
@@ -60,7 +61,7 @@ export async function apply(imagePipeline: Sharp, edits: ParsedEdits): Promise<S
  * @param height
  * @returns {*}
  */
-export function scaleMax(pipeline: sharp.Sharp, width: InputDimension | null = null, height: InputDimension | null = null) {
+export function scaleMax(pipeline: Sharp, width: InputDimension | null = null, height: InputDimension | null = null) {
   const resizeOptions: ResizeOptions = {
     width: width ?? undefined,
     height: height ?? undefined,
@@ -77,7 +78,7 @@ export function scaleMax(pipeline: sharp.Sharp, width: InputDimension | null = n
  * @param height
  * @returns {*}
  */
-export function scaleClip(pipeline: sharp.Sharp, width: InputDimension | null = null, height: InputDimension | null = null) {
+export function scaleClip(pipeline: Sharp, width: InputDimension | null = null, height: InputDimension | null = null) {
   const resizeOptions: ResizeOptions = {
     width: width ?? undefined,
     height: height ?? undefined,
@@ -97,7 +98,7 @@ export function scaleClip(pipeline: sharp.Sharp, width: InputDimension | null = 
  * @param withoutEnlargement
  * @returns {*}
  */
-export async function fill(pipeline: sharp.Sharp, mode: FillMode, width: InputDimension | null = null, height: InputDimension | null = null, color: string | null, withoutEnlargement = true) {
+export async function fill(pipeline: Sharp, mode: FillMode, width: InputDimension | null = null, height: InputDimension | null = null, color: string | null, withoutEnlargement = true) {
   const resizeParams: ResizeOptions = {
     withoutEnlargement: false,
     fit: sharp.fit.contain
@@ -141,7 +142,7 @@ export async function fill(pipeline: sharp.Sharp, mode: FillMode, width: InputDi
  * @param height
  * @returns {*}
  */
-export function scale(pipeline: sharp.Sharp, width: InputDimension | null = null, height: InputDimension | null = null) {
+export function scale(pipeline: Sharp, width: InputDimension | null = null, height: InputDimension | null = null) {
   return pipeline.resize({
     width: width ?? undefined,
     height: height ?? undefined,
@@ -160,7 +161,7 @@ export function scale(pipeline: sharp.Sharp, width: InputDimension | null = null
  * @param fpy
  * @returns {*}
  */
-export async function scaleCrop(editsPipeline: sharp.Sharp, width: InputDimension | null = null, height: InputDimension | null = null, crop: InputCropPosition = [], fpx = 0.5, fpy = 0.5) {
+export async function scaleCrop(editsPipeline: Sharp, width: InputDimension | null = null, height: InputDimension | null = null, crop: InputCropPosition = [], fpx = 0.5, fpy = 0.5) {
   // First we'll handle entropy mode - this one is simpler
   if (crop.includes(CropMode.ENTROPY)) {
     return editsPipeline.resize({
@@ -260,7 +261,7 @@ export async function scaleCrop(editsPipeline: sharp.Sharp, width: InputDimensio
  * @param editsPipeline
  * @param edits
  */
-export async function beforeApply(editsPipeline: sharp.Sharp, edits: ParsedEdits) {
+export async function beforeApply(editsPipeline: Sharp, edits: ParsedEdits) {
   const {w, h, dpr, ar} = edits
   let processedWidth = w.processedValue
   let processedHeight = h.processedValue

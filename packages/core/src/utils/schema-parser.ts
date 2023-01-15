@@ -1,11 +1,11 @@
 import type {
   QueryStringParameters,
   ParsedEdits,
-  ParsedSchemaItem, EditsSubset
+  ParsedSchemaItem,
+  EditsSubset
 } from '../types/common';
 import type { ImgixParameters, ParameterDefinition } from '../types/imgix';
 import { processInputValue } from './input-value-processor';
-import createHttpError from 'http-errors';
 
 import { err, ok, Result } from 'neverthrow';
 import { schema } from './schema';
@@ -20,11 +20,14 @@ export function replaceAliases(queryParameters: QueryStringParameters = {}): Que
   const noAliasQueryParams = { ...queryParameters };
   // Iterate over aliases
   for (const [alias, canonical] of Object.entries(aliases)) {
+    if (canonical === undefined) {
+      continue;
+    }
     // If the alias is used...
     if (alias in noAliasQueryParams) {
       // Set the canonical name for the alias as the alias' value
       // NOTE: This means an alias takes precedence over the canonical. Do we want that? idk.
-      noAliasQueryParams[canonical] = <string>noAliasQueryParams[alias];
+      noAliasQueryParams[canonical] = noAliasQueryParams[alias] ?? '';
       // Delete the alias key
       delete noAliasQueryParams[alias];
     }
@@ -87,12 +90,16 @@ export function normalizeAndValidateSchema(inputSchema: ImgixParameters, values:
    * in the query string, as they can be set as a default. Later on, we'll use these dependencies to see if defaults
    * are necessary and valid.
    */
-  Object.keys(inputSchema).forEach((parameterIndex) => {
-    const schemaItem = inputSchema[parameterIndex];
+  for (const [parameterIndex, schemaItem] of Object.entries(inputSchema)) {
     const dependencies = schemaItem.depends;
     // Keep track of dependencies we need to verify later
     if (dependencies !== undefined) {
       dependenciesByParameterIndex.set(parameterIndex, dependencies);
+    }
+
+    const value = values[parameterIndex]
+    if (value === undefined) {
+      return err(`Input value for ${parameterIndex} was undefined`)
     }
 
     /**
@@ -104,16 +111,15 @@ export function normalizeAndValidateSchema(inputSchema: ImgixParameters, values:
     // Check the expectations for each item. Note, each item can have multiple valid expectations; however, only a
     // single valid option is required in order to pass.
     if (valueExpectations.length) {
-      const passedExpectationResult = determineSuccessfulValue(values[parameterIndex], schemaItem);
+      const passedExpectationResult = determineSuccessfulValue(value, schemaItem);
       // There was no passing result - bail out!
       if (passedExpectationResult.isErr()) {
-        return err(new createHttpError.BadRequest(`Expected parameter "${parameterIndex}" to satisfy one of: ${JSON.stringify(schemaItem.expects)}`))
+        return err(`Expected parameter "${parameterIndex}" to satisfy one of: ${JSON.stringify(schemaItem.expects)}`)
       }
 
       parsedEdits[parameterIndex] = passedExpectationResult.value;
     }
-  });
-
+  }
   // Add in our default values
   parsedEdits = processDefaults(parsedEdits as ParsedEdits, referenceParameters);
   // Go back and validate our dependencies now that we've looked at each item

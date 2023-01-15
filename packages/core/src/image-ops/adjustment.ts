@@ -2,8 +2,8 @@
  * This file should be used for processes that involve adjusting colors in the image.
  */
 
-import {Sharp} from "sharp";
-import {ParsedEdits} from "../types/common";
+import type {Sharp} from "sharp";
+import type {ParsedEdits} from "../types/common";
 
 /**
  * Applies all the adjustment edits to the image
