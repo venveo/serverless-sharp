@@ -31,7 +31,7 @@ export function buildQueryStringFromObject(queryStringParameters: QueryStringPar
   const parts: string[] = []
   for (const key of Object.keys(queryStringParameters)) {
     if (key !== 's') {
-      parts.push(`${key}=${encodeURIComponent(queryStringParameters[key])}`)
+      parts.push(`${key}=${encodeURIComponent(<string>queryStringParameters[key])}`)
     }
   }
   return parts.length ? `?${parts.join('&')}` : ''
@@ -49,8 +49,11 @@ export function buildQueryStringFromObject(queryStringParameters: QueryStringPar
 export function extractBucketNameAndPrefix(fullPath: string): BucketDetails {
 
   const parts = fullPath.split(/\/(.+)/)
-  const name = parts[0]
+  const name = parts[0] ?? null
   const prefix = parts[1] ?? null
+  if (name === null) {
+    throw new Error('Failed to detect bucket name')
+  }
   return {
     name,
     prefix
@@ -72,7 +75,7 @@ export function getAcceptedImageFormatsFromHeaders(headers: GenericHeaders): str
   return headers.accept.toString()
     .split(',')
     .flatMap((mime: string) => {
-      return specialFormats[mime] ?? null
+      return specialFormats[mime] ?? []
     })
 }
 

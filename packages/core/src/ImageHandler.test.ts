@@ -1,4 +1,5 @@
-/* eslint-env jest */
+import { describe, expect, test, beforeEach, afterEach } from 'vitest'
+
 import ImageRequest from "./ImageRequest";
 import {GenericHttpInvocationEvent} from "./types/common";
 
@@ -10,8 +11,6 @@ import ImageHandler from "./ImageHandler";
 import sharp from "sharp";
 import {PathLike} from "fs";
 
-jest.useRealTimers();
-
 describe('Testing ImageHandler Processing with JPEG Input', () => {
   const OLD_ENV = process.env
   const s3Mock = mockClient(S3Client);
@@ -22,7 +21,6 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
   const testJpegSize = 512017;
 
   beforeEach(() => {
-    jest.resetModules()
     process.env = {...OLD_ENV}
 
     // Add some defaults here
@@ -54,7 +52,7 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
     const imageHandler = new ImageHandler(imageRequest)
     const output = await imageHandler.process();
     // Convert the base64 body to a buffer
-    const buffer = Buffer.from(output.Body, "base64");
+    const buffer = output.ContentBuffer
 
     return await (sharp(buffer)).metadata()
   }
@@ -183,7 +181,6 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
    * Input jpg output avif
    */
   test('Output AVIF', async () => {
-    jest.setTimeout(30*1000)
     const event: GenericHttpInvocationEvent = {
       path: 'irrelevant.jpg',
       queryParams: {
@@ -232,7 +229,6 @@ describe('Testing ImageHandler Processing with Transparent PNG Input', () => {
   const testPngSize = 226933;
 
   beforeEach(() => {
-    jest.resetModules()
     process.env = {...OLD_ENV}
 
     // Add some defaults here
@@ -264,7 +260,7 @@ describe('Testing ImageHandler Processing with Transparent PNG Input', () => {
     const imageHandler = new ImageHandler(imageRequest)
     const output = await imageHandler.process();
     // Convert the base64 body to a buffer
-    const buffer = Buffer.from(output.Body, "base64");
+    const buffer = output.ContentBuffer
     // If you need to view the output image - uncomment below
     // fs.writeFile(path.resolve(__dirname, '../data/tests/PNG_transparency_demonstration_1_OUT.png'), buffer, function (err) {
     //   if (err) return console.log(err);

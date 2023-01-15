@@ -1,4 +1,5 @@
-/* eslint-env jest */
+import { describe, expect, test, beforeEach, afterEach } from 'vitest'
+
 import ImageRequest from "./ImageRequest";
 import {calculateHash} from "./utils/security";
 import {GenericHttpInvocationEvent} from "./types/common";
@@ -36,7 +37,6 @@ describe('Testing ImageRequest', () => {
   }
 
   beforeEach(() => {
-    jest.resetModules()
     process.env = {...OLD_ENV}
     delete process.env.NODE_ENV
 

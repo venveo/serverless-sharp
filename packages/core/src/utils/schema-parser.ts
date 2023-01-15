@@ -1,9 +1,9 @@
-import {
+import type {
   QueryStringParameters,
   ParsedEdits,
   ParsedSchemaItem, EditsSubset
 } from '../types/common';
-import { ImgixParameters, ParameterDefinition } from '../types/imgix';
+import type { ImgixParameters, ParameterDefinition } from '../types/imgix';
 import { processInputValue } from './input-value-processor';
 import createHttpError from 'http-errors';
 
@@ -24,7 +24,7 @@ export function replaceAliases(queryParameters: QueryStringParameters = {}): Que
     if (alias in noAliasQueryParams) {
       // Set the canonical name for the alias as the alias' value
       // NOTE: This means an alias takes precedence over the canonical. Do we want that? idk.
-      noAliasQueryParams[canonical] = noAliasQueryParams[alias];
+      noAliasQueryParams[canonical] = <string>noAliasQueryParams[alias];
       // Delete the alias key
       delete noAliasQueryParams[alias];
     }

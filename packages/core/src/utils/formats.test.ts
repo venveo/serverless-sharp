@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest'
+
 import { getMimeTypeForExtension, normalizeExtension } from './formats';
 
 describe('normalizeExtension', () => {

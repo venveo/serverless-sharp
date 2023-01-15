@@ -1,4 +1,5 @@
-/* eslint-env jest */
+import { describe, expect, it, test } from 'vitest'
+
 import {
   determineSuccessfulValue,
   getSchemaForQueryParams,

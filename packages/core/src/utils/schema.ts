@@ -1,5 +1,5 @@
 import schemaFile from '../../../../data/schema.json'
-import { Imgix } from '../types/imgix';
+import type { Imgix } from '../types/imgix';
 
 function getSchema(): Imgix {
   return <Imgix>schemaFile;

@@ -1,4 +1,5 @@
-/* eslint-env jest */
+import { describe, expect, it } from 'vitest'
+
 import { normalizeColorForSharp, remapNumberInRange } from './value-normalization';
 
 describe('remapNumberInRange', () => {

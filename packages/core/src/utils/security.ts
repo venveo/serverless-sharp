@@ -2,7 +2,7 @@ import {buildQueryStringFromObject} from './http-request-processor';
 import {getSetting} from "./settings";
 
 import crypto from "crypto";
-import {QueryStringParameters} from "../types/common";
+import type {QueryStringParameters} from "../types/common";
 
 /**
  * Computes a hash based on the path, query string params
@@ -34,9 +34,9 @@ function fixedEncodeURIComponent(str: string): string {
 
 /**
  *
- * @param path
- * @param queryStringParameters
- * @param hash
+ * @param path - input path to verify
+ * @param queryStringParameters - query parameters from URL
+ * @param hash - provided hash
  */
 export function verifyHash(path: string, queryStringParameters: QueryStringParameters, hash: string): boolean {
   const parsed = calculateHash(path, queryStringParameters, <string>getSetting('SECURITY_KEY'))
@@ -45,7 +45,7 @@ export function verifyHash(path: string, queryStringParameters: QueryStringParam
 
 /**
  * Returns true if the request should be 404'd immediately
- * @param path
+ * @param path - request file path
  */
 export function shouldSkipRequest(path: string): boolean {
   // Check if the file is explicitly ignored
@@ -62,7 +62,7 @@ export function shouldSkipRequest(path: string): boolean {
 
 export function pathIsIgnored(path: string, filesToIgnore: string[]): boolean {
   // Remove the starting slash and check if the file should be ignored
-  return !!filesToIgnore.includes(path.substring(1));
+  return filesToIgnore.includes(path.substring(1));
 }
 
 export function pathMatchesRegex(path: string, regex: RegExp): boolean {

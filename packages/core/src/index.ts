@@ -1,4 +1,4 @@
-import { GenericHttpInvocationEvent } from './types/common';
+import type { GenericHttpInvocationEvent } from './types/common';
 import { fromPromise, ResultAsync } from 'neverthrow';
 import ImageRequest from './ImageRequest';
 

@@ -1,3 +1,5 @@
+import { describe, expect, it, test, vi } from 'vitest'
+
 import * as httpRequestProcessor from './http-request-processor';
 import { ProcessedImageRequest } from '../types/common';
 import {
@@ -104,7 +106,7 @@ describe('getAcceptedImageFormatsFromHeaders', () => {
       'avif',
       'webp'
     ]);
-    expect(getAcceptedImageFormatsFromHeaders({ accept: 'image/webp,image/avif' })).toEqual([
+    expect(getAcceptedImageFormatsFromHeaders({ accept: 'image/webp,image/avif,image/apng' })).toEqual([
       'webp',
       'avif'
     ]);
@@ -114,14 +116,13 @@ describe('getAcceptedImageFormatsFromHeaders', () => {
 
 describe('getResponseHeaders', () => {
   const processedRequest: ProcessedImageRequest = {
-    Body: Buffer.from('foo'),
+    ContentBuffer: Buffer.from('foo'),
     CacheControl: 'public, max-age=3600',
     ContentLength: 3,
     ContentType: 'image/jpeg'
   };
-  jest
-    .useFakeTimers()
-    .setSystemTime(new Date('2020-01-01 03:24:00 GMT'));
+  vi.useFakeTimers()
+  vi.setSystemTime(new Date('2020-01-01 03:24:00 GMT'))
 
   const responseHeaders = httpRequestProcessor.getResponseHeaders(processedRequest);
   test('Default headers', () => {

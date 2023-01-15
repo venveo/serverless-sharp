@@ -1,6 +1,6 @@
 {
+  "root": true,
   "env": {
-    "commonjs": true,
     "es6": true,
     "node": true,
     "jest": true
@@ -16,23 +16,11 @@
     "eslint-plugin-tsdoc",
     "eslint-plugin-neverthrow"
   ],
-  "overrides": [
-    {
-      "files": ["{**/*,*}.test.{js,ts}"],
-      "plugins": ["jest"],
-      "extends": ["plugin:jest/recommended"],
-      "rules": { "jest/prefer-expect-assertions": "off" }
-    }
-  ],
-  "globals": {
-    "Atomics": "readonly",
-    "SharedArrayBuffer": "readonly"
-  },
   "parserOptions": {
-    "ecmaVersion": 6,
-    "sourceType": "module"
+    "project": "./tsconfig.eslint.json"
   },
   "rules": {
+    "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
     "no-console": "off",
     "indent": ["error", 2],
     "tsdoc/syntax": "warn"

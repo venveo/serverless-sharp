@@ -54,8 +54,8 @@ const settings: { [index: string]: { default: string | number, type: string } } 
 
 /**
  * Gets a setting from the config
- * @param key
- * @return {string|null}
+ * @param key - settings name
+ * @returns string|null - settings value
  */
 export function getSetting(key: string) {
   if (!(key in settings)) {
@@ -65,7 +65,7 @@ export function getSetting(key: string) {
   if (key in process.env) {
     value = process.env[key]
   } else {
-    value = settings[key].default
+    value = settings[key]?.default
   }
   if (value === undefined) {
     throw new createHttpError.InternalServerError(`Value for settings key '${key}' is undefined`)
@@ -75,7 +75,7 @@ export function getSetting(key: string) {
 }
 
 const processValue = function (setting: string, value: string | number) {
-  switch (settings[setting].type) {
+  switch (settings[setting]?.type) {
   case TYPE_STRING:
     return processString(value)
   case TYPE_INTEGER:

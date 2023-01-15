@@ -13,16 +13,16 @@ import {
 } from "./utils/schema-parser";
 
 import {getSetting} from "./utils/settings";
-import {
+import {ImageExtension} from './types/common';
+import type {
   BucketDetails,
   GenericHttpInvocationEvent,
-  ImageExtension,
   ParsedEdits,
   QueryStringParameters
 } from "./types/common";
 
 import {GetObjectCommand, GetObjectCommandInput, GetObjectCommandOutput, S3Client} from "@aws-sdk/client-s3"
-import {Stream} from "stream";
+import type {Stream} from "stream";
 import {normalizeExtension} from "./utils/formats";
 import { schema } from './utils/schema';
 import createHttpError from 'http-errors';
@@ -137,7 +137,7 @@ export default class ImageRequest {
    */
   normalizeQueryParams(params: QueryStringParameters = {}): QueryStringParameters {
     const normalizedParams = replaceAliases(params)
-    let finalOutputFormat = this.getAutoFormat() ?? normalizedParams.fm ?? this.originalMetadata?.format ?? null
+    let finalOutputFormat = this.getAutoFormat() ?? normalizedParams.fm ?? this.originalMetadata?.format ?? ImageExtension.JPEG
     if (finalOutputFormat) {
       finalOutputFormat = normalizeExtension(finalOutputFormat)
     }

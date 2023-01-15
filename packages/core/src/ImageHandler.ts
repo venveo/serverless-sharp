@@ -1,9 +1,10 @@
 import {getSetting} from "./utils/settings";
 
-import ImageRequest from "./ImageRequest";
+import type ImageRequest from "./ImageRequest";
 import * as imageOps from "./image-ops";
-import {ImageExtension, ParsedEdits, ProcessedImageRequest} from "./types/common";
-import {AvifOptions, FormatEnum, Metadata, PngOptions, Sharp, WebpOptions} from "sharp";
+import {ImageExtension} from "./types/common";
+import type {ParsedEdits, ProcessedImageRequest} from './types/common'
+import type {AvifOptions, FormatEnum, Metadata, PngOptions, Sharp, WebpOptions} from "sharp";
 import {getMimeTypeForExtension} from "./utils/formats";
 import {AutoMode} from "./types/imgix";
 import createHttpError from "http-errors";
@@ -72,7 +73,7 @@ export default class ImageHandler {
 
     return {
       CacheControl: originalImageObject.CacheControl ?? null,
-      Body: bufferImage.toString('base64'),
+      ContentBuffer: bufferImage,
       ContentType: contentType,
       ContentLength: Buffer.byteLength(bufferImage, 'base64')
     }

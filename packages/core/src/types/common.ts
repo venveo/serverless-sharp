@@ -1,6 +1,6 @@
-import { AutoMode, CropMode, FillMode, ImgixParameters, ParameterDefinition, ResizeFitMode } from './imgix';
+import type { AutoMode, CropMode, FillMode, ImgixParameters, ParameterDefinition, ResizeFitMode } from './imgix';
 
-export type ParsedSchemaItem<T = ProcessedInputValueType> = {
+export interface ParsedSchemaItem<T = ProcessedInputValueType> {
   processedValue: T,
   /** If the value was inferred instead of explicitly defined */
   implicit: boolean,
@@ -88,7 +88,7 @@ export type ProcessedInputValueType =
   | null
   | undefined
 
-export type BucketDetails = {
+export interface BucketDetails {
   name: string,
   prefix: string | null
 }
@@ -114,16 +114,16 @@ export enum ImageExtension {
 }
 
 
-export type GenericHttpInvocationEvent = {
+export interface GenericHttpInvocationEvent {
   path: string,
   headers: GenericHeaders,
   queryParams: QueryStringParameters
 }
 
 
-export type ProcessedImageRequest = {
+export interface ProcessedImageRequest {
   CacheControl: string | null,
-  Body: string | Buffer,
+  ContentBuffer: Buffer,
   ContentType: string,
   ContentLength: number
 }

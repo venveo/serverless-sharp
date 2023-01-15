@@ -1,11 +1,11 @@
-/* eslint-env jest */
+import { describe, expect, test, beforeEach, afterEach } from 'vitest'
+
 import * as security from './security'
 
 describe('Testing hash security', () => {
   const OLD_ENV = process.env
 
   beforeEach(() => {
-    jest.resetModules()
     process.env = {...OLD_ENV}
     delete process.env.NODE_ENV
   })
