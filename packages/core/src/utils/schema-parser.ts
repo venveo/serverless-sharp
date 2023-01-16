@@ -20,9 +20,6 @@ export function replaceAliases(queryParameters: QueryStringParameters = {}): Que
   const noAliasQueryParams = { ...queryParameters };
   // Iterate over aliases
   for (const [alias, canonical] of Object.entries(aliases)) {
-    if (canonical === undefined) {
-      continue;
-    }
     // If the alias is used...
     if (alias in noAliasQueryParams) {
       // Set the canonical name for the alias as the alias' value
@@ -113,11 +110,12 @@ export function normalizeAndValidateSchema(inputSchema: ImgixParameters, values:
     if (valueExpectations.length) {
       const passedExpectationResult = determineSuccessfulValue(value, schemaItem);
       // There was no passing result - bail out!
-      if (passedExpectationResult.isErr()) {
-        return err(`Expected parameter "${parameterIndex}" to satisfy one of: ${JSON.stringify(schemaItem.expects)}`)
+      if (passedExpectationResult.isOk()) {
+        parsedEdits[parameterIndex] = passedExpectationResult.value;
+      } else {
+        console.debug('Failed to determine a usable value', { schemaItem, value })
       }
 
-      parsedEdits[parameterIndex] = passedExpectationResult.value;
     }
   }
   // Add in our default values

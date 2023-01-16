@@ -105,6 +105,7 @@ export interface ParameterValueRule {
 }
 
 export interface ImgixParameters {
+    [index: string]: ParameterDefinition;
     ar?:                    Ar;
     auto?:                  Auto;
     bg?:                    Bg;

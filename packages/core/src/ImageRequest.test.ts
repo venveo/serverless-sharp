@@ -2,7 +2,7 @@ import { describe, expect, test, beforeEach, afterEach } from 'vitest'
 
 import ImageRequest from "./ImageRequest";
 import {calculateHash} from "./utils/security";
-import {GenericHttpInvocationEvent} from "./types/common";
+import type {GenericHttpInvocationEvent} from "./types/common";
 
 import { mockClient } from "aws-sdk-client-mock";
 import {S3Client, GetObjectCommand, GetObjectCommandOutput} from "@aws-sdk/client-s3"

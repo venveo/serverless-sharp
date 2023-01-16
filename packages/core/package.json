@@ -8,17 +8,21 @@
   },
   "type": "module",
   "scripts": {
-    "tsc": "tsc",
+    "build": "tsup",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "lint": "eslint '**/*.ts'",
     "lint:fix": "eslint '**/*.ts' --fix",
-    "build": "tsup --env.NODE_ENV production",
     "dev": "npm run build --watch"
   },
   "main": "dist/index.js",
   "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "typings": "dist/index.d.ts",
+  "exports": {
+    "import": "./dist/index.mjs",
+    "require": "./dist/index.js",
+    "types": "./dist/index.d.ts"
+  },
   "directories": {
     "lib": "src"
   },

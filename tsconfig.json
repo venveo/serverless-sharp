@@ -35,8 +35,8 @@
     "forceConsistentCasingInFileNames": true,
 
     // Language and Environment
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
+    "emitDecoratorMetadata": false,
+    "experimentalDecorators": false,
     "lib": ["ESNext", "dom"],
     "target": "ES2021",
     "useDefineForClassFields": true
@@ -48,5 +48,6 @@
     "**/dist/*",
     "**/*.spec.ts",
     "**/*.test.ts",
+    "**/*.bench.ts",
   ]
 }

@@ -6,7 +6,7 @@ export function createTsupConfig({
   noExternal = [],
   platform = 'node',
   format = ['esm', 'cjs'],
-  target = 'es2022',
+  target = 'node18',
   skipNodeModulesBundle = true,
   clean = true,
   shims = true,

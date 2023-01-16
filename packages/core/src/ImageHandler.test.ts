@@ -1,7 +1,7 @@
-import { describe, expect, test, beforeEach, afterEach } from 'vitest'
+import { describe, expect, test, beforeEach, afterEach, vi } from 'vitest'
 
 import ImageRequest from "./ImageRequest";
-import {GenericHttpInvocationEvent} from "./types/common";
+import type {GenericHttpInvocationEvent} from "./types/common";
 
 import {mockClient} from "aws-sdk-client-mock";
 import {GetObjectCommand, GetObjectCommandOutput, S3Client} from "@aws-sdk/client-s3"
@@ -9,7 +9,7 @@ import * as fs from "fs";
 import path from "path";
 import ImageHandler from "./ImageHandler";
 import sharp from "sharp";
-import {PathLike} from "fs";
+import type {PathLike} from "fs";
 
 describe('Testing ImageHandler Processing with JPEG Input', () => {
   const OLD_ENV = process.env
@@ -21,6 +21,7 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
   const testJpegSize = 512017;
 
   beforeEach(() => {
+    vi.useFakeTimers()
     process.env = {...OLD_ENV}
 
     // Add some defaults here
@@ -29,9 +30,11 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
 
     delete process.env.NODE_ENV
     s3Mock.reset()
+    vi.useRealTimers()
   })
 
   afterEach(() => {
+    vi.clearAllMocks()
     process.env = OLD_ENV
   })
 
