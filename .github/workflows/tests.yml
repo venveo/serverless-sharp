@@ -21,4 +21,4 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
-      - run: npm test -- --no-threads
+      - run: npm test

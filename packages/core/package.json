@@ -9,7 +9,7 @@
   "type": "module",
   "scripts": {
     "build": "tsup",
-    "test": "vitest run",
+    "test": "vitest run --no-threads",
     "test:watch": "vitest watch",
     "lint": "eslint '**/*.ts'",
     "lint:fix": "eslint '**/*.ts' --fix",
