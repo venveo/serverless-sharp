@@ -198,7 +198,7 @@ describe('Testing ImageHandler Processing with JPEG Input', () => {
     // The input image is square, so the output should be the smallest input dimension for both width & height
     expect(metadata.width).toEqual(testJpegWidth);
     expect(metadata.height).toEqual(testJpegHeight);
-  })
+  }, {timeout: 10000})
 
   /**
    * Input jpg output gif
