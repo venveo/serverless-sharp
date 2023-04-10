@@ -17,7 +17,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^25.2.1",
-    "aws-sdk": "^2.668.0",
+    "aws-sdk": "^2.1354.0",
     "aws-sdk-mock": "^5.1.0",
     "jest": "^26.0.1",
     "serverless": "^2.30.1",
